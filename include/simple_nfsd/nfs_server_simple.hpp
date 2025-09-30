@@ -84,6 +84,7 @@ private:
     mutable std::mutex handles_mutex_;
     std::map<std::string, uint64_t> path_to_handle_;
     std::map<uint64_t, std::string> handle_to_path_;
+    std::map<uint32_t, std::string> file_handles_;  // Handle ID to path mapping
     uint64_t next_handle_id_;
     
     // Statistics (atomic for thread safety)
@@ -121,16 +122,11 @@ private:
     bool isFile(const std::string& path) const;
     std::vector<uint8_t> readFile(const std::string& path, uint32_t offset, uint32_t count) const;
     bool writeFile(const std::string& path, uint32_t offset, const std::vector<uint8_t>& data) const;
+    
+    // File handle management
+    uint32_t getHandleForPath(const std::string& path);
+    std::string getPathFromHandle(uint32_t handle) const;
     std::vector<std::string> readDirectory(const std::string& path) const;
-    
-    // File handle utilities
-    uint64_t createFileHandle(const std::string& path);
-    std::string resolveFileHandle(uint64_t handle) const;
-    bool isValidFileHandle(uint64_t handle) const;
-    
-    // Path utilities
-    std::string getFullPath(const std::string& relative_path) const;
-    std::string getRelativePath(const std::string& full_path) const;
     bool validatePath(const std::string& path) const;
 };
 

@@ -20,6 +20,20 @@
 #include <filesystem>
 #include <chrono>
 
+// Helper function for 64-bit network byte order conversion
+static uint64_t htonll_custom(uint64_t value) {
+    static const int num = 42;
+    if (*(char *)&num == 42) {
+        // Little endian
+        const uint32_t high_part = htonl(static_cast<uint32_t>(value >> 32));
+        const uint32_t low_part = htonl(static_cast<uint32_t>(value & 0xFFFFFFFF));
+        return (static_cast<uint64_t>(low_part) << 32) | high_part;
+    } else {
+        // Big endian
+        return value;
+    }
+}
+
 namespace SimpleNfsd {
 
 NfsServerSimple::NfsServerSimple() 
@@ -445,18 +459,417 @@ void NfsServerSimple::handleNfsv2Null(const RpcMessage& message) {
 }
 
 void NfsServerSimple::handleNfsv2GetAttr(const RpcMessage& message) {
-    // TODO: Implement GETATTR procedure
-    std::cout << "Handled NFSv2 GETATTR procedure" << std::endl;
+    try {
+        // Parse file handle from message data
+        if (message.data.size() < 4) {
+            std::cerr << "Invalid GETATTR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (first 4 bytes)
+        uint32_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 4);
+        file_handle = ntohl(file_handle);
+        
+        // Look up file path from handle
+        std::string file_path = getPathFromHandle(file_handle);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get file attributes
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (!std::filesystem::exists(full_path)) {
+            std::cerr << "File not found: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        auto status = std::filesystem::status(full_path);
+        auto perms = status.permissions();
+        
+        // Create NFSv2 file attributes response
+        std::vector<uint8_t> response_data;
+        
+        // File type (1 = regular file, 2 = directory)
+        uint32_t file_type = std::filesystem::is_directory(full_path) ? 2 : 1;
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        // File mode (permissions)
+        uint32_t file_mode = static_cast<uint32_t>(perms) & 0x1FF; // Last 9 bits
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        // Number of links
+        uint32_t nlink = 1; // Simplified
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        // User ID
+        uint32_t uid = 0; // Simplified
+        uid = htonl(uid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        
+        // Group ID
+        uint32_t gid = 0; // Simplified
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        // File size
+        uint32_t file_size = 0;
+        if (std::filesystem::is_regular_file(full_path)) {
+            file_size = static_cast<uint32_t>(std::filesystem::file_size(full_path));
+        }
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        // Block size
+        uint32_t block_size = 512; // Default
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        // Number of blocks
+        uint32_t blocks = (file_size + block_size - 1) / block_size;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        // Rdev (device number)
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        // File size (64-bit)
+        uint64_t file_size_64 = file_size;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        // File system ID
+        uint32_t fsid = 1; // Simplified
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        // File ID
+        uint32_t fileid = file_handle; // Use handle as file ID
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        // Last access time
+        uint32_t atime = 0; // Simplified
+        atime = htonl(atime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        
+        // Last modification time
+        uint32_t mtime = 0; // Simplified
+        mtime = htonl(mtime);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        
+        // Last change time
+        uint32_t ctime = 0; // Simplified
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 GETATTR for file: " << file_path << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in GETATTR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 void NfsServerSimple::handleNfsv2Lookup(const RpcMessage& message) {
-    // TODO: Implement LOOKUP procedure
-    std::cout << "Handled NFSv2 LOOKUP procedure" << std::endl;
+    try {
+        // Parse directory handle and filename from message data
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid LOOKUP request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (first 4 bytes)
+        uint32_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 4);
+        dir_handle = ntohl(dir_handle);
+        
+        // Extract filename length (next 4 bytes)
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + 4, 4);
+        name_len = ntohl(name_len);
+        
+        if (message.data.size() < 8 + name_len) {
+            std::cerr << "Invalid LOOKUP request: insufficient data for filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract filename
+        std::string filename(reinterpret_cast<const char*>(message.data.data() + 8), name_len);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct full path
+        std::string full_path = dir_path;
+        if (!full_path.empty() && full_path.back() != '/') {
+            full_path += "/";
+        }
+        full_path += filename;
+        
+        // Validate path
+        if (!validatePath(full_path)) {
+            std::cerr << "Invalid path: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if file exists
+        std::filesystem::path fs_path = std::filesystem::path(config_.root_path) / full_path;
+        if (!std::filesystem::exists(fs_path)) {
+            std::cerr << "File not found: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get or create file handle
+        uint32_t file_handle = getHandleForPath(full_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // File handle
+        uint32_t handle_net = htonl(file_handle);
+        response_data.insert(response_data.end(), (uint8_t*)&handle_net, (uint8_t*)&handle_net + 4);
+        
+        // File attributes (simplified)
+        uint32_t file_type = std::filesystem::is_directory(fs_path) ? 2 : 1;
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        // File mode
+        uint32_t file_mode = 0644; // Default permissions
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        // Number of links
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        // User ID
+        uint32_t uid = 0;
+        uid = htonl(uid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        
+        // Group ID
+        uint32_t gid = 0;
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        // File size
+        uint32_t file_size = 0;
+        if (std::filesystem::is_regular_file(fs_path)) {
+            file_size = static_cast<uint32_t>(std::filesystem::file_size(fs_path));
+        }
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        // Block size
+        uint32_t block_size = 512;
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        // Number of blocks
+        uint32_t blocks = (file_size + block_size - 1) / block_size;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        // Rdev
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        // File size (64-bit)
+        uint64_t file_size_64 = file_size;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        // File system ID
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        // File ID
+        uint32_t fileid = file_handle;
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        // Times (simplified)
+        uint32_t atime = 0, mtime = 0, ctime = 0;
+        atime = htonl(atime);
+        mtime = htonl(mtime);
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 LOOKUP for: " << full_path << " (handle: " << file_handle << ")" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in LOOKUP: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 void NfsServerSimple::handleNfsv2Read(const RpcMessage& message) {
-    // TODO: Implement READ procedure
-    std::cout << "Handled NFSv2 READ procedure" << std::endl;
+    try {
+        // Parse file handle, offset, and count from message data
+        if (message.data.size() < 12) {
+            std::cerr << "Invalid READ request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (first 4 bytes)
+        uint32_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 4);
+        file_handle = ntohl(file_handle);
+        
+        // Extract offset (next 4 bytes)
+        uint32_t offset = 0;
+        memcpy(&offset, message.data.data() + 4, 4);
+        offset = ntohl(offset);
+        
+        // Extract count (next 4 bytes)
+        uint32_t count = 0;
+        memcpy(&count, message.data.data() + 8, 4);
+        count = ntohl(count);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(file_handle);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Validate path
+        if (!validatePath(file_path)) {
+            std::cerr << "Invalid path: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if file exists and is readable
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_regular_file(full_path)) {
+            std::cerr << "File not found or not a regular file: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Read file data
+        std::vector<uint8_t> file_data = readFile(full_path.string(), offset, count);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // File attributes (simplified)
+        uint32_t file_type = 1; // Regular file
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        uint32_t file_mode = 0644;
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        uint32_t uid = 0, gid = 0;
+        uid = htonl(uid);
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        uint32_t file_size = static_cast<uint32_t>(std::filesystem::file_size(full_path));
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        uint32_t block_size = 512;
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        uint32_t blocks = (file_size + block_size - 1) / block_size;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        uint64_t file_size_64 = file_size;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        uint32_t fileid = file_handle;
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        uint32_t atime = 0, mtime = 0, ctime = 0;
+        atime = htonl(atime);
+        mtime = htonl(mtime);
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Data count
+        uint32_t data_count = static_cast<uint32_t>(file_data.size());
+        data_count = htonl(data_count);
+        response_data.insert(response_data.end(), (uint8_t*)&data_count, (uint8_t*)&data_count + 4);
+        
+        // EOF flag
+        uint32_t eof = (offset + file_data.size() >= file_size) ? 1 : 0;
+        eof = htonl(eof);
+        response_data.insert(response_data.end(), (uint8_t*)&eof, (uint8_t*)&eof + 4);
+        
+        // File data
+        response_data.insert(response_data.end(), file_data.begin(), file_data.end());
+        
+        // Update statistics
+        bytes_read_ += file_data.size();
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 READ for: " << file_path << " (offset: " << offset << ", count: " << count << ", read: " << file_data.size() << " bytes)" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in READ: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 void NfsServerSimple::handleNfsv2Write(const RpcMessage& message) {
@@ -486,6 +899,70 @@ bool NfsServerSimple::isFile(const std::string& path) const {
     return std::filesystem::is_regular_file(path);
 }
 
+uint32_t NfsServerSimple::getHandleForPath(const std::string& path) {
+    std::lock_guard<std::mutex> lock(handles_mutex_);
+    
+    // Check if we already have a handle for this path
+    for (const auto& pair : file_handles_) {
+        if (pair.second == path) {
+            return pair.first;
+        }
+    }
+    
+    // Create new handle
+    uint32_t handle = next_handle_id_++;
+    file_handles_[handle] = path;
+    return handle;
+}
+
+std::string NfsServerSimple::getPathFromHandle(uint32_t handle) const {
+    std::lock_guard<std::mutex> lock(handles_mutex_);
+    
+    auto it = file_handles_.find(handle);
+    if (it != file_handles_.end()) {
+        return it->second;
+    }
+    
+    return "";
+}
+
+std::vector<std::string> NfsServerSimple::readDirectory(const std::string& path) const {
+    std::vector<std::string> entries;
+    
+    try {
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / path;
+        
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_directory(full_path)) {
+            return entries;
+        }
+        
+        for (const auto& entry : std::filesystem::directory_iterator(full_path)) {
+            std::string relative_path = entry.path().filename().string();
+            entries.push_back(relative_path);
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error reading directory " << path << ": " << e.what() << std::endl;
+    }
+    
+    return entries;
+}
+
+bool NfsServerSimple::validatePath(const std::string& path) const {
+    try {
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / path;
+        
+        // Check if path is within root directory
+        std::filesystem::path canonical_root = std::filesystem::canonical(config_.root_path);
+        std::filesystem::path canonical_path = std::filesystem::canonical(full_path);
+        
+        return canonical_path.string().find(canonical_root.string()) == 0;
+        
+    } catch (const std::exception& e) {
+        return false;
+    }
+}
+
 std::vector<uint8_t> NfsServerSimple::readFile(const std::string& path, uint32_t offset, uint32_t count) const {
     std::ifstream file(path, std::ios::binary);
     if (!file.is_open()) {
@@ -512,70 +989,5 @@ bool NfsServerSimple::writeFile(const std::string& path, uint32_t offset, const 
     return file.good();
 }
 
-std::vector<std::string> NfsServerSimple::readDirectory(const std::string& path) const {
-    std::vector<std::string> entries;
-    
-    try {
-        for (const auto& entry : std::filesystem::directory_iterator(path)) {
-            entries.push_back(entry.path().filename().string());
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Error reading directory " << path << ": " << e.what() << std::endl;
-    }
-    
-    return entries;
-}
-
-uint64_t NfsServerSimple::createFileHandle(const std::string& path) {
-    std::lock_guard<std::mutex> lock(handles_mutex_);
-    
-    auto it = path_to_handle_.find(path);
-    if (it != path_to_handle_.end()) {
-        return it->second;
-    }
-    
-    uint64_t handle = next_handle_id_++;
-    path_to_handle_[path] = handle;
-    handle_to_path_[handle] = path;
-    
-    return handle;
-}
-
-std::string NfsServerSimple::resolveFileHandle(uint64_t handle) const {
-    std::lock_guard<std::mutex> lock(handles_mutex_);
-    
-    auto it = handle_to_path_.find(handle);
-    if (it != handle_to_path_.end()) {
-        return it->second;
-    }
-    
-    return "";
-}
-
-bool NfsServerSimple::isValidFileHandle(uint64_t handle) const {
-    std::lock_guard<std::mutex> lock(handles_mutex_);
-    return handle_to_path_.find(handle) != handle_to_path_.end();
-}
-
-std::string NfsServerSimple::getFullPath(const std::string& relative_path) const {
-    if (relative_path.empty() || relative_path[0] == '/') {
-        return relative_path;
-    }
-    
-    return config_.root_path + "/" + relative_path;
-}
-
-std::string NfsServerSimple::getRelativePath(const std::string& full_path) const {
-    if (full_path.find(config_.root_path) == 0) {
-        return full_path.substr(config_.root_path.length());
-    }
-    
-    return full_path;
-}
-
-bool NfsServerSimple::validatePath(const std::string& path) const {
-    std::string full_path = getFullPath(path);
-    return full_path.find(config_.root_path) == 0;
-}
-
 } // namespace SimpleNfsd
+

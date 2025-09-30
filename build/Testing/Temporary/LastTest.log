@@ -1,10 +1,10 @@
-Start testing: Sep 30 16:36 CDT
+Start testing: Sep 30 16:48 CDT
 ----------------------------------------------------------
 1/1 Testing: simple-nfsd-tests
 1/1 Test: simple-nfsd-tests
 Command: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests/simple-nfsd-tests"
 Directory: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests
-"simple-nfsd-tests" start time: Sep 30 16:36 CDT
+"simple-nfsd-tests" start time: Sep 30 16:48 CDT
 Output:
 ----------------------------------------------------------
 [==========] Running 9 tests from 1 test suite.
@@ -50,8 +50,8 @@ Setting up logging to: /var/log/simple-nfsd/simple-nfsd.log
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"simple-nfsd-tests" end time: Sep 30 16:36 CDT
+"simple-nfsd-tests" end time: Sep 30 16:48 CDT
 "simple-nfsd-tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Sep 30 16:36 CDT
+End testing: Sep 30 16:48 CDT
