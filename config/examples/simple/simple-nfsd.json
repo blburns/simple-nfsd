@@ -1,0 +1,43 @@
+{
+  "server": {
+    "bind_address": "0.0.0.0",
+    "port": 2049,
+    "enable_tcp": true,
+    "enable_udp": true,
+    "enable_nfsv2": true,
+    "enable_nfsv3": true,
+    "enable_nfsv4": false,
+    "max_connections": 100,
+    "read_buffer_size": 8192,
+    "write_buffer_size": 8192,
+    "root_path": "/var/lib/simple-nfsd/shares",
+    "max_file_size": 1073741824
+  },
+  "logging": {
+    "log_level": "INFO",
+    "log_file": "/var/log/simple-nfsd/simple-nfsd.log",
+    "log_max_size": 10485760,
+    "log_max_files": 5
+  },
+  "security": {
+    "security_mode": "sys",
+    "root_squash": true,
+    "all_squash": false,
+    "anon_uid": 65534,
+    "anon_gid": 65534,
+    "auth_sys_enabled": true,
+    "auth_dh_enabled": false
+  },
+  "exports": [
+    {
+      "path": "/home/shared",
+      "clients": "*",
+      "options": ["rw", "sync", "no_root_squash"]
+    },
+    {
+      "path": "/tmp/public",
+      "clients": "*",
+      "options": ["ro", "sync", "all_squash"]
+    }
+  ]
+}
