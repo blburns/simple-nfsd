@@ -22,6 +22,10 @@ NfsdApp::NfsdApp()
     , pid_file_("/var/run/simple-nfsd/simple-nfsd.pid")
     , daemon_mode_(false)
     , running_(false) {
+    // Initialize metrics
+    start_time_ = std::chrono::steady_clock::now();
+    last_request_time_ = start_time_;
+    last_health_check_ = std::chrono::steady_clock::now();
 }
 
 NfsdApp::~NfsdApp() {
@@ -174,6 +178,106 @@ void NfsdApp::showHelp() const {
 void NfsdApp::showVersion() const {
     std::cout << "Simple NFS Daemon v0.1.0" << std::endl;
     std::cout << "A lightweight and secure NFS server" << std::endl;
+}
+
+NfsdApp::PerformanceMetrics NfsdApp::getMetrics() const {
+    std::lock_guard<std::mutex> lock(metrics_mutex_);
+    PerformanceMetrics metrics;
+    metrics.total_requests = total_requests_.load();
+    metrics.successful_requests = successful_requests_.load();
+    metrics.failed_requests = failed_requests_.load();
+    metrics.bytes_sent = bytes_sent_.load();
+    metrics.bytes_received = bytes_received_.load();
+    metrics.active_connections = active_connections_.load();
+    metrics.start_time = start_time_;
+    metrics.last_request_time = last_request_time_;
+    return metrics;
+}
+
+NfsdApp::HealthStatus NfsdApp::getHealthStatus() const {
+    std::lock_guard<std::mutex> lock(health_mutex_);
+    
+    HealthStatus status;
+    status.is_healthy = true;
+    status.status_message = "OK";
+    
+    // Check if application is running
+    if (!running_) {
+        status.is_healthy = false;
+        status.status_message = "Application not running";
+        return status;
+    }
+    
+    // Check uptime
+    auto now = std::chrono::steady_clock::now();
+    auto uptime = std::chrono::duration_cast<std::chrono::seconds>(now - start_time_);
+    
+    status.details["uptime_seconds"] = std::to_string(uptime.count());
+    status.details["total_requests"] = std::to_string(total_requests_.load());
+    status.details["successful_requests"] = std::to_string(successful_requests_.load());
+    status.details["failed_requests"] = std::to_string(failed_requests_.load());
+    status.details["bytes_sent"] = std::to_string(bytes_sent_.load());
+    status.details["bytes_received"] = std::to_string(bytes_received_.load());
+    status.details["active_connections"] = std::to_string(active_connections_.load());
+    
+    // Check for high error rate
+    uint64_t total = total_requests_.load();
+    uint64_t failed = failed_requests_.load();
+    
+    if (total > 0) {
+        double error_rate = static_cast<double>(failed) / total;
+        if (error_rate > 0.1) { // More than 10% error rate
+            status.is_healthy = false;
+            status.status_message = "High error rate detected";
+            status.details["error_rate"] = std::to_string(error_rate);
+        }
+    }
+    
+    // Check for memory usage (basic check)
+    // This would be enhanced with actual memory monitoring
+    status.details["memory_status"] = "OK";
+    
+    last_health_check_ = now;
+    return status;
+}
+
+void NfsdApp::resetMetrics() {
+    std::lock_guard<std::mutex> lock(metrics_mutex_);
+    total_requests_ = 0;
+    successful_requests_ = 0;
+    failed_requests_ = 0;
+    bytes_sent_ = 0;
+    bytes_received_ = 0;
+    active_connections_ = 0;
+    start_time_ = std::chrono::steady_clock::now();
+    last_request_time_ = start_time_;
+}
+
+void NfsdApp::simulateNfsRequest(bool success, size_t bytes_sent, size_t bytes_received) {
+    std::lock_guard<std::mutex> lock(metrics_mutex_);
+    
+    total_requests_++;
+    if (success) {
+        successful_requests_++;
+    } else {
+        failed_requests_++;
+    }
+    
+    bytes_sent_ += bytes_sent;
+    bytes_received_ += bytes_received;
+    last_request_time_ = std::chrono::steady_clock::now();
+}
+
+void NfsdApp::simulateConnection() {
+    std::lock_guard<std::mutex> lock(metrics_mutex_);
+    active_connections_++;
+}
+
+void NfsdApp::simulateDisconnection() {
+    std::lock_guard<std::mutex> lock(metrics_mutex_);
+    if (active_connections_ > 0) {
+        active_connections_--;
+    }
 }
 
 } // namespace SimpleNfsd

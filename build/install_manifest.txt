@@ -1,0 +1,5 @@
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/_CPack_Packages/Darwin/productbuild/simple-nfsd-0.1.0-Darwin/Applications/bin/simple-nfsd
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/_CPack_Packages/Darwin/productbuild/simple-nfsd-0.1.0-Darwin/Applications/include/simple_nfsd/config_manager.hpp
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/_CPack_Packages/Darwin/productbuild/simple-nfsd-0.1.0-Darwin/Applications/include/simple_nfsd/nfsd_app.hpp
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/_CPack_Packages/Darwin/productbuild/simple-nfsd-0.1.0-Darwin/Applications/etc/simple-nfsd/simple-nfsd.conf
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/_CPack_Packages/Darwin/productbuild/simple-nfsd-0.1.0-Darwin/Applications/lib/launchd/com.simple-nfsd.simple-nfsd.plist

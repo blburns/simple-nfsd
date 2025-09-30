@@ -1,15 +1,15 @@
-Start testing: Sep 30 14:39 CDT
+Start testing: Sep 30 15:19 CDT
 ----------------------------------------------------------
 1/1 Testing: simple-nfsd-tests
 1/1 Test: simple-nfsd-tests
 Command: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests/simple-nfsd-tests"
 Directory: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests
-"simple-nfsd-tests" start time: Sep 30 14:39 CDT
+"simple-nfsd-tests" start time: Sep 30 15:19 CDT
 Output:
 ----------------------------------------------------------
-[==========] Running 5 tests from 1 test suite.
+[==========] Running 9 tests from 1 test suite.
 [----------] Global test environment set-up.
-[----------] 5 tests from NfsdAppTest
+[----------] 9 tests from NfsdAppTest
 [ RUN      ] NfsdAppTest.Constructor
 [       OK ] NfsdAppTest.Constructor (0 ms)
 [ RUN      ] NfsdAppTest.InitializeWithHelp
@@ -33,17 +33,25 @@ Setting up logging to: /var/log/simple-nfsd/simple-nfsd.log
 [       OK ] NfsdAppTest.InitializeWithValidArgs (0 ms)
 [ RUN      ] NfsdAppTest.Stop
 [       OK ] NfsdAppTest.Stop (0 ms)
-[----------] 5 tests from NfsdAppTest (0 ms total)
+[ RUN      ] NfsdAppTest.PerformanceMetrics
+[       OK ] NfsdAppTest.PerformanceMetrics (0 ms)
+[ RUN      ] NfsdAppTest.ConnectionSimulation
+[       OK ] NfsdAppTest.ConnectionSimulation (0 ms)
+[ RUN      ] NfsdAppTest.HealthStatus
+[       OK ] NfsdAppTest.HealthStatus (0 ms)
+[ RUN      ] NfsdAppTest.MetricsReset
+[       OK ] NfsdAppTest.MetricsReset (0 ms)
+[----------] 9 tests from NfsdAppTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 5 tests from 1 test suite ran. (1 ms total)
-[  PASSED  ] 5 tests.
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 9 tests.
 <end of output>
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"simple-nfsd-tests" end time: Sep 30 14:39 CDT
+"simple-nfsd-tests" end time: Sep 30 15:19 CDT
 "simple-nfsd-tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Sep 30 14:39 CDT
+End testing: Sep 30 15:19 CDT
