@@ -1,3 +1,11 @@
+/**
+ * @file nfsd_app.hpp
+ * @brief Main application class for Simple NFS Daemon
+ * @author SimpleDaemons
+ * @copyright 2024 SimpleDaemons
+ * @license Apache-2.0
+ */
+
 #ifndef SIMPLE_NFSD_NFSD_APP_HPP
 #define SIMPLE_NFSD_NFSD_APP_HPP
 

@@ -1,3 +1,11 @@
+/**
+ * @file nfsd_app.cpp
+ * @brief Implementation of NfsdApp class for Simple NFS Daemon
+ * @author SimpleDaemons
+ * @copyright 2024 SimpleDaemons
+ * @license Apache-2.0
+ */
+
 #include "simple_nfsd/nfsd_app.hpp"
 #include <iostream>
 #include <fstream>
