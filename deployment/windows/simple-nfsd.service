@@ -1,0 +1,216 @@
+@echo off
+REM simple-nfsd Windows Service Installation Script
+REM This script installs simple-nfsd as a Windows service
+
+setlocal enabledelayedexpansion
+
+REM Colors for output
+set "RED=[91m"
+set "GREEN=[92m"
+set "YELLOW=[93m"
+set "BLUE=[94m"
+set "NC=[0m"
+
+REM Configuration
+set "SERVICE_NAME=simple-nfsd"
+set "SERVICE_DISPLAY_NAME=Simple NFS Daemon - A lightweight and secure NFS server"
+set "SERVICE_DESCRIPTION=Simple NFS Daemon - A lightweight and secure NFS server"
+set "SERVICE_BINARY=%PROGRAMFILES%\simple-nfsd\simple-nfsd.exe"
+set "SERVICE_USER=LocalSystem"
+set "SERVICE_STARTUP=auto"
+
+REM Function to print colored output
+:print_status
+echo %BLUE%[INFO]%NC% %~1
+goto :eof
+
+:print_success
+echo %GREEN%[SUCCESS]%NC% %~1
+goto :eof
+
+:print_warning
+echo %YELLOW%[WARNING]%NC% %~1
+goto :eof
+
+:print_error
+echo %RED%[ERROR]%NC% %~1
+goto :eof
+
+REM Function to check if running as administrator
+:check_admin
+net session >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    call :print_error "This script must be run as Administrator"
+    call :print_status "Right-click Command Prompt and select 'Run as administrator'"
+    exit /b 1
+)
+goto :eof
+
+REM Function to check if service exists
+:service_exists
+sc query "%SERVICE_NAME%" >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    set "SERVICE_EXISTS=true"
+) else (
+    set "SERVICE_EXISTS=false"
+)
+goto :eof
+
+REM Function to install service
+:install_service
+call :print_status "Installing simple-nfsd Windows service..."
+
+REM Check if service already exists
+call :service_exists
+if "%SERVICE_EXISTS%"=="true" (
+    call :print_warning "Service already exists, stopping and removing..."
+    sc stop "%SERVICE_NAME%"
+    sc delete "%SERVICE_NAME%"
+    timeout /t 2 /nobreak >nul
+)
+
+REM Create service
+sc create "%SERVICE_NAME%" ^
+    binPath="%SERVICE_BINARY%" ^
+    DisplayName="%SERVICE_DISPLAY_NAME%" ^
+    start=%SERVICE_STARTUP% ^
+    obj="%SERVICE_USER%"
+
+if %ERRORLEVEL% NEQ 0 (
+    call :print_error "Failed to create service"
+    exit /b 1
+)
+
+REM Set service description
+sc description "%SERVICE_NAME%" "%SERVICE_DESCRIPTION%"
+
+call :print_success "Service installed successfully"
+goto :eof
+
+REM Function to start service
+:start_service
+call :print_status "Starting simple-nfsd service..."
+sc start "%SERVICE_NAME%"
+
+if %ERRORLEVEL% NEQ 0 (
+    call :print_error "Failed to start service"
+    exit /b 1
+)
+
+call :print_success "Service started successfully"
+goto :eof
+
+REM Function to stop service
+:stop_service
+call :print_status "Stopping simple-nfsd service..."
+sc stop "%SERVICE_NAME%"
+
+if %ERRORLEVEL% NEQ 0 (
+    call :print_warning "Service may not be running"
+)
+
+call :print_success "Service stopped"
+goto :eof
+
+REM Function to uninstall service
+:uninstall_service
+call :print_status "Uninstalling simple-nfsd service..."
+
+REM Check if service exists
+call :service_exists
+if "%SERVICE_EXISTS%"=="false" (
+    call :print_warning "Service does not exist"
+    goto :eof
+)
+
+REM Stop service first
+call :stop_service
+
+REM Delete service
+sc delete "%SERVICE_NAME%"
+
+if %ERRORLEVEL% NEQ 0 (
+    call :print_error "Failed to delete service"
+    exit /b 1
+)
+
+call :print_success "Service uninstalled successfully"
+goto :eof
+
+REM Function to show service status
+:show_status
+call :print_status "simple-nfsd service status:"
+sc query "%SERVICE_NAME%"
+goto :eof
+
+REM Function to show usage
+:show_usage
+echo simple-nfsd Windows Service Manager
+echo.
+echo Usage: %0 [COMMAND]
+echo.
+echo Commands:
+echo     install     Install the service
+echo     uninstall   Uninstall the service
+echo     start       Start the service
+echo     stop        Stop the service
+echo     restart     Restart the service
+echo     status      Show service status
+echo     help        Show this help message
+echo.
+echo Examples:
+echo     %0 install      # Install the service
+echo     %0 start        # Start the service
+echo     %0 status       # Check service status
+echo.
+goto :eof
+
+REM Main execution
+:main
+if "%~1"=="" goto :show_usage
+if "%~1"=="help" goto :show_usage
+if "%~1"=="install" goto :cmd_install
+if "%~1"=="uninstall" goto :cmd_uninstall
+if "%~1"=="start" goto :cmd_start
+if "%~1"=="stop" goto :cmd_stop
+if "%~1"=="restart" goto :cmd_restart
+if "%~1"=="status" goto :cmd_status
+
+call :print_error "Unknown command: %~1"
+call :show_usage
+exit /b 1
+
+:cmd_install
+call :check_admin
+call :install_service
+call :start_service
+goto :end
+
+:cmd_uninstall
+call :check_admin
+call :uninstall_service
+goto :end
+
+:cmd_start
+call :check_admin
+call :start_service
+goto :end
+
+:cmd_stop
+call :check_admin
+call :stop_service
+goto :end
+
+:cmd_restart
+call :check_admin
+call :stop_service
+timeout /t 2 /nobreak >nul
+call :start_service
+goto :end
+
+:cmd_status
+call :show_status
+goto :end
+
+:end
+exit /b 0

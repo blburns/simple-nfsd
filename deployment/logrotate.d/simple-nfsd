@@ -1,0 +1,14 @@
+/var/log/simple-nfsd/*.log {
+    daily
+    missingok
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    create 644 _simple-nfsd _simple-nfsd
+    postrotate
+        /bin/systemctl reload simple-nfsd > /dev/null 2>&1 || true
+    endscript
+    sharedscripts
+    su _simple-nfsd _simple-nfsd
+}
