@@ -33,24 +33,24 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [ ] Package generation (DEB, RPM, DMG, MSI)
 
 ### Phase 2: Core NFS Protocol Implementation
-**Status**: 📋 Planned
+**Status**: 🚧 In Progress (75% Complete)
 **Timeline**: 4-6 weeks
 
 #### NFS Protocol Stack
-- [ ] NFS packet parsing and generation
-- [ ] NFSv2 protocol support
+- [x] RPC (Remote Procedure Call) implementation
+- [x] NFS packet parsing and generation (basic)
+- [ ] NFSv2 protocol support (in progress)
 - [ ] NFSv3 protocol support
 - [ ] NFSv4 protocol support
 - [ ] Protocol negotiation and version selection
-- [ ] RPC (Remote Procedure Call) implementation
 
 #### Network Layer
-- [ ] TCP connection handling
-- [ ] UDP connection handling
+- [x] TCP connection handling
+- [x] UDP connection handling
+- [x] Connection pooling and management
+- [x] Request/response queuing
 - [ ] Portmapper integration
 - [ ] RPC registration and discovery
-- [ ] Connection pooling and management
-- [ ] Request/response queuing
 
 #### Authentication & Security
 - [ ] AUTH_SYS authentication
