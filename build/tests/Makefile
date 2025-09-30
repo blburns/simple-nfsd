@@ -205,6 +205,30 @@ simple-nfsd-tests/fast:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/build
 .PHONY : simple-nfsd-tests/fast
 
+__/src/auth_manager.o: __/src/auth_manager.cpp.o
+.PHONY : __/src/auth_manager.o
+
+# target to build an object file
+__/src/auth_manager.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.o
+.PHONY : __/src/auth_manager.cpp.o
+
+__/src/auth_manager.i: __/src/auth_manager.cpp.i
+.PHONY : __/src/auth_manager.i
+
+# target to preprocess a source file
+__/src/auth_manager.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.i
+.PHONY : __/src/auth_manager.cpp.i
+
+__/src/auth_manager.s: __/src/auth_manager.cpp.s
+.PHONY : __/src/auth_manager.s
+
+# target to generate assembly for a file
+__/src/auth_manager.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.s
+.PHONY : __/src/auth_manager.cpp.s
+
 __/src/config_manager.o: __/src/config_manager.cpp.o
 .PHONY : __/src/config_manager.o
 
@@ -365,6 +389,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... simple-nfsd-tests"
+	@echo "... __/src/auth_manager.o"
+	@echo "... __/src/auth_manager.i"
+	@echo "... __/src/auth_manager.s"
 	@echo "... __/src/config_manager.o"
 	@echo "... __/src/config_manager.i"
 	@echo "... __/src/config_manager.s"

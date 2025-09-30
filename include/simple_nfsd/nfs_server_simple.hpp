@@ -11,6 +11,7 @@
 
 #include "simple_nfsd/config_manager.hpp"
 #include "simple_nfsd/rpc_protocol.hpp"
+#include "simple_nfsd/auth_manager.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -87,6 +88,9 @@ private:
     std::map<uint32_t, std::string> file_handles_;  // Handle ID to path mapping
     uint64_t next_handle_id_;
     
+    // Authentication
+    std::unique_ptr<AuthManager> auth_manager_;
+    
     // Statistics (atomic for thread safety)
     std::atomic<uint64_t> total_requests_{0};
     std::atomic<uint64_t> successful_requests_{0};
@@ -103,18 +107,18 @@ private:
     void handleRpcCall(const RpcMessage& message);
     
     // NFS procedure handlers
-    void handleNfsv2Call(const RpcMessage& message);
-    void handleNfsv3Call(const RpcMessage& message);
-    void handleNfsv4Call(const RpcMessage& message);
+    void handleNfsv2Call(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context);
     
     // NFSv2 procedures
-    void handleNfsv2Null(const RpcMessage& message);
-    void handleNfsv2GetAttr(const RpcMessage& message);
-    void handleNfsv2Lookup(const RpcMessage& message);
-    void handleNfsv2Read(const RpcMessage& message);
-    void handleNfsv2Write(const RpcMessage& message);
-    void handleNfsv2ReadDir(const RpcMessage& message);
-    void handleNfsv2StatFS(const RpcMessage& message);
+    void handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2GetAttr(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2Lookup(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2Read(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2Write(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2ReadDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2StatFS(const RpcMessage& message, const AuthContext& auth_context);
     
     // File system operations
     bool fileExists(const std::string& path) const;
@@ -128,6 +132,16 @@ private:
     std::string getPathFromHandle(uint32_t handle) const;
     std::vector<std::string> readDirectory(const std::string& path) const;
     bool validatePath(const std::string& path) const;
+    
+    // Authentication
+    bool initializeAuthentication();
+    bool authenticateRequest(const RpcMessage& message, AuthContext& context);
+    bool checkAccess(const std::string& path, const AuthContext& context, bool read, bool write);
+    
+    // Protocol negotiation
+    uint32_t negotiateNfsVersion(uint32_t client_version);
+    bool isNfsVersionSupported(uint32_t version);
+    std::vector<uint32_t> getSupportedNfsVersions();
 };
 
 } // namespace SimpleNfsd

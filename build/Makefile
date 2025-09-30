@@ -217,6 +217,30 @@ simple-nfsd-tests/fast:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/build
 .PHONY : simple-nfsd-tests/fast
 
+src/auth_manager.o: src/auth_manager.cpp.o
+.PHONY : src/auth_manager.o
+
+# target to build an object file
+src/auth_manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o
+.PHONY : src/auth_manager.cpp.o
+
+src/auth_manager.i: src/auth_manager.cpp.i
+.PHONY : src/auth_manager.i
+
+# target to preprocess a source file
+src/auth_manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i
+.PHONY : src/auth_manager.cpp.i
+
+src/auth_manager.s: src/auth_manager.cpp.s
+.PHONY : src/auth_manager.s
+
+# target to generate assembly for a file
+src/auth_manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s
+.PHONY : src/auth_manager.cpp.s
+
 src/config_manager.o: src/config_manager.cpp.o
 .PHONY : src/config_manager.o
 
@@ -354,6 +378,9 @@ help:
 	@echo "... test"
 	@echo "... simple-nfsd"
 	@echo "... simple-nfsd-tests"
+	@echo "... src/auth_manager.o"
+	@echo "... src/auth_manager.i"
+	@echo "... src/auth_manager.s"
 	@echo "... src/config_manager.o"
 	@echo "... src/config_manager.i"
 	@echo "... src/config_manager.s"

@@ -26,12 +26,13 @@ if(GTest_FOUND OR GTEST_FOUND)
     )
     
     # Add source files directly instead of linking to executable
-    target_sources(simple-nfsd-tests PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfsd_app.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../src/config_manager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfs_server_simple.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../src/rpc_protocol.cpp
-    )
+target_sources(simple-nfsd-tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfsd_app.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/config_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfs_server_simple.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/rpc_protocol.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth_manager.cpp
+)
     
     # Include directories
     target_include_directories(simple-nfsd-tests PRIVATE

@@ -107,12 +107,12 @@ tests/clean: tests/CMakeFiles/simple-nfsd-tests.dir/clean
 CMakeFiles/simple-nfsd.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target simple-nfsd"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target simple-nfsd"
 .PHONY : CMakeFiles/simple-nfsd.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/simple-nfsd.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/simple-nfsd.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles 0
 .PHONY : CMakeFiles/simple-nfsd.dir/rule
@@ -124,7 +124,7 @@ simple-nfsd: CMakeFiles/simple-nfsd.dir/rule
 # codegen rule for target.
 CMakeFiles/simple-nfsd.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Finished codegen for target simple-nfsd"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Finished codegen for target simple-nfsd"
 .PHONY : CMakeFiles/simple-nfsd.dir/codegen
 
 # clean rule for target.
@@ -139,12 +139,12 @@ CMakeFiles/simple-nfsd.dir/clean:
 tests/CMakeFiles/simple-nfsd-tests.dir/all:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=7,8,9,10,11,12,13 "Built target simple-nfsd-tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=8,9,10,11,12,13,14,15 "Built target simple-nfsd-tests"
 .PHONY : tests/CMakeFiles/simple-nfsd-tests.dir/all
 
 # Build rule for subdir invocation for target.
 tests/CMakeFiles/simple-nfsd-tests.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/simple-nfsd-tests.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles 0
 .PHONY : tests/CMakeFiles/simple-nfsd-tests.dir/rule
@@ -156,7 +156,7 @@ simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/rule
 # codegen rule for target.
 tests/CMakeFiles/simple-nfsd-tests.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=7,8,9,10,11,12,13 "Finished codegen for target simple-nfsd-tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=8,9,10,11,12,13,14,15 "Finished codegen for target simple-nfsd-tests"
 .PHONY : tests/CMakeFiles/simple-nfsd-tests.dir/codegen
 
 # clean rule for target.

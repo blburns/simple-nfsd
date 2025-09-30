@@ -376,6 +376,7 @@ CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/__bit_reference \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/__split_buffer \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/rpc_protocol.hpp \
+  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/auth_manager.hpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/ios \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/__locale \

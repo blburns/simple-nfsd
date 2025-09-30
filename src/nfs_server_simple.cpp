@@ -8,6 +8,7 @@
 
 #include "simple_nfsd/nfs_server_simple.hpp"
 #include "simple_nfsd/rpc_protocol.hpp"
+#include "simple_nfsd/auth_manager.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -38,6 +39,7 @@ namespace SimpleNfsd {
 
 NfsServerSimple::NfsServerSimple() 
     : running_(false), initialized_(false), next_handle_id_(1) {
+    auth_manager_ = std::make_unique<AuthManager>();
 }
 
 NfsServerSimple::~NfsServerSimple() {
@@ -50,6 +52,12 @@ bool NfsServerSimple::initialize(const NfsServerConfig& config) {
     }
     
     config_ = config;
+    
+    // Initialize authentication
+    if (!initializeAuthentication()) {
+        std::cerr << "Failed to initialize authentication" << std::endl;
+        return false;
+    }
     
     // Create root directory if it doesn't exist
     std::filesystem::create_directories(config_.root_path);
@@ -383,19 +391,35 @@ void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
             return;
         }
         
-        // Handle based on NFS version
-        switch (message.header.vers) {
+        // Authenticate the request
+        AuthContext auth_context;
+        if (!authenticateRequest(message, auth_context)) {
+            std::cerr << "Authentication failed for RPC call" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Negotiate NFS version
+        uint32_t negotiated_version = negotiateNfsVersion(message.header.vers);
+        if (negotiated_version == 0) {
+            std::cerr << "No compatible NFS version found for: " << message.header.vers << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Handle based on negotiated NFS version
+        switch (negotiated_version) {
             case 2:
-                handleNfsv2Call(message);
+                handleNfsv2Call(message, auth_context);
                 break;
             case 3:
-                handleNfsv3Call(message);
+                handleNfsv3Call(message, auth_context);
                 break;
             case 4:
-                handleNfsv4Call(message);
+                handleNfsv4Call(message, auth_context);
                 break;
             default:
-                std::cerr << "Unsupported NFS version: " << message.header.vers << std::endl;
+                std::cerr << "Unsupported NFS version after negotiation: " << negotiated_version << std::endl;
                 failed_requests_++;
                 return;
         }
@@ -408,29 +432,29 @@ void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2Call(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthContext& auth_context) {
     // Handle NFSv2 procedures
     switch (message.header.proc) {
         case 0:  // NULL
-            handleNfsv2Null(message);
+            handleNfsv2Null(message, auth_context);
             break;
         case 1:  // GETATTR
-            handleNfsv2GetAttr(message);
+            handleNfsv2GetAttr(message, auth_context);
             break;
         case 3:  // LOOKUP
-            handleNfsv2Lookup(message);
+            handleNfsv2Lookup(message, auth_context);
             break;
         case 5:  // READ
-            handleNfsv2Read(message);
+            handleNfsv2Read(message, auth_context);
             break;
         case 7:  // WRITE
-            handleNfsv2Write(message);
+            handleNfsv2Write(message, auth_context);
             break;
         case 15: // READDIR
-            handleNfsv2ReadDir(message);
+            handleNfsv2ReadDir(message, auth_context);
             break;
         case 16: // STATFS
-            handleNfsv2StatFS(message);
+            handleNfsv2StatFS(message, auth_context);
             break;
         default:
             std::cerr << "Unsupported NFSv2 procedure: " << message.header.proc << std::endl;
@@ -439,26 +463,26 @@ void NfsServerSimple::handleNfsv2Call(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv3Call(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context) {
     // TODO: Implement NFSv3 procedures
     std::cerr << "NFSv3 not yet implemented" << std::endl;
     failed_requests_++;
 }
 
-void NfsServerSimple::handleNfsv4Call(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context) {
     // TODO: Implement NFSv4 procedures
     std::cerr << "NFSv4 not yet implemented" << std::endl;
     failed_requests_++;
 }
 
-void NfsServerSimple::handleNfsv2Null(const RpcMessage& message) {
-    // NULL procedure always succeeds
+void NfsServerSimple::handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context) {
+    // NULL procedure always succeeds (no authentication required)
     RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
     // TODO: Send reply back to client
-    std::cout << "Handled NFSv2 NULL procedure" << std::endl;
+    std::cout << "Handled NFSv2 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
 }
 
-void NfsServerSimple::handleNfsv2GetAttr(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2GetAttr(const RpcMessage& message, const AuthContext& auth_context) {
     try {
         // Parse file handle from message data
         if (message.data.size() < 4) {
@@ -476,6 +500,13 @@ void NfsServerSimple::handleNfsv2GetAttr(const RpcMessage& message) {
         std::string file_path = getPathFromHandle(file_handle);
         if (file_path.empty()) {
             std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for GETATTR on: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
             failed_requests_++;
             return;
         }
@@ -584,7 +615,7 @@ void NfsServerSimple::handleNfsv2GetAttr(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2Lookup(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2Lookup(const RpcMessage& message, const AuthContext& auth_context) {
     try {
         // Parse directory handle and filename from message data
         if (message.data.size() < 8) {
@@ -616,6 +647,13 @@ void NfsServerSimple::handleNfsv2Lookup(const RpcMessage& message) {
         std::string dir_path = getPathFromHandle(dir_handle);
         if (dir_path.empty()) {
             std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for directory
+        if (!checkAccess(dir_path, auth_context, true, false)) {
+            std::cerr << "Access denied for LOOKUP in: " << dir_path << " (user: " << auth_context.uid << ")" << std::endl;
             failed_requests_++;
             return;
         }
@@ -736,7 +774,7 @@ void NfsServerSimple::handleNfsv2Lookup(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2Read(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2Read(const RpcMessage& message, const AuthContext& auth_context) {
     try {
         // Parse file handle, offset, and count from message data
         if (message.data.size() < 12) {
@@ -764,6 +802,13 @@ void NfsServerSimple::handleNfsv2Read(const RpcMessage& message) {
         std::string file_path = getPathFromHandle(file_handle);
         if (file_path.empty()) {
             std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for READ on: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
             failed_requests_++;
             return;
         }
@@ -872,7 +917,7 @@ void NfsServerSimple::handleNfsv2Read(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2Write(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2Write(const RpcMessage& message, const AuthContext& auth_context) {
     try {
         // Parse file handle, offset, and data from message data
         if (message.data.size() < 12) {
@@ -909,6 +954,13 @@ void NfsServerSimple::handleNfsv2Write(const RpcMessage& message) {
         std::string file_path = getPathFromHandle(file_handle);
         if (file_path.empty()) {
             std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, false, true)) {
+            std::cerr << "Access denied for WRITE on: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
             failed_requests_++;
             return;
         }
@@ -1014,7 +1066,7 @@ void NfsServerSimple::handleNfsv2Write(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2ReadDir(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2ReadDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
         // Parse directory handle and cookie from message data
         if (message.data.size() < 8) {
@@ -1037,6 +1089,13 @@ void NfsServerSimple::handleNfsv2ReadDir(const RpcMessage& message) {
         std::string dir_path = getPathFromHandle(dir_handle);
         if (dir_path.empty()) {
             std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, true, false)) {
+            std::cerr << "Access denied for READDIR on: " << dir_path << " (user: " << auth_context.uid << ")" << std::endl;
             failed_requests_++;
             return;
         }
@@ -1107,7 +1166,7 @@ void NfsServerSimple::handleNfsv2ReadDir(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2StatFS(const RpcMessage& message) {
+void NfsServerSimple::handleNfsv2StatFS(const RpcMessage& message, const AuthContext& auth_context) {
     try {
         // Parse file handle from message data
         if (message.data.size() < 4) {
@@ -1125,6 +1184,13 @@ void NfsServerSimple::handleNfsv2StatFS(const RpcMessage& message) {
         std::string file_path = getPathFromHandle(file_handle);
         if (file_path.empty()) {
             std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for STATFS on: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
             failed_requests_++;
             return;
         }
@@ -1295,6 +1361,69 @@ bool NfsServerSimple::writeFile(const std::string& path, uint32_t offset, const 
     file.write(reinterpret_cast<const char*>(data.data()), data.size());
     
     return file.good();
+}
+
+bool NfsServerSimple::initializeAuthentication() {
+    if (!auth_manager_) {
+        return false;
+    }
+    
+    return auth_manager_->initialize();
+}
+
+bool NfsServerSimple::authenticateRequest(const RpcMessage& message, AuthContext& context) {
+    if (!auth_manager_) {
+        return false;
+    }
+    
+    // Extract credentials and verifier from RPC message
+    std::vector<uint8_t> credentials = message.header.cred.body;
+    std::vector<uint8_t> verifier = message.header.verf.body;
+    
+    AuthResult result = auth_manager_->authenticate(credentials, verifier, context);
+    return (result == AuthResult::SUCCESS);
+}
+
+bool NfsServerSimple::checkAccess(const std::string& path, const AuthContext& context, bool read, bool write) {
+    if (!auth_manager_) {
+        return false;
+    }
+    
+    return auth_manager_->checkPathAccess(path, context, read, write);
+}
+
+uint32_t NfsServerSimple::negotiateNfsVersion(uint32_t client_version) {
+    // Check if client's requested version is supported
+    if (isNfsVersionSupported(client_version)) {
+        return client_version;
+    }
+    
+    // Find the highest supported version that's <= client version
+    auto supported_versions = getSupportedNfsVersions();
+    uint32_t best_version = 0;
+    
+    for (uint32_t version : supported_versions) {
+        if (version <= client_version && version > best_version) {
+            best_version = version;
+        }
+    }
+    
+    // If no compatible version found, return the highest supported version
+    if (best_version == 0 && !supported_versions.empty()) {
+        best_version = *std::max_element(supported_versions.begin(), supported_versions.end());
+    }
+    
+    return best_version;
+}
+
+bool NfsServerSimple::isNfsVersionSupported(uint32_t version) {
+    auto supported_versions = getSupportedNfsVersions();
+    return std::find(supported_versions.begin(), supported_versions.end(), version) != supported_versions.end();
+}
+
+std::vector<uint32_t> NfsServerSimple::getSupportedNfsVersions() {
+    // Return supported NFS versions in order of preference (highest first)
+    return {4, 3, 2};
 }
 
 } // namespace SimpleNfsd

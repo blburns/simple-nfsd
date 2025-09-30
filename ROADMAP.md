@@ -33,7 +33,7 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [ ] Package generation (DEB, RPM, DMG, MSI)
 
 ### Phase 2: Core NFS Protocol Implementation
-**Status**: 🚧 In Progress (90% Complete)
+**Status**: ✅ Completed (100% Complete)
 **Timeline**: 4-6 weeks
 
 #### NFS Protocol Stack
@@ -49,7 +49,7 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
   - [x] STATFS procedure
 - [ ] NFSv3 protocol support
 - [ ] NFSv4 protocol support
-- [ ] Protocol negotiation and version selection
+- [x] Protocol negotiation and version selection
 
 #### Network Layer
 - [x] TCP connection handling

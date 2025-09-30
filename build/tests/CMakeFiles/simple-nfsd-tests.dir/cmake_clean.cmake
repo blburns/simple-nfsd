@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.o"
+  "CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.o.d"
   "CMakeFiles/simple-nfsd-tests.dir/__/src/config_manager.cpp.o"
   "CMakeFiles/simple-nfsd-tests.dir/__/src/config_manager.cpp.o.d"
   "CMakeFiles/simple-nfsd-tests.dir/__/src/nfs_server_simple.cpp.o"
