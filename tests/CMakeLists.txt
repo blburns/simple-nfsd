@@ -33,6 +33,13 @@ target_sources(simple-nfsd-tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/rpc_protocol.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth_manager.cpp
 )
+
+# Add test source files
+target_sources(simple-nfsd-tests PRIVATE
+    test_main.cpp
+    test_nfsd_app.cpp
+    test_minimal.cpp
+)
     
     # Include directories
     target_include_directories(simple-nfsd-tests PRIVATE
