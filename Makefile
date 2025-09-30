@@ -14,7 +14,7 @@
 
 # Variables
 PROJECT_NAME = simple-nfsd
-VERSION = 
+VERSION = 0.2.0
 BUILD_DIR = build
 DIST_DIR = dist
 PACKAGE_DIR = packaging
@@ -495,6 +495,16 @@ else ifeq ($(PLATFORM),windows)
 	@sc query 
 endif
 
+# Version information
+version:
+	@echo "$(PROJECT_NAME) version $(VERSION)"
+	@echo "Platform: $(PLATFORM)"
+	@echo "Build directory: $(BUILD_DIR)"
+	@echo "Distribution directory: $(DIST_DIR)"
+	@echo ""
+	@echo "Available tags:"
+	@git tag -l | sort -V | tail -10
+
 # Help - Main help (most common targets)
 help:
 	@echo "Simple NFS Daemon - A lightweight and secure NFS server - Main Help"
@@ -511,6 +521,7 @@ help:
 	@echo "  package-source   - Create source code packages (TAR.GZ + ZIP)"
 	@echo "  package-all      - Create all packages (binary + source)"
 	@echo "  package-info     - Show package information"
+	@echo "  version          - Show version information"
 	@echo ""
 	@echo "Development targets:"
 	@echo "  dev-build        - Build in debug mode"
@@ -1046,7 +1057,7 @@ endif
         service-start service-stop service-restart service-enable service-disable \
         config-install config-backup log-rotate backup restore distclean \
         debug release sanitize rebuild test-verbose start stop restart status \
-        help help-all help-build help-package help-deps help-service help-docker help-config help-platform
+        version help help-all help-build help-package help-deps help-service help-docker help-config help-platform
 
 # Default target
 .DEFAULT_GOAL := all

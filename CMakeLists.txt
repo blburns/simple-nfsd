@@ -3,7 +3,7 @@
 # Copyright  SimpleDaemons
 
 cmake_minimum_required(VERSION 3.16)
-project(simple-nfsd VERSION 0.1.0 LANGUAGES CXX)
+project(simple-nfsd VERSION 0.2.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -304,6 +304,9 @@ if(ENABLE_PACKAGING)
         "*.exp"
         "*.lib"
     )
+    
+    # Include version file in source package
+    set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-src")
     
     # CPack already included above
 endif()

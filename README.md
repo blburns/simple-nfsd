@@ -1,6 +1,12 @@
 # Simple NFS Daemon
 
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/blburns/simple-nfsd)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/blburns/simple-nfsd)
+
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
+
+**Current Version**: 0.2.0 (Phase 2 Complete - Core NFS Protocol Implementation)
 
 ## Features
 

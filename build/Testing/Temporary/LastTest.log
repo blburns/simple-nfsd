@@ -1,0 +1,134 @@
+Start testing: Sep 30 18:47 CDT
+----------------------------------------------------------
+1/1 Testing: simple-nfsd-tests
+1/1 Test: simple-nfsd-tests
+Command: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests/simple-nfsd-tests"
+Directory: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests
+"simple-nfsd-tests" start time: Sep 30 18:47 CDT
+Output:
+----------------------------------------------------------
+[==========] Running 32 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from NfsdAppTest
+[ RUN      ] NfsdAppTest.Constructor
+[       OK ] NfsdAppTest.Constructor (0 ms)
+[ RUN      ] NfsdAppTest.InitializeWithHelp
+Simple NFS Daemon v0.1.0
+Usage: simple-nfsd [OPTIONS]
+Options:
+  -h, --help     Show this help message
+  -v, --version  Show version information
+  -d, --daemon   Run as daemon
+  -c, --config   Configuration file (default: /etc/simple-nfsd/simple-nfsd.conf)
+  -l, --log      Log file (default: /var/log/simple-nfsd/simple-nfsd.log)
+  -p, --pid      PID file (default: /var/run/simple-nfsd/simple-nfsd.pid)
+[       OK ] NfsdAppTest.InitializeWithHelp (0 ms)
+[ RUN      ] NfsdAppTest.InitializeWithVersion
+Simple NFS Daemon v0.1.0
+A lightweight and secure NFS server
+[       OK ] NfsdAppTest.InitializeWithVersion (0 ms)
+[ RUN      ] NfsdAppTest.InitializeWithValidArgs
+Loading configuration from: /tmp/test.conf
+Setting up logging to: /var/log/simple-nfsd/simple-nfsd.log
+[       OK ] NfsdAppTest.InitializeWithValidArgs (0 ms)
+[ RUN      ] NfsdAppTest.Stop
+[       OK ] NfsdAppTest.Stop (0 ms)
+[ RUN      ] NfsdAppTest.PerformanceMetrics
+[       OK ] NfsdAppTest.PerformanceMetrics (0 ms)
+[ RUN      ] NfsdAppTest.ConnectionSimulation
+[       OK ] NfsdAppTest.ConnectionSimulation (0 ms)
+[ RUN      ] NfsdAppTest.HealthStatus
+[       OK ] NfsdAppTest.HealthStatus (0 ms)
+[ RUN      ] NfsdAppTest.MetricsReset
+[       OK ] NfsdAppTest.MetricsReset (0 ms)
+[----------] 9 tests from NfsdAppTest (0 ms total)
+
+[----------] 23 tests from MinimalTest
+[ RUN      ] MinimalTest.NfsdAppConstructor
+[       OK ] MinimalTest.NfsdAppConstructor (0 ms)
+[ RUN      ] MinimalTest.NfsdAppHelp
+Simple NFS Daemon v0.1.0
+Usage: simple-nfsd [OPTIONS]
+Options:
+  -h, --help     Show this help message
+  -v, --version  Show version information
+  -d, --daemon   Run as daemon
+  -c, --config   Configuration file (default: /etc/simple-nfsd/simple-nfsd.conf)
+  -l, --log      Log file (default: /var/log/simple-nfsd/simple-nfsd.log)
+  -p, --pid      PID file (default: /var/run/simple-nfsd/simple-nfsd.pid)
+[       OK ] MinimalTest.NfsdAppHelp (0 ms)
+[ RUN      ] MinimalTest.NfsdAppVersion
+Simple NFS Daemon v0.1.0
+A lightweight and secure NFS server
+[       OK ] MinimalTest.NfsdAppVersion (0 ms)
+[ RUN      ] MinimalTest.NfsdAppMetrics
+[       OK ] MinimalTest.NfsdAppMetrics (0 ms)
+[ RUN      ] MinimalTest.NfsdAppHealth
+[       OK ] MinimalTest.NfsdAppHealth (0 ms)
+[ RUN      ] MinimalTest.ConfigManagerConstructor
+[       OK ] MinimalTest.ConfigManagerConstructor (0 ms)
+[ RUN      ] MinimalTest.ConfigManagerDefaultConfig
+[       OK ] MinimalTest.ConfigManagerDefaultConfig (0 ms)
+[ RUN      ] MinimalTest.ConfigManagerSetConfig
+[       OK ] MinimalTest.ConfigManagerSetConfig (0 ms)
+[ RUN      ] MinimalTest.NfsServerConstructor
+[       OK ] MinimalTest.NfsServerConstructor (0 ms)
+[ RUN      ] MinimalTest.NfsServerInitialize
+[       OK ] MinimalTest.NfsServerInitialize (2 ms)
+[ RUN      ] MinimalTest.NfsServerStats
+[       OK ] MinimalTest.NfsServerStats (4 ms)
+[ RUN      ] MinimalTest.NfsServerHealth
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_minimal.cpp:139: Failure
+Value of: nfs_server->isHealthy()
+  Actual: false
+Expected: true
+
+[  FAILED  ] MinimalTest.NfsServerHealth (2 ms)
+[ RUN      ] MinimalTest.RpcMessageCreation
+[       OK ] MinimalTest.RpcMessageCreation (0 ms)
+[ RUN      ] MinimalTest.RpcMessageSerialization
+[       OK ] MinimalTest.RpcMessageSerialization (0 ms)
+[ RUN      ] MinimalTest.RpcMessageDeserialization
+unknown file: Failure
+C++ exception with description "Invalid RPC message: too short" thrown in the test body.
+
+[  FAILED  ] MinimalTest.RpcMessageDeserialization (3 ms)
+[ RUN      ] MinimalTest.RpcMessageValidation
+[       OK ] MinimalTest.RpcMessageValidation (0 ms)
+[ RUN      ] MinimalTest.AuthManagerConstructor
+[       OK ] MinimalTest.AuthManagerConstructor (0 ms)
+[ RUN      ] MinimalTest.AuthManagerInitialize
+[       OK ] MinimalTest.AuthManagerInitialize (2 ms)
+[ RUN      ] MinimalTest.AuthManagerAuthNone
+[       OK ] MinimalTest.AuthManagerAuthNone (2 ms)
+[ RUN      ] MinimalTest.AuthManagerInvalidAuth
+[       OK ] MinimalTest.AuthManagerInvalidAuth (2 ms)
+[ RUN      ] MinimalTest.AuthManagerConfiguration
+[       OK ] MinimalTest.AuthManagerConfiguration (2 ms)
+[ RUN      ] MinimalTest.ComponentIntegration
+[       OK ] MinimalTest.ComponentIntegration (4 ms)
+[ RUN      ] MinimalTest.ErrorHandling
+unknown file: Failure
+C++ exception with description "Invalid RPC message: too short" thrown in the test body.
+
+[  FAILED  ] MinimalTest.ErrorHandling (0 ms)
+[----------] 23 tests from MinimalTest (28 ms total)
+
+[----------] Global test environment tear-down
+[==========] 32 tests from 2 test suites ran. (29 ms total)
+[  PASSED  ] 29 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] MinimalTest.NfsServerHealth
+[  FAILED  ] MinimalTest.RpcMessageDeserialization
+[  FAILED  ] MinimalTest.ErrorHandling
+
+ 3 FAILED TESTS
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Failed.
+"simple-nfsd-tests" end time: Sep 30 18:47 CDT
+"simple-nfsd-tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 30 18:47 CDT
