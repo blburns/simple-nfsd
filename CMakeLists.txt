@@ -3,7 +3,7 @@
 # Copyright  SimpleDaemons
 
 cmake_minimum_required(VERSION 3.16)
-project(simple-nfsd VERSION  LANGUAGES CXX)
+project(simple-nfsd VERSION 0.1.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -41,7 +41,11 @@ endif()
 
 if(ENABLE_YAML)
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(YAMLCPP REQUIRED yaml-cpp)
+    pkg_check_modules(YAMLCPP yaml-cpp)
+    if(NOT YAMLCPP_FOUND)
+        message(WARNING "yaml-cpp not found, YAML support disabled")
+        set(ENABLE_YAML OFF)
+    endif()
 endif()
 
 # Include directories
@@ -78,7 +82,7 @@ if(ENABLE_JSON)
     target_link_directories(${PROJECT_NAME} PRIVATE ${JSONCPP_LIBRARY_DIRS})
 endif()
 
-if(ENABLE_YAML)
+if(ENABLE_YAML AND YAMLCPP_FOUND)
     if(ENABLE_STATIC_LINKING)
         # For static linking, find the static library directly
         find_library(YAMLCPP_STATIC_LIB yaml-cpp PATHS /opt/local/lib /usr/local/lib /usr/lib)
@@ -301,8 +305,7 @@ if(ENABLE_PACKAGING)
         "*.lib"
     )
     
-    # Include CPack configuration
-    include(CPack)
+    # CPack already included above
 endif()
 
 # Print configuration summary

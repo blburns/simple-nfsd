@@ -23,7 +23,12 @@ if(GTest_FOUND OR GTEST_FOUND)
     target_link_libraries(simple-nfsd-tests
         GTest::GTest
         GTest::Main
-        simple-nfsd
+    )
+    
+    # Add source files directly instead of linking to executable
+    target_sources(simple-nfsd-tests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfsd_app.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/config_manager.cpp
     )
     
     # Include directories
