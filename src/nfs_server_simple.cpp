@@ -873,18 +873,326 @@ void NfsServerSimple::handleNfsv2Read(const RpcMessage& message) {
 }
 
 void NfsServerSimple::handleNfsv2Write(const RpcMessage& message) {
-    // TODO: Implement WRITE procedure
-    std::cout << "Handled NFSv2 WRITE procedure" << std::endl;
+    try {
+        // Parse file handle, offset, and data from message data
+        if (message.data.size() < 12) {
+            std::cerr << "Invalid WRITE request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (first 4 bytes)
+        uint32_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 4);
+        file_handle = ntohl(file_handle);
+        
+        // Extract offset (next 4 bytes)
+        uint32_t offset = 0;
+        memcpy(&offset, message.data.data() + 4, 4);
+        offset = ntohl(offset);
+        
+        // Extract data count (next 4 bytes)
+        uint32_t data_count = 0;
+        memcpy(&data_count, message.data.data() + 8, 4);
+        data_count = ntohl(data_count);
+        
+        if (message.data.size() < 12 + data_count) {
+            std::cerr << "Invalid WRITE request: insufficient data for file content" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file data
+        std::vector<uint8_t> file_data(message.data.data() + 12, message.data.data() + 12 + data_count);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(file_handle);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Validate path
+        if (!validatePath(file_path)) {
+            std::cerr << "Invalid path: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if file exists and is writable
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_regular_file(full_path)) {
+            std::cerr << "File not found or not a regular file: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Write file data
+        bool success = writeFile(full_path.string(), offset, file_data);
+        if (!success) {
+            std::cerr << "Failed to write to file: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // File attributes (simplified)
+        uint32_t file_type = 1; // Regular file
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        uint32_t file_mode = 0644;
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        uint32_t uid = 0, gid = 0;
+        uid = htonl(uid);
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        uint32_t file_size = static_cast<uint32_t>(std::filesystem::file_size(full_path));
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        uint32_t block_size = 512;
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        uint32_t blocks = (file_size + block_size - 1) / block_size;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        uint64_t file_size_64 = file_size;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        uint32_t fileid = file_handle;
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        uint32_t atime = 0, mtime = 0, ctime = 0;
+        atime = htonl(atime);
+        mtime = htonl(mtime);
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Bytes written count
+        uint32_t bytes_written = static_cast<uint32_t>(file_data.size());
+        bytes_written = htonl(bytes_written);
+        response_data.insert(response_data.end(), (uint8_t*)&bytes_written, (uint8_t*)&bytes_written + 4);
+        
+        // Update statistics
+        bytes_written_ += file_data.size();
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 WRITE for: " << file_path << " (offset: " << offset << ", written: " << file_data.size() << " bytes)" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in WRITE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 void NfsServerSimple::handleNfsv2ReadDir(const RpcMessage& message) {
-    // TODO: Implement READDIR procedure
-    std::cout << "Handled NFSv2 READDIR procedure" << std::endl;
+    try {
+        // Parse directory handle and cookie from message data
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid READDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (first 4 bytes)
+        uint32_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 4);
+        dir_handle = ntohl(dir_handle);
+        
+        // Extract cookie (next 4 bytes)
+        uint32_t cookie = 0;
+        memcpy(&cookie, message.data.data() + 4, 4);
+        cookie = ntohl(cookie);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Validate path
+        if (!validatePath(dir_path)) {
+            std::cerr << "Invalid path: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if directory exists
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / dir_path;
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_directory(full_path)) {
+            std::cerr << "Directory not found: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Read directory entries
+        std::vector<std::string> entries = readDirectory(dir_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Directory entries (simplified format)
+        for (size_t i = cookie; i < entries.size() && i < cookie + 100; ++i) {
+            const std::string& entry_name = entries[i];
+            
+            // File ID (use entry index as file ID)
+            uint32_t file_id = static_cast<uint32_t>(i + 1);
+            file_id = htonl(file_id);
+            response_data.insert(response_data.end(), (uint8_t*)&file_id, (uint8_t*)&file_id + 4);
+            
+            // Filename length
+            uint32_t name_len = static_cast<uint32_t>(entry_name.length());
+            name_len = htonl(name_len);
+            response_data.insert(response_data.end(), (uint8_t*)&name_len, (uint8_t*)&name_len + 4);
+            
+            // Filename
+            response_data.insert(response_data.end(), entry_name.begin(), entry_name.end());
+            
+            // Padding to 4-byte boundary
+            while (response_data.size() % 4 != 0) {
+                response_data.push_back(0);
+            }
+            
+            // Cookie for next entry
+            uint32_t next_cookie = static_cast<uint32_t>(i + 1);
+            next_cookie = htonl(next_cookie);
+            response_data.insert(response_data.end(), (uint8_t*)&next_cookie, (uint8_t*)&next_cookie + 4);
+        }
+        
+        // EOF flag (1 if this is the last batch)
+        uint32_t eof = (cookie + 100 >= entries.size()) ? 1 : 0;
+        eof = htonl(eof);
+        response_data.insert(response_data.end(), (uint8_t*)&eof, (uint8_t*)&eof + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 READDIR for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in READDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 void NfsServerSimple::handleNfsv2StatFS(const RpcMessage& message) {
-    // TODO: Implement STATFS procedure
-    std::cout << "Handled NFSv2 STATFS procedure" << std::endl;
+    try {
+        // Parse file handle from message data
+        if (message.data.size() < 4) {
+            std::cerr << "Invalid STATFS request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (first 4 bytes)
+        uint32_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 4);
+        file_handle = ntohl(file_handle);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(file_handle);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Validate path
+        if (!validatePath(file_path)) {
+            std::cerr << "Invalid path: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get filesystem statistics
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        std::filesystem::space_info space = std::filesystem::space(full_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // File system type (simplified)
+        uint32_t fstype = 1; // NFS
+        fstype = htonl(fstype);
+        response_data.insert(response_data.end(), (uint8_t*)&fstype, (uint8_t*)&fstype + 4);
+        
+        // Block size
+        uint32_t bsize = 512;
+        bsize = htonl(bsize);
+        response_data.insert(response_data.end(), (uint8_t*)&bsize, (uint8_t*)&bsize + 4);
+        
+        // Total blocks
+        uint32_t blocks = static_cast<uint32_t>(space.capacity / bsize);
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        // Free blocks
+        uint32_t bfree = static_cast<uint32_t>(space.available / bsize);
+        bfree = htonl(bfree);
+        response_data.insert(response_data.end(), (uint8_t*)&bfree, (uint8_t*)&bfree + 4);
+        
+        // Available blocks
+        uint32_t bavail = static_cast<uint32_t>(space.available / bsize);
+        bavail = htonl(bavail);
+        response_data.insert(response_data.end(), (uint8_t*)&bavail, (uint8_t*)&bavail + 4);
+        
+        // Total files
+        uint32_t files = 1000; // Simplified
+        files = htonl(files);
+        response_data.insert(response_data.end(), (uint8_t*)&files, (uint8_t*)&files + 4);
+        
+        // Free files
+        uint32_t ffree = 500; // Simplified
+        ffree = htonl(ffree);
+        response_data.insert(response_data.end(), (uint8_t*)&ffree, (uint8_t*)&ffree + 4);
+        
+        // File system ID
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 STATFS for: " << file_path << " (total: " << space.capacity << ", free: " << space.available << ")" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in STATFS: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 bool NfsServerSimple::fileExists(const std::string& path) const {
