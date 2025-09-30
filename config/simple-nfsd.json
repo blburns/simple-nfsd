@@ -1,0 +1,40 @@
+{
+  "global": {
+    "server_name": "Simple NFS Daemon",
+    "server_version": "0.1.0",
+    "listen_address": "0.0.0.0",
+    "listen_port": 2049,
+    "security_mode": "user",
+    "root_squash": true,
+    "all_squash": false,
+    "anon_uid": 65534,
+    "anon_gid": 65534,
+    "max_connections": 1000,
+    "thread_count": 8,
+    "read_size": 8192,
+    "write_size": 8192,
+    "log_level": "info",
+    "log_file": "/var/log/simple-nfsd/simple-nfsd.log",
+    "log_max_size": "100MB",
+    "log_max_files": 10,
+    "cache_enabled": true,
+    "cache_size": "100MB",
+    "cache_ttl": 3600
+  },
+  "exports": {
+    "public": {
+      "name": "public",
+      "path": "/var/lib/simple-nfsd/exports/public",
+      "clients": "192.168.1.0/24,10.0.0.0/8",
+      "options": "rw,sync,no_subtree_check,no_root_squash",
+      "comment": "Public NFS Share"
+    },
+    "private": {
+      "name": "private",
+      "path": "/var/lib/simple-nfsd/exports/private",
+      "clients": "192.168.1.100,192.168.1.101",
+      "options": "rw,sync,subtree_check,root_squash",
+      "comment": "Private NFS Share"
+    }
+  }
+}

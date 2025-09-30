@@ -24,6 +24,7 @@ option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_PACKAGING "Enable package generation" ON)
 option(ENABLE_SSL "Enable SSL/TLS support" ON)
 option(ENABLE_JSON "Enable JSON support" ON)
+option(ENABLE_YAML "Enable YAML support" ON)
 option(ENABLE_STATIC_LINKING "Enable static linking for self-contained binaries" OFF)
 
 # Find required packages
@@ -36,6 +37,11 @@ endif()
 if(ENABLE_JSON)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(JSONCPP REQUIRED jsoncpp)
+endif()
+
+if(ENABLE_YAML)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(YAMLCPP REQUIRED yaml-cpp)
 endif()
 
 # Include directories
@@ -70,6 +76,23 @@ if(ENABLE_JSON)
     target_include_directories(${PROJECT_NAME} PRIVATE ${JSONCPP_INCLUDE_DIRS})
     target_compile_options(${PROJECT_NAME} PRIVATE ${JSONCPP_CFLAGS_OTHER})
     target_link_directories(${PROJECT_NAME} PRIVATE ${JSONCPP_LIBRARY_DIRS})
+endif()
+
+if(ENABLE_YAML)
+    if(ENABLE_STATIC_LINKING)
+        # For static linking, find the static library directly
+        find_library(YAMLCPP_STATIC_LIB yaml-cpp PATHS /opt/local/lib /usr/local/lib /usr/lib)
+        if(YAMLCPP_STATIC_LIB)
+            target_link_libraries(${PROJECT_NAME} ${YAMLCPP_STATIC_LIB})
+        else()
+            target_link_libraries(${PROJECT_NAME} ${YAMLCPP_LIBRARIES})
+        endif()
+    else()
+        target_link_libraries(${PROJECT_NAME} ${YAMLCPP_LIBRARIES})
+    endif()
+    target_include_directories(${PROJECT_NAME} PRIVATE ${YAMLCPP_INCLUDE_DIRS})
+    target_compile_options(${PROJECT_NAME} PRIVATE ${YAMLCPP_CFLAGS_OTHER})
+    target_link_directories(${PROJECT_NAME} PRIVATE ${YAMLCPP_LIBRARY_DIRS})
 endif()
 
 # Compiler-specific options
