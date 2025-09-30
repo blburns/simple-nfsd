@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/simple-nfsd.dir/src/main.cpp.o.d"
   "CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o"
   "CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o.d"
+  "CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o"
+  "CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o.d"
   "simple-nfsd"
   "simple-nfsd.pdb"
 )

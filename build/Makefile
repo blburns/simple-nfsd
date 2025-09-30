@@ -289,6 +289,30 @@ src/nfsd_app.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s
 .PHONY : src/nfsd_app.cpp.s
 
+src/rpc_protocol.o: src/rpc_protocol.cpp.o
+.PHONY : src/rpc_protocol.o
+
+# target to build an object file
+src/rpc_protocol.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o
+.PHONY : src/rpc_protocol.cpp.o
+
+src/rpc_protocol.i: src/rpc_protocol.cpp.i
+.PHONY : src/rpc_protocol.i
+
+# target to preprocess a source file
+src/rpc_protocol.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.i
+.PHONY : src/rpc_protocol.cpp.i
+
+src/rpc_protocol.s: src/rpc_protocol.cpp.s
+.PHONY : src/rpc_protocol.s
+
+# target to generate assembly for a file
+src/rpc_protocol.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.s
+.PHONY : src/rpc_protocol.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -315,6 +339,9 @@ help:
 	@echo "... src/nfsd_app.o"
 	@echo "... src/nfsd_app.i"
 	@echo "... src/nfsd_app.s"
+	@echo "... src/rpc_protocol.o"
+	@echo "... src/rpc_protocol.i"
+	@echo "... src/rpc_protocol.s"
 .PHONY : help
 
 

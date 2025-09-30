@@ -1,10 +1,10 @@
-Start testing: Sep 30 15:19 CDT
+Start testing: Sep 30 15:59 CDT
 ----------------------------------------------------------
 1/1 Testing: simple-nfsd-tests
 1/1 Test: simple-nfsd-tests
 Command: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests/simple-nfsd-tests"
 Directory: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests
-"simple-nfsd-tests" start time: Sep 30 15:19 CDT
+"simple-nfsd-tests" start time: Sep 30 15:59 CDT
 Output:
 ----------------------------------------------------------
 [==========] Running 9 tests from 1 test suite.
@@ -41,17 +41,17 @@ Setting up logging to: /var/log/simple-nfsd/simple-nfsd.log
 [       OK ] NfsdAppTest.HealthStatus (0 ms)
 [ RUN      ] NfsdAppTest.MetricsReset
 [       OK ] NfsdAppTest.MetricsReset (0 ms)
-[----------] 9 tests from NfsdAppTest (0 ms total)
+[----------] 9 tests from NfsdAppTest (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 9 tests from 1 test suite ran. (0 ms total)
+[==========] 9 tests from 1 test suite ran. (2 ms total)
 [  PASSED  ] 9 tests.
 <end of output>
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"simple-nfsd-tests" end time: Sep 30 15:19 CDT
+"simple-nfsd-tests" end time: Sep 30 15:59 CDT
 "simple-nfsd-tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Sep 30 15:19 CDT
+End testing: Sep 30 15:59 CDT
