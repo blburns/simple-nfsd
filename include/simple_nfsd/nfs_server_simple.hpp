@@ -10,6 +10,7 @@
 #define SIMPLE_NFSD_NFS_SERVER_SIMPLE_HPP
 
 #include "simple_nfsd/config_manager.hpp"
+#include "simple_nfsd/rpc_protocol.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -98,6 +99,21 @@ private:
     void udpListenerLoop();
     void handleClientConnection(int client_socket);
     void processRpcMessage(const std::vector<uint8_t>& client_address, const std::vector<uint8_t>& raw_message);
+    void handleRpcCall(const RpcMessage& message);
+    
+    // NFS procedure handlers
+    void handleNfsv2Call(const RpcMessage& message);
+    void handleNfsv3Call(const RpcMessage& message);
+    void handleNfsv4Call(const RpcMessage& message);
+    
+    // NFSv2 procedures
+    void handleNfsv2Null(const RpcMessage& message);
+    void handleNfsv2GetAttr(const RpcMessage& message);
+    void handleNfsv2Lookup(const RpcMessage& message);
+    void handleNfsv2Read(const RpcMessage& message);
+    void handleNfsv2Write(const RpcMessage& message);
+    void handleNfsv2ReadDir(const RpcMessage& message);
+    void handleNfsv2StatFS(const RpcMessage& message);
     
     // File system operations
     bool fileExists(const std::string& path) const;

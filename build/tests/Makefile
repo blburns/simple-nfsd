@@ -277,6 +277,30 @@ __/src/nfsd_app.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfsd_app.cpp.s
 .PHONY : __/src/nfsd_app.cpp.s
 
+__/src/rpc_protocol.o: __/src/rpc_protocol.cpp.o
+.PHONY : __/src/rpc_protocol.o
+
+# target to build an object file
+__/src/rpc_protocol.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/rpc_protocol.cpp.o
+.PHONY : __/src/rpc_protocol.cpp.o
+
+__/src/rpc_protocol.i: __/src/rpc_protocol.cpp.i
+.PHONY : __/src/rpc_protocol.i
+
+# target to preprocess a source file
+__/src/rpc_protocol.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/rpc_protocol.cpp.i
+.PHONY : __/src/rpc_protocol.cpp.i
+
+__/src/rpc_protocol.s: __/src/rpc_protocol.cpp.s
+.PHONY : __/src/rpc_protocol.s
+
+# target to generate assembly for a file
+__/src/rpc_protocol.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/rpc_protocol.cpp.s
+.PHONY : __/src/rpc_protocol.cpp.s
+
 test_main.o: test_main.cpp.o
 .PHONY : test_main.o
 
@@ -350,6 +374,9 @@ help:
 	@echo "... __/src/nfsd_app.o"
 	@echo "... __/src/nfsd_app.i"
 	@echo "... __/src/nfsd_app.s"
+	@echo "... __/src/rpc_protocol.o"
+	@echo "... __/src/rpc_protocol.i"
+	@echo "... __/src/rpc_protocol.s"
 	@echo "... test_main.o"
 	@echo "... test_main.i"
 	@echo "... test_main.s"

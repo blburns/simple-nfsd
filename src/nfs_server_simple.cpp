@@ -7,6 +7,7 @@
  */
 
 #include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple_nfsd/rpc_protocol.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -333,17 +334,144 @@ void NfsServerSimple::handleClientConnection(int client_socket) {
 
 void NfsServerSimple::processRpcMessage(const std::vector<uint8_t>& client_address, const std::vector<uint8_t>& raw_message) {
     try {
-        // For now, just simulate processing
         total_requests_++;
-        successful_requests_++;
         
-        // TODO: Implement actual RPC message processing
-        std::cout << "Received RPC message of " << raw_message.size() << " bytes" << std::endl;
+        // Parse RPC message
+        RpcMessage message = RpcUtils::deserializeMessage(raw_message);
+        
+        // Validate message
+        if (!RpcUtils::validateMessage(message)) {
+            std::cerr << "Invalid RPC message received" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Handle RPC call
+        if (message.header.type == RpcMessageType::CALL) {
+            handleRpcCall(message);
+        } else {
+            std::cerr << "Unexpected RPC message type" << std::endl;
+            failed_requests_++;
+        }
         
     } catch (const std::exception& e) {
         std::cerr << "Error processing RPC message: " << e.what() << std::endl;
         failed_requests_++;
     }
+}
+
+void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
+    try {
+        // Check if this is an NFS call
+        if (message.header.prog != static_cast<uint32_t>(RpcProgram::NFS)) {
+            std::cerr << "Not an NFS RPC call (program: " << message.header.prog << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Handle based on NFS version
+        switch (message.header.vers) {
+            case 2:
+                handleNfsv2Call(message);
+                break;
+            case 3:
+                handleNfsv3Call(message);
+                break;
+            case 4:
+                handleNfsv4Call(message);
+                break;
+            default:
+                std::cerr << "Unsupported NFS version: " << message.header.vers << std::endl;
+                failed_requests_++;
+                return;
+        }
+        
+        successful_requests_++;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error handling RPC call: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2Call(const RpcMessage& message) {
+    // Handle NFSv2 procedures
+    switch (message.header.proc) {
+        case 0:  // NULL
+            handleNfsv2Null(message);
+            break;
+        case 1:  // GETATTR
+            handleNfsv2GetAttr(message);
+            break;
+        case 3:  // LOOKUP
+            handleNfsv2Lookup(message);
+            break;
+        case 5:  // READ
+            handleNfsv2Read(message);
+            break;
+        case 7:  // WRITE
+            handleNfsv2Write(message);
+            break;
+        case 15: // READDIR
+            handleNfsv2ReadDir(message);
+            break;
+        case 16: // STATFS
+            handleNfsv2StatFS(message);
+            break;
+        default:
+            std::cerr << "Unsupported NFSv2 procedure: " << message.header.proc << std::endl;
+            failed_requests_++;
+            break;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Call(const RpcMessage& message) {
+    // TODO: Implement NFSv3 procedures
+    std::cerr << "NFSv3 not yet implemented" << std::endl;
+    failed_requests_++;
+}
+
+void NfsServerSimple::handleNfsv4Call(const RpcMessage& message) {
+    // TODO: Implement NFSv4 procedures
+    std::cerr << "NFSv4 not yet implemented" << std::endl;
+    failed_requests_++;
+}
+
+void NfsServerSimple::handleNfsv2Null(const RpcMessage& message) {
+    // NULL procedure always succeeds
+    RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
+    // TODO: Send reply back to client
+    std::cout << "Handled NFSv2 NULL procedure" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv2GetAttr(const RpcMessage& message) {
+    // TODO: Implement GETATTR procedure
+    std::cout << "Handled NFSv2 GETATTR procedure" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv2Lookup(const RpcMessage& message) {
+    // TODO: Implement LOOKUP procedure
+    std::cout << "Handled NFSv2 LOOKUP procedure" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv2Read(const RpcMessage& message) {
+    // TODO: Implement READ procedure
+    std::cout << "Handled NFSv2 READ procedure" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv2Write(const RpcMessage& message) {
+    // TODO: Implement WRITE procedure
+    std::cout << "Handled NFSv2 WRITE procedure" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv2ReadDir(const RpcMessage& message) {
+    // TODO: Implement READDIR procedure
+    std::cout << "Handled NFSv2 READDIR procedure" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv2StatFS(const RpcMessage& message) {
+    // TODO: Implement STATFS procedure
+    std::cout << "Handled NFSv2 STATFS procedure" << std::endl;
 }
 
 bool NfsServerSimple::fileExists(const std::string& path) const {

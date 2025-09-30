@@ -30,6 +30,7 @@ if(GTest_FOUND OR GTEST_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfsd_app.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/config_manager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfs_server_simple.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/rpc_protocol.cpp
     )
     
     # Include directories
