@@ -154,7 +154,7 @@ if(UNIX AND NOT APPLE)
     )
 elseif(APPLE)
     install(FILES deployment/launchd/com.${PROJECT_NAME}.${PROJECT_NAME}.plist
-        DESTINATION /Library/LaunchDaemons
+        DESTINATION lib/launchd
     )
 endif()
 
