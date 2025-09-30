@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o.d"
   "CMakeFiles/simple-nfsd.dir/src/main.cpp.o"
   "CMakeFiles/simple-nfsd.dir/src/main.cpp.o.d"
+  "CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o"
+  "CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o.d"
   "CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o"
   "CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o.d"
   "CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o"

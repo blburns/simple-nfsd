@@ -7,6 +7,7 @@
  */
 
 #include "simple_nfsd/nfsd_app.hpp"
+#include "simple_nfsd/nfs_server_simple.hpp"
 #include <iostream>
 #include <fstream>
 #include <csignal>
@@ -155,10 +156,43 @@ void NfsdApp::removePidFile() {
 void NfsdApp::mainLoop() {
     std::cout << "Simple NFS Daemon starting..." << std::endl;
     
-    while (running_) {
-        // TODO: Implement NFS protocol handling
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // Initialize NFS server
+    nfs_server_ = std::make_unique<SimpleNfsd::NfsServerSimple>();
+    
+    // Load configuration
+    SimpleNfsd::NfsServerConfig nfs_config;
+    nfs_config.bind_address = "0.0.0.0";
+    nfs_config.port = 2049;
+    nfs_config.root_path = "/var/lib/simple-nfsd/shares";
+    nfs_config.max_connections = 1000;
+    nfs_config.enable_tcp = true;
+    nfs_config.enable_udp = true;
+    
+    if (!nfs_server_->initialize(nfs_config)) {
+        std::cerr << "Failed to initialize NFS server" << std::endl;
+        return;
     }
+    
+    if (!nfs_server_->start()) {
+        std::cerr << "Failed to start NFS server" << std::endl;
+        return;
+    }
+    
+    std::cout << "NFS server started successfully" << std::endl;
+    
+    while (running_) {
+        // Check server health
+        if (!nfs_server_->isHealthy()) {
+            std::cerr << "NFS server is not healthy" << std::endl;
+            break;
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+    
+    // Stop NFS server
+    nfs_server_->stop();
+    nfs_server_.reset();
     
     std::cout << "Simple NFS Daemon stopping..." << std::endl;
 }

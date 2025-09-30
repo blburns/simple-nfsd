@@ -719,6 +719,7 @@ tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfsd_app.cpp.o: /Users/blb/Workspa
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/typeinfo \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/utility \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/variant \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/vector \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/version \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/wchar.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/wctype.h \
@@ -869,6 +870,8 @@ tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfsd_app.cpp.o: /Users/blb/Workspa
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include/stdint.h \
+  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/config_manager.hpp \
+  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/nfs_server_simple.hpp \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/nfsd_app.hpp
 
 tests/CMakeFiles/simple-nfsd-tests.dir/test_main.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_main.cpp \
@@ -2097,6 +2100,8 @@ tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsd_app.cpp.o: /Users/blb/Workspace
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/i386/endian.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/i386/_mcontext.h:
+
+/Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/nfs_server_simple.hpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/__algorithm/min.h:
 

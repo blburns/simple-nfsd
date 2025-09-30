@@ -29,6 +29,7 @@ if(GTest_FOUND OR GTEST_FOUND)
     target_sources(simple-nfsd-tests PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfsd_app.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/config_manager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfs_server_simple.cpp
     )
     
     # Include directories

@@ -19,6 +19,9 @@
 
 namespace SimpleNfsd {
 
+// Forward declarations
+class NfsServerSimple;
+
 class NfsdApp {
 public:
     NfsdApp();
@@ -94,6 +97,9 @@ private:
     // Health monitoring
     mutable std::mutex health_mutex_;
     mutable std::chrono::steady_clock::time_point last_health_check_;
+    
+    // NFS Server
+    std::unique_ptr<NfsServerSimple> nfs_server_;
     
     // Private methods
     void loadConfiguration();

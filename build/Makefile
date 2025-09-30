@@ -265,6 +265,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/nfs_server_simple.o: src/nfs_server_simple.cpp.o
+.PHONY : src/nfs_server_simple.o
+
+# target to build an object file
+src/nfs_server_simple.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o
+.PHONY : src/nfs_server_simple.cpp.o
+
+src/nfs_server_simple.i: src/nfs_server_simple.cpp.i
+.PHONY : src/nfs_server_simple.i
+
+# target to preprocess a source file
+src/nfs_server_simple.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.i
+.PHONY : src/nfs_server_simple.cpp.i
+
+src/nfs_server_simple.s: src/nfs_server_simple.cpp.s
+.PHONY : src/nfs_server_simple.s
+
+# target to generate assembly for a file
+src/nfs_server_simple.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.s
+.PHONY : src/nfs_server_simple.cpp.s
+
 src/nfsd_app.o: src/nfsd_app.cpp.o
 .PHONY : src/nfsd_app.o
 
@@ -336,6 +360,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/nfs_server_simple.o"
+	@echo "... src/nfs_server_simple.i"
+	@echo "... src/nfs_server_simple.s"
 	@echo "... src/nfsd_app.o"
 	@echo "... src/nfsd_app.i"
 	@echo "... src/nfsd_app.s"

@@ -229,6 +229,30 @@ __/src/config_manager.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/config_manager.cpp.s
 .PHONY : __/src/config_manager.cpp.s
 
+__/src/nfs_server_simple.o: __/src/nfs_server_simple.cpp.o
+.PHONY : __/src/nfs_server_simple.o
+
+# target to build an object file
+__/src/nfs_server_simple.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfs_server_simple.cpp.o
+.PHONY : __/src/nfs_server_simple.cpp.o
+
+__/src/nfs_server_simple.i: __/src/nfs_server_simple.cpp.i
+.PHONY : __/src/nfs_server_simple.i
+
+# target to preprocess a source file
+__/src/nfs_server_simple.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfs_server_simple.cpp.i
+.PHONY : __/src/nfs_server_simple.cpp.i
+
+__/src/nfs_server_simple.s: __/src/nfs_server_simple.cpp.s
+.PHONY : __/src/nfs_server_simple.s
+
+# target to generate assembly for a file
+__/src/nfs_server_simple.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfs_server_simple.cpp.s
+.PHONY : __/src/nfs_server_simple.cpp.s
+
 __/src/nfsd_app.o: __/src/nfsd_app.cpp.o
 .PHONY : __/src/nfsd_app.o
 
@@ -320,6 +344,9 @@ help:
 	@echo "... __/src/config_manager.o"
 	@echo "... __/src/config_manager.i"
 	@echo "... __/src/config_manager.s"
+	@echo "... __/src/nfs_server_simple.o"
+	@echo "... __/src/nfs_server_simple.i"
+	@echo "... __/src/nfs_server_simple.s"
 	@echo "... __/src/nfsd_app.o"
 	@echo "... __/src/nfsd_app.i"
 	@echo "... __/src/nfsd_app.s"
