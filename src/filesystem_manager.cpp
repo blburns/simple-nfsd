@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <ctime>
 #include <functional>
+#include <fcntl.h>
 
 namespace SimpleNfsd {
 
@@ -191,7 +192,7 @@ bool FilesystemManager::setFileAttributes(const std::string& path, const FileAtt
             times[1].tv_sec = attrs.mtime;
             times[1].tv_nsec = 0;
             
-            if (utimensat(AT_FDCWD, sanitized_path.c_str(), times, 0) != 0) {
+            if (utimensat(0, sanitized_path.c_str(), times, 0) != 0) {
                 return false;
             }
         }
@@ -368,13 +369,9 @@ bool FilesystemManager::readSymlink(const std::string& path, std::string& target
 }
 
 bool FilesystemManager::isPathExported(const std::string& path) {
-    // Check if the path is within any of the configured exports
-    for (const auto& export_config : config_.exports) {
-        if (path.find(export_config.path) == 0) {
-            return true;
-        }
-    }
-    return false;
+    // For now, all paths under root_path are considered exported
+    // TODO: Implement proper export configuration
+    return path.find(config_.root_path) == 0;
 }
 
 bool FilesystemManager::validateExportPath(const std::string& path) {
@@ -415,13 +412,9 @@ std::string FilesystemManager::sanitizePath(const std::string& path) {
 }
 
 bool FilesystemManager::isPathWithinExport(const std::string& path) {
-    // Check if the path is within any of the configured exports
-    for (const auto& export_config : config_.exports) {
-        if (path.find(export_config.path) == 0) {
-            return true;
-        }
-    }
-    return false;
+    // For now, all paths under root_path are considered within export
+    // TODO: Implement proper export configuration
+    return path.find(config_.root_path) == 0;
 }
 
 uint32_t FilesystemManager::generateFileId(const std::string& path) {

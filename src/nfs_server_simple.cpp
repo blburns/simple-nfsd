@@ -471,8 +471,14 @@ void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthConte
         case 3:  // LOOKUP
             handleNfsv2Lookup(message, auth_context);
             break;
+        case 4:  // LINK
+            handleNfsv2Link(message, auth_context);
+            break;
         case 5:  // READ
             handleNfsv2Read(message, auth_context);
+            break;
+        case 6:  // SYMLINK
+            handleNfsv2SymLink(message, auth_context);
             break;
         case 7:  // WRITE
             handleNfsv2Write(message, auth_context);
@@ -1669,11 +1675,138 @@ std::vector<uint32_t> NfsServerSimple::getSupportedNfsVersions() {
 // Additional NFSv2 procedures implementation
 void NfsServerSimple::handleNfsv2SetAttr(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement SETATTR procedure
-        // Parse file handle and attributes from message
+        // Parse file handle and attributes from message data
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid SETATTR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (first 4 bytes)
+        uint32_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 4);
+        file_handle = ntohl(file_handle);
+        
+        // Extract attributes (next 4 bytes - simplified)
+        uint32_t attributes = 0;
+        memcpy(&attributes, message.data.data() + 4, 4);
+        attributes = ntohl(attributes);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(file_handle);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
         // Check access permissions
-        // Update file attributes
-        std::cout << "Handled NFSv2 SETATTR procedure (user: " << auth_context.uid << ")" << std::endl;
+        if (!checkAccess(file_path, auth_context, false, true)) {
+            std::cerr << "Access denied for SETATTR on: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Validate path
+        if (!validatePath(file_path)) {
+            std::cerr << "Invalid path: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Update file attributes (simplified implementation)
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (!std::filesystem::exists(full_path)) {
+            std::cerr << "File not found: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // For now, just update the modification time
+        std::filesystem::file_time_type now = std::filesystem::file_time_type::clock::now();
+        std::filesystem::last_write_time(full_path, now);
+        
+        // Create response data (file attributes after update)
+        std::vector<uint8_t> response_data;
+        
+        // File type (1 = regular file, 2 = directory)
+        uint32_t file_type = std::filesystem::is_directory(full_path) ? 2 : 1;
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        // File mode (permissions)
+        uint32_t file_mode = 0644; // Default permissions
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        // Number of links
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        // User ID
+        uint32_t uid = 0;
+        uid = htonl(uid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        
+        // Group ID
+        uint32_t gid = 0;
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        // File size
+        uint32_t file_size = 0;
+        if (std::filesystem::is_regular_file(full_path)) {
+            file_size = static_cast<uint32_t>(std::filesystem::file_size(full_path));
+        }
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        // Block size
+        uint32_t block_size = 512;
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        // Number of blocks
+        uint32_t blocks = (file_size + block_size - 1) / block_size;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        // Rdev (device number)
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        // File size (64-bit)
+        uint64_t file_size_64 = file_size;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        // File system ID
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        // File ID
+        uint32_t fileid = file_handle;
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        // Times (simplified)
+        uint32_t atime = 0, mtime = 0, ctime = 0;
+        atime = htonl(atime);
+        mtime = htonl(mtime);
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 SETATTR for file: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in SETATTR: " << e.what() << std::endl;
         failed_requests_++;
@@ -1682,12 +1815,169 @@ void NfsServerSimple::handleNfsv2SetAttr(const RpcMessage& message, const AuthCo
 
 void NfsServerSimple::handleNfsv2Create(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement CREATE procedure
-        // Parse directory file handle and filename from message
-        // Check access permissions
-        // Create new file
-        // Return file handle
-        std::cout << "Handled NFSv2 CREATE procedure (user: " << auth_context.uid << ")" << std::endl;
+        // Parse directory file handle and filename from message data
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid CREATE request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (first 4 bytes)
+        uint32_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 4);
+        dir_handle = ntohl(dir_handle);
+        
+        // Extract filename length (next 4 bytes)
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + 4, 4);
+        name_len = ntohl(name_len);
+        
+        if (message.data.size() < 8 + name_len) {
+            std::cerr << "Invalid CREATE request: insufficient data for filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract filename
+        std::string filename(reinterpret_cast<const char*>(message.data.data() + 8), name_len);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for directory
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for CREATE in: " << dir_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct full path
+        std::string full_path = dir_path;
+        if (!full_path.empty() && full_path.back() != '/') {
+            full_path += "/";
+        }
+        full_path += filename;
+        
+        // Validate path
+        if (!validatePath(full_path)) {
+            std::cerr << "Invalid path: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if file already exists
+        std::filesystem::path fs_path = std::filesystem::path(config_.root_path) / full_path;
+        if (std::filesystem::exists(fs_path)) {
+            std::cerr << "File already exists: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create the file
+        try {
+            std::ofstream file(fs_path);
+            if (!file.is_open()) {
+                std::cerr << "Failed to create file: " << fs_path << std::endl;
+                failed_requests_++;
+                return;
+            }
+            file.close();
+        } catch (const std::exception& e) {
+            std::cerr << "Error creating file: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get or create file handle
+        uint32_t file_handle = getHandleForPath(full_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // File handle
+        uint32_t handle_net = htonl(file_handle);
+        response_data.insert(response_data.end(), (uint8_t*)&handle_net, (uint8_t*)&handle_net + 4);
+        
+        // File attributes (simplified)
+        uint32_t file_type = 1; // Regular file
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        // File mode
+        uint32_t file_mode = 0644; // Default permissions
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        // Number of links
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        // User ID
+        uint32_t uid = 0;
+        uid = htonl(uid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        
+        // Group ID
+        uint32_t gid = 0;
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        // File size (0 for new file)
+        uint32_t file_size = 0;
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        // Block size
+        uint32_t block_size = 512;
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        // Number of blocks
+        uint32_t blocks = 0;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        // Rdev
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        // File size (64-bit)
+        uint64_t file_size_64 = 0;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        // File system ID
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        // File ID
+        uint32_t fileid = file_handle;
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        // Times (simplified)
+        uint32_t atime = 0, mtime = 0, ctime = 0;
+        atime = htonl(atime);
+        mtime = htonl(mtime);
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 CREATE for: " << full_path << " (handle: " << file_handle << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in CREATE: " << e.what() << std::endl;
         failed_requests_++;
@@ -1696,12 +1986,167 @@ void NfsServerSimple::handleNfsv2Create(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv2MkDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement MKDIR procedure
-        // Parse directory file handle and directory name from message
-        // Check access permissions
-        // Create new directory
-        // Return directory file handle
-        std::cout << "Handled NFSv2 MKDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+        // Parse directory file handle and directory name from message data
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid MKDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (first 4 bytes)
+        uint32_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 4);
+        dir_handle = ntohl(dir_handle);
+        
+        // Extract directory name length (next 4 bytes)
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + 4, 4);
+        name_len = ntohl(name_len);
+        
+        if (message.data.size() < 8 + name_len) {
+            std::cerr << "Invalid MKDIR request: insufficient data for directory name" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory name
+        std::string dirname(reinterpret_cast<const char*>(message.data.data() + 8), name_len);
+        
+        // Get parent directory path from handle
+        std::string parent_path = getPathFromHandle(dir_handle);
+        if (parent_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for parent directory
+        if (!checkAccess(parent_path, auth_context, false, true)) {
+            std::cerr << "Access denied for MKDIR in: " << parent_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct full path
+        std::string full_path = parent_path;
+        if (!full_path.empty() && full_path.back() != '/') {
+            full_path += "/";
+        }
+        full_path += dirname;
+        
+        // Validate path
+        if (!validatePath(full_path)) {
+            std::cerr << "Invalid path: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if directory already exists
+        std::filesystem::path fs_path = std::filesystem::path(config_.root_path) / full_path;
+        if (std::filesystem::exists(fs_path)) {
+            std::cerr << "Directory already exists: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create the directory
+        try {
+            if (!std::filesystem::create_directory(fs_path)) {
+                std::cerr << "Failed to create directory: " << fs_path << std::endl;
+                failed_requests_++;
+                return;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error creating directory: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get or create directory handle
+        uint32_t dir_handle_new = getHandleForPath(full_path);
+        
+        // Create response data (same as CREATE but with file_type = 2 for directory)
+        std::vector<uint8_t> response_data;
+        
+        // Directory handle
+        uint32_t handle_net = htonl(dir_handle_new);
+        response_data.insert(response_data.end(), (uint8_t*)&handle_net, (uint8_t*)&handle_net + 4);
+        
+        // File attributes (directory)
+        uint32_t file_type = 2; // Directory
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        // File mode
+        uint32_t file_mode = 0755; // Directory permissions
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        // Number of links
+        uint32_t nlink = 2; // Directory has 2 links (itself and parent)
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        // User ID
+        uint32_t uid = 0;
+        uid = htonl(uid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        
+        // Group ID
+        uint32_t gid = 0;
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        // File size (0 for directory)
+        uint32_t file_size = 0;
+        file_size = htonl(file_size);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size, (uint8_t*)&file_size + 4);
+        
+        // Block size
+        uint32_t block_size = 512;
+        block_size = htonl(block_size);
+        response_data.insert(response_data.end(), (uint8_t*)&block_size, (uint8_t*)&block_size + 4);
+        
+        // Number of blocks
+        uint32_t blocks = 0;
+        blocks = htonl(blocks);
+        response_data.insert(response_data.end(), (uint8_t*)&blocks, (uint8_t*)&blocks + 4);
+        
+        // Rdev
+        uint32_t rdev = 0;
+        rdev = htonl(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 4);
+        
+        // File size (64-bit)
+        uint64_t file_size_64 = 0;
+        file_size_64 = htonll_custom(file_size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&file_size_64, (uint8_t*)&file_size_64 + 8);
+        
+        // File system ID
+        uint32_t fsid = 1;
+        fsid = htonl(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 4);
+        
+        // File ID
+        uint32_t fileid = dir_handle_new;
+        fileid = htonl(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 4);
+        
+        // Times (simplified)
+        uint32_t atime = 0, mtime = 0, ctime = 0;
+        atime = htonl(atime);
+        mtime = htonl(mtime);
+        ctime = htonl(ctime);
+        response_data.insert(response_data.end(), (uint8_t*)&atime, (uint8_t*)&atime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime, (uint8_t*)&mtime + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime, (uint8_t*)&ctime + 4);
+        
+        // Create RPC reply
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 MKDIR for: " << full_path << " (handle: " << dir_handle_new << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in MKDIR: " << e.what() << std::endl;
         failed_requests_++;
@@ -1710,11 +2155,82 @@ void NfsServerSimple::handleNfsv2MkDir(const RpcMessage& message, const AuthCont
 
 void NfsServerSimple::handleNfsv2RmDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement RMDIR procedure
-        // Parse directory file handle from message
+        // Parse directory file handle from message data
+        if (message.data.size() < 4) {
+            std::cerr << "Invalid RMDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (first 4 bytes)
+        uint32_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 4);
+        dir_handle = ntohl(dir_handle);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
         // Check access permissions
-        // Remove directory (must be empty)
-        std::cout << "Handled NFSv2 RMDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for RMDIR on: " << dir_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Validate path
+        if (!validatePath(dir_path)) {
+            std::cerr << "Invalid path: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if directory exists and is empty
+        std::filesystem::path fs_path = std::filesystem::path(config_.root_path) / dir_path;
+        if (!std::filesystem::exists(fs_path)) {
+            std::cerr << "Directory not found: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        if (!std::filesystem::is_directory(fs_path)) {
+            std::cerr << "Path is not a directory: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if directory is empty
+        bool is_empty = std::filesystem::is_empty(fs_path);
+        if (!is_empty) {
+            std::cerr << "Directory not empty: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Remove the directory
+        try {
+            if (!std::filesystem::remove(fs_path)) {
+                std::cerr << "Failed to remove directory: " << fs_path << std::endl;
+                failed_requests_++;
+                return;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error removing directory: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create RPC reply (RMDIR returns no data on success)
+        std::vector<uint8_t> response_data;
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 RMDIR for: " << dir_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in RMDIR: " << e.what() << std::endl;
         failed_requests_++;
@@ -1723,11 +2239,95 @@ void NfsServerSimple::handleNfsv2RmDir(const RpcMessage& message, const AuthCont
 
 void NfsServerSimple::handleNfsv2Remove(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement REMOVE procedure
-        // Parse directory file handle and filename from message
-        // Check access permissions
-        // Remove file
-        std::cout << "Handled NFSv2 REMOVE procedure (user: " << auth_context.uid << ")" << std::endl;
+        // Parse directory file handle and filename from message data
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid REMOVE request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (first 4 bytes)
+        uint32_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 4);
+        dir_handle = ntohl(dir_handle);
+        
+        // Extract filename length (next 4 bytes)
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + 4, 4);
+        name_len = ntohl(name_len);
+        
+        if (message.data.size() < 8 + name_len) {
+            std::cerr << "Invalid REMOVE request: insufficient data for filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract filename
+        std::string filename(reinterpret_cast<const char*>(message.data.data() + 8), name_len);
+        
+        // Get parent directory path from handle
+        std::string parent_path = getPathFromHandle(dir_handle);
+        if (parent_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for parent directory
+        if (!checkAccess(parent_path, auth_context, false, true)) {
+            std::cerr << "Access denied for REMOVE in: " << parent_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct full path
+        std::string full_path = parent_path;
+        if (!full_path.empty() && full_path.back() != '/') {
+            full_path += "/";
+        }
+        full_path += filename;
+        
+        // Validate path
+        if (!validatePath(full_path)) {
+            std::cerr << "Invalid path: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if file exists
+        std::filesystem::path fs_path = std::filesystem::path(config_.root_path) / full_path;
+        if (!std::filesystem::exists(fs_path)) {
+            std::cerr << "File not found: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        if (std::filesystem::is_directory(fs_path)) {
+            std::cerr << "Cannot remove directory with REMOVE: " << fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Remove the file
+        try {
+            if (!std::filesystem::remove(fs_path)) {
+                std::cerr << "Failed to remove file: " << fs_path << std::endl;
+                failed_requests_++;
+                return;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error removing file: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create RPC reply (REMOVE returns no data on success)
+        std::vector<uint8_t> response_data;
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 REMOVE for: " << full_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in REMOVE: " << e.what() << std::endl;
         failed_requests_++;
@@ -1736,13 +2336,374 @@ void NfsServerSimple::handleNfsv2Remove(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv2Rename(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement RENAME procedure
-        // Parse source and destination file handles and names from message
-        // Check access permissions
-        // Rename file/directory
-        std::cout << "Handled NFSv2 RENAME procedure (user: " << auth_context.uid << ")" << std::endl;
+        // Parse source and destination file handles and names from message data
+        if (message.data.size() < 16) {
+            std::cerr << "Invalid RENAME request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        
+        // Extract source directory handle (first 4 bytes)
+        uint32_t src_dir_handle = 0;
+        memcpy(&src_dir_handle, message.data.data() + offset, 4);
+        src_dir_handle = ntohl(src_dir_handle);
+        offset += 4;
+        
+        // Extract source filename length (next 4 bytes)
+        uint32_t src_name_len = 0;
+        memcpy(&src_name_len, message.data.data() + offset, 4);
+        src_name_len = ntohl(src_name_len);
+        offset += 4;
+        
+        if (message.data.size() < offset + src_name_len + 8) {
+            std::cerr << "Invalid RENAME request: insufficient data for source filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract source filename
+        std::string src_filename(reinterpret_cast<const char*>(message.data.data() + offset), src_name_len);
+        offset += src_name_len;
+        
+        // Extract destination directory handle (next 4 bytes)
+        uint32_t dst_dir_handle = 0;
+        memcpy(&dst_dir_handle, message.data.data() + offset, 4);
+        dst_dir_handle = ntohl(dst_dir_handle);
+        offset += 4;
+        
+        // Extract destination filename length (next 4 bytes)
+        uint32_t dst_name_len = 0;
+        memcpy(&dst_name_len, message.data.data() + offset, 4);
+        dst_name_len = ntohl(dst_name_len);
+        offset += 4;
+        
+        if (message.data.size() < offset + dst_name_len) {
+            std::cerr << "Invalid RENAME request: insufficient data for destination filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract destination filename
+        std::string dst_filename(reinterpret_cast<const char*>(message.data.data() + offset), dst_name_len);
+        
+        // Get source directory path from handle
+        std::string src_parent_path = getPathFromHandle(src_dir_handle);
+        if (src_parent_path.empty()) {
+            std::cerr << "Invalid source directory handle: " << src_dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get destination directory path from handle
+        std::string dst_parent_path = getPathFromHandle(dst_dir_handle);
+        if (dst_parent_path.empty()) {
+            std::cerr << "Invalid destination directory handle: " << dst_dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for both directories
+        if (!checkAccess(src_parent_path, auth_context, false, true)) {
+            std::cerr << "Access denied for RENAME source: " << src_parent_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        if (!checkAccess(dst_parent_path, auth_context, false, true)) {
+            std::cerr << "Access denied for RENAME destination: " << dst_parent_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct source and destination paths
+        std::string src_full_path = src_parent_path;
+        if (!src_full_path.empty() && src_full_path.back() != '/') {
+            src_full_path += "/";
+        }
+        src_full_path += src_filename;
+        
+        std::string dst_full_path = dst_parent_path;
+        if (!dst_full_path.empty() && dst_full_path.back() != '/') {
+            dst_full_path += "/";
+        }
+        dst_full_path += dst_filename;
+        
+        // Validate paths
+        if (!validatePath(src_full_path) || !validatePath(dst_full_path)) {
+            std::cerr << "Invalid path in RENAME: " << src_full_path << " -> " << dst_full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if source exists
+        std::filesystem::path src_fs_path = std::filesystem::path(config_.root_path) / src_full_path;
+        if (!std::filesystem::exists(src_fs_path)) {
+            std::cerr << "Source not found: " << src_fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if destination already exists
+        std::filesystem::path dst_fs_path = std::filesystem::path(config_.root_path) / dst_full_path;
+        if (std::filesystem::exists(dst_fs_path)) {
+            std::cerr << "Destination already exists: " << dst_fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Rename the file/directory
+        try {
+            std::filesystem::rename(src_fs_path, dst_fs_path);
+        } catch (const std::exception& e) {
+            std::cerr << "Error renaming: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create RPC reply (RENAME returns no data on success)
+        std::vector<uint8_t> response_data;
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 RENAME: " << src_full_path << " -> " << dst_full_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in RENAME: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2Link(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // Parse source file handle and destination directory handle and name from message data
+        if (message.data.size() < 16) {
+            std::cerr << "Invalid LINK request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        
+        // Extract source file handle (first 4 bytes)
+        uint32_t src_file_handle = 0;
+        memcpy(&src_file_handle, message.data.data() + offset, 4);
+        src_file_handle = ntohl(src_file_handle);
+        offset += 4;
+        
+        // Extract destination directory handle (next 4 bytes)
+        uint32_t dst_dir_handle = 0;
+        memcpy(&dst_dir_handle, message.data.data() + offset, 4);
+        dst_dir_handle = ntohl(dst_dir_handle);
+        offset += 4;
+        
+        // Extract destination filename length (next 4 bytes)
+        uint32_t dst_name_len = 0;
+        memcpy(&dst_name_len, message.data.data() + offset, 4);
+        dst_name_len = ntohl(dst_name_len);
+        offset += 4;
+        
+        if (message.data.size() < offset + dst_name_len) {
+            std::cerr << "Invalid LINK request: insufficient data for destination filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract destination filename
+        std::string dst_filename(reinterpret_cast<const char*>(message.data.data() + offset), dst_name_len);
+        
+        // Get source file path from handle
+        std::string src_file_path = getPathFromHandle(src_file_handle);
+        if (src_file_path.empty()) {
+            std::cerr << "Invalid source file handle: " << src_file_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get destination directory path from handle
+        std::string dst_dir_path = getPathFromHandle(dst_dir_handle);
+        if (dst_dir_path.empty()) {
+            std::cerr << "Invalid destination directory handle: " << dst_dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for source file
+        if (!checkAccess(src_file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for LINK source: " << src_file_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for destination directory
+        if (!checkAccess(dst_dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for LINK destination: " << dst_dir_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct destination path
+        std::string dst_full_path = dst_dir_path;
+        if (!dst_full_path.empty() && dst_full_path.back() != '/') {
+            dst_full_path += "/";
+        }
+        dst_full_path += dst_filename;
+        
+        // Validate paths
+        if (!validatePath(src_file_path) || !validatePath(dst_full_path)) {
+            std::cerr << "Invalid path in LINK: " << src_file_path << " -> " << dst_full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if source exists and is a file
+        std::filesystem::path src_fs_path = std::filesystem::path(config_.root_path) / src_file_path;
+        if (!std::filesystem::exists(src_fs_path)) {
+            std::cerr << "Source file not found: " << src_fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        if (std::filesystem::is_directory(src_fs_path)) {
+            std::cerr << "Cannot create hard link to directory: " << src_fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if destination already exists
+        std::filesystem::path dst_fs_path = std::filesystem::path(config_.root_path) / dst_full_path;
+        if (std::filesystem::exists(dst_fs_path)) {
+            std::cerr << "Destination already exists: " << dst_fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create the hard link
+        try {
+            std::filesystem::create_hard_link(src_fs_path, dst_fs_path);
+        } catch (const std::exception& e) {
+            std::cerr << "Error creating hard link: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create RPC reply (LINK returns no data on success)
+        std::vector<uint8_t> response_data;
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 LINK: " << src_file_path << " -> " << dst_full_path << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in LINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2SymLink(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // Parse destination directory handle, symlink name, and target path from message data
+        if (message.data.size() < 16) {
+            std::cerr << "Invalid SYMLINK request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        
+        // Extract destination directory handle (first 4 bytes)
+        uint32_t dst_dir_handle = 0;
+        memcpy(&dst_dir_handle, message.data.data() + offset, 4);
+        dst_dir_handle = ntohl(dst_dir_handle);
+        offset += 4;
+        
+        // Extract symlink name length (next 4 bytes)
+        uint32_t link_name_len = 0;
+        memcpy(&link_name_len, message.data.data() + offset, 4);
+        link_name_len = ntohl(link_name_len);
+        offset += 4;
+        
+        if (message.data.size() < offset + link_name_len + 4) {
+            std::cerr << "Invalid SYMLINK request: insufficient data for symlink name" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract symlink name
+        std::string link_name(reinterpret_cast<const char*>(message.data.data() + offset), link_name_len);
+        offset += link_name_len;
+        
+        // Extract target path length (next 4 bytes)
+        uint32_t target_path_len = 0;
+        memcpy(&target_path_len, message.data.data() + offset, 4);
+        target_path_len = ntohl(target_path_len);
+        offset += 4;
+        
+        if (message.data.size() < offset + target_path_len) {
+            std::cerr << "Invalid SYMLINK request: insufficient data for target path" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract target path
+        std::string target_path(reinterpret_cast<const char*>(message.data.data() + offset), target_path_len);
+        
+        // Get destination directory path from handle
+        std::string dst_dir_path = getPathFromHandle(dst_dir_handle);
+        if (dst_dir_path.empty()) {
+            std::cerr << "Invalid destination directory handle: " << dst_dir_handle << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions for destination directory
+        if (!checkAccess(dst_dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for SYMLINK destination: " << dst_dir_path << " (user: " << auth_context.uid << ")" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Construct symlink path
+        std::string symlink_full_path = dst_dir_path;
+        if (!symlink_full_path.empty() && symlink_full_path.back() != '/') {
+            symlink_full_path += "/";
+        }
+        symlink_full_path += link_name;
+        
+        // Validate symlink path
+        if (!validatePath(symlink_full_path)) {
+            std::cerr << "Invalid symlink path: " << symlink_full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check if symlink already exists
+        std::filesystem::path symlink_fs_path = std::filesystem::path(config_.root_path) / symlink_full_path;
+        if (std::filesystem::exists(symlink_fs_path)) {
+            std::cerr << "Symlink already exists: " << symlink_fs_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create the symbolic link
+        try {
+            std::filesystem::create_symlink(target_path, symlink_fs_path);
+        } catch (const std::exception& e) {
+            std::cerr << "Error creating symbolic link: " << e.what() << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create RPC reply (SYMLINK returns no data on success)
+        std::vector<uint8_t> response_data;
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        
+        // TODO: Send reply back to client
+        std::cout << "Handled NFSv2 SYMLINK: " << symlink_full_path << " -> " << target_path << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in SYMLINK: " << e.what() << std::endl;
         failed_requests_++;
     }
 }

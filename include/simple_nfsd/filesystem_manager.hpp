@@ -3,6 +3,7 @@
 
 #include "simple_nfsd/rpc_protocol.hpp"
 #include "simple_nfsd/config_manager.hpp"
+#include "simple_nfsd/nfs_server_simple.hpp"
 #include <string>
 #include <vector>
 #include <map>

@@ -123,7 +123,9 @@ private:
     void handleNfsv2GetAttr(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2SetAttr(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2Lookup(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2Link(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2Read(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2SymLink(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2Write(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2Create(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2MkDir(const RpcMessage& message, const AuthContext& auth_context);

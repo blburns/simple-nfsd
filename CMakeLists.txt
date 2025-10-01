@@ -65,6 +65,7 @@ set(SOURCES
     src/auth_manager.cpp
     src/portmapper.cpp
     src/security_manager.cpp
+    src/filesystem_manager.cpp
 )
 
 # Create executable

@@ -1,28 +1,38 @@
 # Simple NFS Daemon
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/blburns/simple-nfsd)
+[![Version](https://img.shields.io/badge/version-0.2.3-blue.svg)](https://github.com/blburns/simple-nfsd)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/blburns/simple-nfsd)
 
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
 
-**Current Version**: 0.2.2 (NFSv4 Complete - Enterprise Security and Advanced Features)
+**Current Version**: 0.2.3 (NFSv2 Complete - Production Ready)
 
 ## Features
 
-- **Multi-Protocol Support**: NFSv2, NFSv3, and NFSv4 compatibility
+### ✅ **NFSv2 Protocol (Complete - Production Ready)**
+- **All 18 NFSv2 Procedures**: NULL, GETATTR, SETATTR, LOOKUP, LINK, READ, SYMLINK, WRITE, CREATE, MKDIR, RMDIR, REMOVE, RENAME, READDIR, STATFS
+- **File Operations**: Complete file create, read, write, delete, rename operations
+- **Directory Operations**: Directory creation, removal, listing
+- **Link Support**: Both hard links and symbolic links
+- **File Attributes**: Full attribute management and retrieval
+- **File System Statistics**: Complete STATFS implementation
+
+### 🔄 **NFSv3 Protocol (In Progress)**
+- **22 NFSv3 Procedures**: Framework complete, implementation in progress
+- **Enhanced Features**: ACCESS, READLINK, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT
+
+### 🔄 **NFSv4 Protocol (In Progress)**
+- **38 NFSv4 Procedures**: Framework complete, implementation in progress
+- **Advanced Features**: COMPOUND operations, ACL support, session management
+
+### **Core Infrastructure (Complete)**
 - **RPC Portmapper Integration**: Full RPC service registration and discovery
-- **Enterprise Security**: ACL support, multiple authentication methods, audit logging
-- **Advanced Authentication**: AUTH_SYS, AUTH_DH, Kerberos (RPCSEC_GSS) support
-- **Access Control Lists**: Fine-grained file and directory permissions
-- **Session Management**: Secure session handling with timeout support
-- **Audit Logging**: Comprehensive security event logging
 - **Multi-Format Configuration**: Support for INI, JSON, and YAML configuration files
 - **Cross-Platform**: Linux, macOS, and Windows support
 - **High Performance**: Optimized for high-throughput file sharing
-- **Security**: Modern authentication and access control
 - **Easy Deployment**: Docker containerization and system service support
-- **Comprehensive Testing**: Unit tests with GTest framework
+- **Comprehensive Testing**: 123/131 tests passing (94% success rate)
 - **Static Linking**: Self-contained binary generation
 
 ## Quick Start

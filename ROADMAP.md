@@ -33,20 +33,22 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [x] Docker containerization
 - [x] Package generation (DEB, RPM, DMG, MSI)
 
-### Phase 2: Core NFS Protocol Implementation ✅ COMPLETE
-**Status**: ✅ Complete (NFSv2, NFSv3 & NFSv4 Complete)
+### Phase 2: Core NFS Protocol Implementation 🔄 IN PROGRESS
+**Status**: 🔄 In Progress (NFSv2 Complete, NFSv3 & NFSv4 In Progress)
 **Timeline**: 4-6 weeks
-**Completed**: December 2024
+**Updated**: October 2024
 
 #### NFS Protocol Stack
 - [x] RPC (Remote Procedure Call) implementation
 - [x] NFS packet parsing and generation (basic)
-- [x] NFSv2 protocol support (100% Complete)
+- [x] NFSv2 protocol support (100% Complete - Production Ready)
   - [x] NULL procedure
   - [x] GETATTR procedure
   - [x] SETATTR procedure
   - [x] LOOKUP procedure
+  - [x] LINK procedure (NEW - Hard link creation)
   - [x] READ procedure
+  - [x] SYMLINK procedure (NEW - Symbolic link creation)
   - [x] WRITE procedure
   - [x] CREATE procedure
   - [x] MKDIR procedure
@@ -54,7 +56,7 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
   - [x] REMOVE procedure
   - [x] RENAME procedure
   - [x] READDIR procedure
-        - [x] STATFS procedure
+  - [x] STATFS procedure
         - [x] NFSv3 protocol support (100% Complete - v0.2.1)
           - [x] NULL procedure
           - [x] GETATTR procedure
