@@ -477,4 +477,5 @@ tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o: \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/config_manager.hpp \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/nfs_server_simple.hpp \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/rpc_protocol.hpp \
-  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/auth_manager.hpp
+  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/auth_manager.hpp \
+  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/portmapper.hpp

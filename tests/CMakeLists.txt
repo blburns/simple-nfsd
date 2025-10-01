@@ -32,7 +32,9 @@ target_sources(simple-nfsd-tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/nfs_server_simple.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/rpc_protocol.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/portmapper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv2_procedures.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv3_portmapper.cpp
 )
 
 # Add test source files

@@ -33,31 +33,67 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [ ] Package generation (DEB, RPM, DMG, MSI)
 
 ### Phase 2: Core NFS Protocol Implementation
-**Status**: ✅ Completed (100% Complete)
+**Status**: 🔄 In Progress (NFSv2 & NFSv3 Complete, NFSv4 Pending)
 **Timeline**: 4-6 weeks
 
 #### NFS Protocol Stack
 - [x] RPC (Remote Procedure Call) implementation
 - [x] NFS packet parsing and generation (basic)
-- [x] NFSv2 protocol support (complete)
+- [x] NFSv2 protocol support (100% Complete)
   - [x] NULL procedure
   - [x] GETATTR procedure
+  - [x] SETATTR procedure
   - [x] LOOKUP procedure
   - [x] READ procedure
   - [x] WRITE procedure
+  - [x] CREATE procedure
+  - [x] MKDIR procedure
+  - [x] RMDIR procedure
+  - [x] REMOVE procedure
+  - [x] RENAME procedure
   - [x] READDIR procedure
-  - [x] STATFS procedure
-- [ ] NFSv3 protocol support
-- [ ] NFSv4 protocol support
+        - [x] STATFS procedure
+        - [x] NFSv3 protocol support (100% Complete - v0.2.1)
+          - [x] NULL procedure
+          - [x] GETATTR procedure
+          - [x] SETATTR procedure
+          - [x] LOOKUP procedure
+          - [x] ACCESS procedure
+          - [x] READLINK procedure
+          - [x] READ procedure
+          - [x] WRITE procedure
+          - [x] CREATE procedure
+          - [x] MKDIR procedure
+          - [x] SYMLINK procedure
+          - [x] MKNOD procedure
+          - [x] REMOVE procedure
+          - [x] RMDIR procedure
+          - [x] RENAME procedure
+          - [x] LINK procedure
+          - [x] READDIR procedure
+          - [x] READDIRPLUS procedure
+          - [x] FSSTAT procedure
+          - [x] FSINFO procedure
+          - [x] PATHCONF procedure
+          - [x] COMMIT procedure
+        - [ ] NFSv4 protocol support (v0.2.2)
 - [x] Protocol negotiation and version selection
+
+#### RPC Portmapper Integration
+- [x] Portmapper service implementation
+- [x] RPC service registration and discovery
+- [x] Portmapper procedure support (NULL, SET, UNSET, GETPORT, DUMP, CALLIT)
+- [x] Service mapping management
+- [x] Portmapper statistics and monitoring
+- [x] Integration with NFS server
 
 #### Network Layer
 - [x] TCP connection handling
 - [x] UDP connection handling
 - [x] Connection pooling and management
 - [x] Request/response queuing
-- [ ] Portmapper integration
-- [ ] RPC registration and discovery
+- [x] Portmapper integration
+- [x] RPC registration and discovery
 
 #### Authentication & Security
 - [ ] AUTH_SYS authentication

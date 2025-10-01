@@ -12,6 +12,7 @@
 #include "simple_nfsd/config_manager.hpp"
 #include "simple_nfsd/rpc_protocol.hpp"
 #include "simple_nfsd/auth_manager.hpp"
+#include "simple_nfsd/portmapper.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -91,6 +92,9 @@ private:
     // Authentication
     std::unique_ptr<AuthManager> auth_manager_;
     
+    // Portmapper service
+    std::unique_ptr<Portmapper> portmapper_;
+    
     // Statistics (atomic for thread safety)
     std::atomic<uint64_t> total_requests_{0};
     std::atomic<uint64_t> successful_requests_{0};
@@ -111,6 +115,9 @@ private:
     void handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context);
     
+    // Portmapper integration
+    void handlePortmapperCall(const RpcMessage& message);
+    
     // NFSv2 procedures
     void handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2GetAttr(const RpcMessage& message, const AuthContext& auth_context);
@@ -125,6 +132,30 @@ private:
     void handleNfsv2Rename(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2ReadDir(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2StatFS(const RpcMessage& message, const AuthContext& auth_context);
+    
+    // NFSv3 procedures
+    void handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3GetAttr(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3SetAttr(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Lookup(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Access(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3ReadLink(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Read(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Write(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Create(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3MkDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3SymLink(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3MkNod(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Remove(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3RmDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Rename(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Link(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context);
     
     // File system operations
     bool fileExists(const std::string& path) const;

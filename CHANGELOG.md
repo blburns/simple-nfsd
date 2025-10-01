@@ -12,23 +12,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 4: Advanced Features
 - Phase 5: Enterprise Features
 
+## [0.2.1] - 2024-12-19
+
+### Added
+- Complete NFSv3 protocol implementation (100% Complete):
+  - NULL procedure
+  - GETATTR procedure
+  - SETATTR procedure
+  - LOOKUP procedure
+  - ACCESS procedure
+  - READLINK procedure
+  - READ procedure
+  - WRITE procedure
+  - CREATE procedure
+  - MKDIR procedure
+  - SYMLINK procedure
+  - MKNOD procedure
+  - REMOVE procedure
+  - RMDIR procedure
+  - RENAME procedure
+  - LINK procedure
+  - READDIR procedure
+  - READDIRPLUS procedure
+  - FSSTAT procedure
+  - FSINFO procedure
+  - PATHCONF procedure
+  - COMMIT procedure
+- RPC Portmapper service implementation:
+  - Complete portmapper service with all standard procedures
+  - RPC service registration and discovery
+  - Service mapping management
+  - Portmapper statistics and monitoring
+  - Integration with NFS server
+- Enhanced RPC protocol support:
+  - Extended RPC procedure definitions for NFSv3 and NFSv4
+  - Improved RPC call routing based on program type
+  - Portmapper integration in RPC call handling
+- Comprehensive NFSv3 and Portmapper testing:
+  - 25+ new tests for NFSv3 procedures
+  - 10+ new tests for Portmapper functionality
+  - Integration tests for RPC program routing
+  - Performance tests for high-throughput scenarios
+- Updated documentation and versioning:
+  - Updated ROADMAP.md to reflect NFSv3 completion
+  - Updated ROADMAP_CHECKLIST.md with detailed NFSv3 tasks
+  - Updated README.md with NFSv3 and Portmapper features
+  - Version bump to 0.2.1 for NFSv3 release
+
+### Changed
+- Enhanced NFS server to support multiple RPC programs (NFS and Portmapper)
+- Improved RPC call routing to handle both NFS and Portmapper requests
+- Updated CMakeLists.txt to include new portmapper source files
+- Updated test suite to include comprehensive NFSv3 and Portmapper tests
+
+### Technical Details
+- Added 22 NFSv3 procedure handlers with proper routing
+- Implemented complete Portmapper service with 6 standard procedures
+- Enhanced RPC protocol with NFSv3 and NFSv4 procedure definitions
+- Added service registration and discovery mechanisms
+- Implemented comprehensive error handling and logging
+- Added performance monitoring and statistics collection
+
 ## [0.2.0] - 2024-12-19
 
 ### Added
 - AUTH_SYS authentication with user/group mapping and access control
 - NFS version negotiation (NFSv2, v3, v4 support)
-- Complete NFSv2 protocol implementation:
+- Complete NFSv2 protocol implementation (100% Complete):
   - NULL procedure
   - GETATTR procedure
+  - SETATTR procedure
   - LOOKUP procedure
   - READ procedure
   - WRITE procedure
+  - CREATE procedure
+  - MKDIR procedure
+  - RMDIR procedure
+  - REMOVE procedure
+  - RENAME procedure
   - READDIR procedure
   - STATFS procedure
 - RPC protocol integration with proper serialization/deserialization
 - Comprehensive error handling and logging
 - 32 comprehensive tests (29 passing, 3 expected failures)
-- Configuration examples for simple, production, and advanced scenarios
+- Comprehensive configuration examples in INI, JSON, and YAML formats:
+  - Simple configuration for basic NFS sharing
+  - Production configuration with security and performance optimizations
+  - Advanced configuration with enterprise features and high availability
 - Updated documentation structure
 
 ### Changed

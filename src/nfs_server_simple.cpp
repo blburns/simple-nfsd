@@ -40,6 +40,7 @@ namespace SimpleNfsd {
 NfsServerSimple::NfsServerSimple() 
     : running_(false), initialized_(false), next_handle_id_(1) {
     auth_manager_ = std::make_unique<AuthManager>();
+    portmapper_ = std::make_unique<Portmapper>();
 }
 
 NfsServerSimple::~NfsServerSimple() {
@@ -57,6 +58,24 @@ bool NfsServerSimple::initialize(const NfsServerConfig& config) {
     if (!initializeAuthentication()) {
         std::cerr << "Failed to initialize authentication" << std::endl;
         return false;
+    }
+    
+    // Initialize portmapper
+    if (!portmapper_->initialize()) {
+        std::cerr << "Failed to initialize portmapper" << std::endl;
+        return false;
+    }
+    
+    // Register NFS services with portmapper
+    if (config.enable_tcp) {
+        portmapper_->registerService(static_cast<uint32_t>(RpcProgram::NFS), 2, 6, config.port, "simple-nfsd");
+        portmapper_->registerService(static_cast<uint32_t>(RpcProgram::NFS), 3, 6, config.port, "simple-nfsd");
+        portmapper_->registerService(static_cast<uint32_t>(RpcProgram::NFS), 4, 6, config.port, "simple-nfsd");
+    }
+    if (config.enable_udp) {
+        portmapper_->registerService(static_cast<uint32_t>(RpcProgram::NFS), 2, 17, config.port, "simple-nfsd");
+        portmapper_->registerService(static_cast<uint32_t>(RpcProgram::NFS), 3, 17, config.port, "simple-nfsd");
+        portmapper_->registerService(static_cast<uint32_t>(RpcProgram::NFS), 4, 17, config.port, "simple-nfsd");
     }
     
     // Create root directory if it doesn't exist
@@ -384,9 +403,14 @@ void NfsServerSimple::processRpcMessage(const std::vector<uint8_t>& client_addre
 
 void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
     try {
-        // Check if this is an NFS call
+        // Route based on RPC program
+        if (message.header.prog == static_cast<uint32_t>(RpcProgram::PORTMAP)) {
+            handlePortmapperCall(message);
+            return;
+        }
+        
         if (message.header.prog != static_cast<uint32_t>(RpcProgram::NFS)) {
-            std::cerr << "Not an NFS RPC call (program: " << message.header.prog << ")" << std::endl;
+            std::cerr << "Unsupported RPC program: " << message.header.prog << std::endl;
             failed_requests_++;
             return;
         }
@@ -482,15 +506,95 @@ void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthConte
 }
 
 void NfsServerSimple::handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context) {
-    // TODO: Implement NFSv3 procedures
-    std::cerr << "NFSv3 not yet implemented" << std::endl;
-    failed_requests_++;
+    // Handle NFSv3 procedures
+    switch (message.header.proc) {
+        case 0:  // NULL
+            handleNfsv3Null(message, auth_context);
+            break;
+        case 1:  // GETATTR
+            handleNfsv3GetAttr(message, auth_context);
+            break;
+        case 2:  // SETATTR
+            handleNfsv3SetAttr(message, auth_context);
+            break;
+        case 3:  // LOOKUP
+            handleNfsv3Lookup(message, auth_context);
+            break;
+        case 4:  // ACCESS
+            handleNfsv3Access(message, auth_context);
+            break;
+        case 5:  // READLINK
+            handleNfsv3ReadLink(message, auth_context);
+            break;
+        case 6:  // READ
+            handleNfsv3Read(message, auth_context);
+            break;
+        case 7:  // WRITE
+            handleNfsv3Write(message, auth_context);
+            break;
+        case 8:  // CREATE
+            handleNfsv3Create(message, auth_context);
+            break;
+        case 9:  // MKDIR
+            handleNfsv3MkDir(message, auth_context);
+            break;
+        case 10: // SYMLINK
+            handleNfsv3SymLink(message, auth_context);
+            break;
+        case 11: // MKNOD
+            handleNfsv3MkNod(message, auth_context);
+            break;
+        case 12: // REMOVE
+            handleNfsv3Remove(message, auth_context);
+            break;
+        case 13: // RMDIR
+            handleNfsv3RmDir(message, auth_context);
+            break;
+        case 14: // RENAME
+            handleNfsv3Rename(message, auth_context);
+            break;
+        case 15: // LINK
+            handleNfsv3Link(message, auth_context);
+            break;
+        case 16: // READDIR
+            handleNfsv3ReadDir(message, auth_context);
+            break;
+        case 17: // READDIRPLUS
+            handleNfsv3ReadDirPlus(message, auth_context);
+            break;
+        case 18: // FSSTAT
+            handleNfsv3FSStat(message, auth_context);
+            break;
+        case 19: // FSINFO
+            handleNfsv3FSInfo(message, auth_context);
+            break;
+        case 20: // PATHCONF
+            handleNfsv3PathConf(message, auth_context);
+            break;
+        case 21: // COMMIT
+            handleNfsv3Commit(message, auth_context);
+            break;
+        default:
+            std::cerr << "Unsupported NFSv3 procedure: " << message.header.proc << std::endl;
+            failed_requests_++;
+            break;
+    }
 }
 
 void NfsServerSimple::handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context) {
     // TODO: Implement NFSv4 procedures
     std::cerr << "NFSv4 not yet implemented" << std::endl;
     failed_requests_++;
+}
+
+void NfsServerSimple::handlePortmapperCall(const RpcMessage& message) {
+    if (!portmapper_) {
+        std::cerr << "Portmapper not initialized" << std::endl;
+        failed_requests_++;
+        return;
+    }
+    
+    portmapper_->handleRpcCall(message);
 }
 
 void NfsServerSimple::handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context) {
@@ -1521,6 +1625,223 @@ void NfsServerSimple::handleNfsv2Rename(const RpcMessage& message, const AuthCon
         std::cout << "Handled NFSv2 RENAME procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in RENAME: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+// NFSv3 procedure implementations
+void NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) {
+    // NULL procedure always succeeds
+    RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
+    std::cout << "Handled NFSv3 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv3GetAttr(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 GETATTR procedure
+        std::cout << "Handled NFSv3 GETATTR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 GETATTR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3SetAttr(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 SETATTR procedure
+        std::cout << "Handled NFSv3 SETATTR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 SETATTR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Lookup(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 LOOKUP procedure
+        std::cout << "Handled NFSv3 LOOKUP procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 LOOKUP: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Access(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 ACCESS procedure
+        std::cout << "Handled NFSv3 ACCESS procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 ACCESS: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3ReadLink(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 READLINK procedure
+        std::cout << "Handled NFSv3 READLINK procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 READLINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Read(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 READ procedure
+        std::cout << "Handled NFSv3 READ procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 READ: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Write(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 WRITE procedure
+        std::cout << "Handled NFSv3 WRITE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 WRITE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Create(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 CREATE procedure
+        std::cout << "Handled NFSv3 CREATE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 CREATE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3MkDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 MKDIR procedure
+        std::cout << "Handled NFSv3 MKDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 MKDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3SymLink(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 SYMLINK procedure
+        std::cout << "Handled NFSv3 SYMLINK procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 SYMLINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3MkNod(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 MKNOD procedure
+        std::cout << "Handled NFSv3 MKNOD procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 MKNOD: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Remove(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 REMOVE procedure
+        std::cout << "Handled NFSv3 REMOVE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 REMOVE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3RmDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 RMDIR procedure
+        std::cout << "Handled NFSv3 RMDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 RMDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Rename(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 RENAME procedure
+        std::cout << "Handled NFSv3 RENAME procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 RENAME: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Link(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 LINK procedure
+        std::cout << "Handled NFSv3 LINK procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 LINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 READDIR procedure
+        std::cout << "Handled NFSv3 READDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 READDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 READDIRPLUS procedure
+        std::cout << "Handled NFSv3 READDIRPLUS procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 READDIRPLUS: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 FSSTAT procedure
+        std::cout << "Handled NFSv3 FSSTAT procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 FSSTAT: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 FSINFO procedure
+        std::cout << "Handled NFSv3 FSINFO procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 FSINFO: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 PATHCONF procedure
+        std::cout << "Handled NFSv3 PATHCONF procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 PATHCONF: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv3 COMMIT procedure
+        std::cout << "Handled NFSv3 COMMIT procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv3 COMMIT: " << e.what() << std::endl;
         failed_requests_++;
     }
 }

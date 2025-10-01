@@ -58,7 +58,7 @@ protected:
 
 // Test NFSv2 NULL procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2Null) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_NULL, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_NULL, {});
     
     // Test that NULL procedure works
     EXPECT_NO_THROW({
@@ -69,7 +69,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2Null) {
 
 // Test NFSv2 GETATTR procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2GetAttr) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_GETATTR, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_GETATTR, {});
     
     // Test GETATTR procedure
     EXPECT_NO_THROW({
@@ -89,7 +89,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2SetAttr) {
 
 // Test NFSv2 LOOKUP procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2Lookup) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_LOOKUP, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_LOOKUP, {});
     
     // Test LOOKUP procedure
     EXPECT_NO_THROW({
@@ -99,7 +99,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2Lookup) {
 
 // Test NFSv2 READ procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2Read) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_READ, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_READ, {});
     
     // Test READ procedure
     EXPECT_NO_THROW({
@@ -109,7 +109,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2Read) {
 
 // Test NFSv2 WRITE procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2Write) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_WRITE, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_WRITE, {});
     
     // Test WRITE procedure
     EXPECT_NO_THROW({
@@ -169,7 +169,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2Rename) {
 
 // Test NFSv2 READDIR procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2ReadDir) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_READDIR, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_READDIR, {});
     
     // Test READDIR procedure
     EXPECT_NO_THROW({
@@ -179,7 +179,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2ReadDir) {
 
 // Test NFSv2 STATFS procedure
 TEST_F(Nfsv2ProceduresTest, Nfsv2StatFS) {
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_STATFS, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_STATFS, {});
     
     // Test STATFS procedure
     EXPECT_NO_THROW({
@@ -214,7 +214,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2ErrorHandling) {
 // Test NFSv2 authentication integration
 TEST_F(Nfsv2ProceduresTest, Nfsv2AuthenticationIntegration) {
     // Test that NFSv2 procedures work with authentication
-    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_NULL, {});
+    RpcMessage message = RpcUtils::createCall(1, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_NULL, {});
     
     EXPECT_NO_THROW({
         std::cout << "Testing NFSv2 authentication integration" << std::endl;
@@ -235,7 +235,7 @@ TEST_F(Nfsv2ProceduresTest, Nfsv2Performance) {
     const int num_requests = 100;
     
     for (int i = 0; i < num_requests; ++i) {
-        RpcMessage message = RpcUtils::createCall(i, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFS_NULL, {});
+        RpcMessage message = RpcUtils::createCall(i, RpcProgram::NFS, RpcVersion::NFS_V2, RpcProcedure::NFSPROC_NULL, {});
         
         EXPECT_NO_THROW({
             // Process request

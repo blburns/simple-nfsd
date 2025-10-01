@@ -72,38 +72,10 @@ include CMakeFiles/simple-nfsd.dir/flags.make
 CMakeFiles/simple-nfsd.dir/codegen:
 .PHONY : CMakeFiles/simple-nfsd.dir/codegen
 
-CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
-CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp
-CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp
-
-CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp > CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i
-
-CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp -o CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s
-
-CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
-CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp
-CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp
-
-CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp > CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.i
-
-CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp -o CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.s
-
 CMakeFiles/simple-nfsd.dir/src/main.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
 CMakeFiles/simple-nfsd.dir/src/main.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/main.cpp
 CMakeFiles/simple-nfsd.dir/src/main.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/simple-nfsd.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/simple-nfsd.dir/src/main.cpp.o"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/main.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/main.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/main.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/main.cpp
 
 CMakeFiles/simple-nfsd.dir/src/main.cpp.i: cmake_force
@@ -113,6 +85,34 @@ CMakeFiles/simple-nfsd.dir/src/main.cpp.i: cmake_force
 CMakeFiles/simple-nfsd.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/main.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/main.cpp -o CMakeFiles/simple-nfsd.dir/src/main.cpp.s
+
+CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
+CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp
+CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp
+
+CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp > CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.i
+
+CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp -o CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s
+
+CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
+CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp
+CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp
+
+CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp > CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.i
+
+CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/config_manager.cpp -o CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.s
 
 CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
 CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfs_server_simple.cpp
@@ -128,24 +128,10 @@ CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfs_server_simple.cpp -o CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.s
 
-CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
-CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp
-CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp
-
-CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp > CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.i
-
-CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/nfsd_app.cpp -o CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s
-
 CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
 CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/rpc_protocol.cpp
 CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/rpc_protocol.cpp
 
 CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.i: cmake_force
@@ -156,29 +142,59 @@ CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/rpc_protocol.cpp -o CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.s
 
+CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
+CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp
+CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp
+
+CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp > CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.i
+
+CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp -o CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.s
+
+CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o: CMakeFiles/simple-nfsd.dir/flags.make
+CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/portmapper.cpp
+CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o: CMakeFiles/simple-nfsd.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o -MF CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o.d -o CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/portmapper.cpp
+
+CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/portmapper.cpp > CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.i
+
+CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/portmapper.cpp -o CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.s
+
 # Object files for target simple-nfsd
 simple__nfsd_OBJECTS = \
-"CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o" \
-"CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o" \
 "CMakeFiles/simple-nfsd.dir/src/main.cpp.o" \
-"CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o" \
 "CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o" \
-"CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o"
+"CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o" \
+"CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o" \
+"CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o" \
+"CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o" \
+"CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o"
 
 # External object files for target simple-nfsd
 simple__nfsd_EXTERNAL_OBJECTS =
 
-simple-nfsd: CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o
-simple-nfsd: CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o
 simple-nfsd: CMakeFiles/simple-nfsd.dir/src/main.cpp.o
-simple-nfsd: CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o
 simple-nfsd: CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.o
+simple-nfsd: CMakeFiles/simple-nfsd.dir/src/config_manager.cpp.o
+simple-nfsd: CMakeFiles/simple-nfsd.dir/src/nfs_server_simple.cpp.o
 simple-nfsd: CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o
+simple-nfsd: CMakeFiles/simple-nfsd.dir/src/auth_manager.cpp.o
+simple-nfsd: CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o
 simple-nfsd: CMakeFiles/simple-nfsd.dir/build.make
 simple-nfsd: /opt/local/libexec/openssl3/lib/libssl.dylib
 simple-nfsd: /opt/local/libexec/openssl3/lib/libcrypto.dylib
 simple-nfsd: CMakeFiles/simple-nfsd.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable simple-nfsd"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable simple-nfsd"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/simple-nfsd.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

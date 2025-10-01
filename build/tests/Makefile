@@ -301,6 +301,30 @@ __/src/nfsd_app.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfsd_app.cpp.s
 .PHONY : __/src/nfsd_app.cpp.s
 
+__/src/portmapper.o: __/src/portmapper.cpp.o
+.PHONY : __/src/portmapper.o
+
+# target to build an object file
+__/src/portmapper.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/portmapper.cpp.o
+.PHONY : __/src/portmapper.cpp.o
+
+__/src/portmapper.i: __/src/portmapper.cpp.i
+.PHONY : __/src/portmapper.i
+
+# target to preprocess a source file
+__/src/portmapper.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/portmapper.cpp.i
+.PHONY : __/src/portmapper.cpp.i
+
+__/src/portmapper.s: __/src/portmapper.cpp.s
+.PHONY : __/src/portmapper.s
+
+# target to generate assembly for a file
+__/src/portmapper.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/portmapper.cpp.s
+.PHONY : __/src/portmapper.cpp.s
+
 __/src/rpc_protocol.o: __/src/rpc_protocol.cpp.o
 .PHONY : __/src/rpc_protocol.o
 
@@ -421,6 +445,30 @@ test_nfsv2_procedures.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.s
 .PHONY : test_nfsv2_procedures.cpp.s
 
+test_nfsv3_portmapper.o: test_nfsv3_portmapper.cpp.o
+.PHONY : test_nfsv3_portmapper.o
+
+# target to build an object file
+test_nfsv3_portmapper.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv3_portmapper.cpp.o
+.PHONY : test_nfsv3_portmapper.cpp.o
+
+test_nfsv3_portmapper.i: test_nfsv3_portmapper.cpp.i
+.PHONY : test_nfsv3_portmapper.i
+
+# target to preprocess a source file
+test_nfsv3_portmapper.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv3_portmapper.cpp.i
+.PHONY : test_nfsv3_portmapper.cpp.i
+
+test_nfsv3_portmapper.s: test_nfsv3_portmapper.cpp.s
+.PHONY : test_nfsv3_portmapper.s
+
+# target to generate assembly for a file
+test_nfsv3_portmapper.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv3_portmapper.cpp.s
+.PHONY : test_nfsv3_portmapper.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -449,6 +497,9 @@ help:
 	@echo "... __/src/nfsd_app.o"
 	@echo "... __/src/nfsd_app.i"
 	@echo "... __/src/nfsd_app.s"
+	@echo "... __/src/portmapper.o"
+	@echo "... __/src/portmapper.i"
+	@echo "... __/src/portmapper.s"
 	@echo "... __/src/rpc_protocol.o"
 	@echo "... __/src/rpc_protocol.i"
 	@echo "... __/src/rpc_protocol.s"
@@ -464,6 +515,9 @@ help:
 	@echo "... test_nfsv2_procedures.o"
 	@echo "... test_nfsv2_procedures.i"
 	@echo "... test_nfsv2_procedures.s"
+	@echo "... test_nfsv3_portmapper.o"
+	@echo "... test_nfsv3_portmapper.i"
+	@echo "... test_nfsv3_portmapper.s"
 .PHONY : help
 
 

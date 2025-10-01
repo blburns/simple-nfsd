@@ -58,8 +58,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ"
-      binary: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ"
+      source: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw"
+      binary: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -72,20 +72,20 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ'
+        Change Dir: '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw'
         
-        Run Build Command(s): /opt/local/bin/cmake -E env VERBOSE=1 /usr/local/bin/gmake -f Makefile cmTC_47eed/fast
-        gmake[1]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ'
-        /usr/local/bin/gmake  -f CMakeFiles/cmTC_47eed.dir/build.make CMakeFiles/cmTC_47eed.dir/build
-        gmake[2]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ'
-        Building CXX object CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o
-        /Library/Developer/CommandLineTools/usr/bin/c++   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7   -v -Wl,-v -MD -MT CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
+        Run Build Command(s): /opt/local/bin/cmake -E env VERBOSE=1 /usr/local/bin/gmake -f Makefile cmTC_f81de/fast
+        gmake[1]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw'
+        /usr/local/bin/gmake  -f CMakeFiles/cmTC_f81de.dir/build.make CMakeFiles/cmTC_f81de.dir/build
+        gmake[2]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw'
+        Building CXX object CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o
+        /Library/Developer/CommandLineTools/usr/bin/c++   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7   -v -Wl,-v -MD -MT CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
         Apple clang version 14.0.0 (clang-1400.0.29.202)
         Target: x86_64-apple-darwin21.6.0
         Thread model: posix
         InstalledDir: /Library/Developer/CommandLineTools/usr/bin
         clang: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
-         "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1 -triple x86_64-apple-macosx12.7.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -mrelax-all --mrelax-relocations -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=all -fno-strict-return -fno-rounding-math -funwind-tables=2 -target-sdk-version=13.1 -fvisibility-inlines-hidden-static-local-var -target-cpu penryn -tune-cpu generic -debugger-tuning=lldb -target-linker-version 820.1 -v -resource-dir /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0 -dependency-file CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -stdlib=libc++ -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include -internal-externc-isystem /Library/Developer/CommandLineTools/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -Wno-cast-function-type -Wno-bitwise-instead-of-logical -fdeprecated-macro -fdebug-compilation-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+messageToSelfInClassMethodIdReturnType -clang-vendor-feature=+disableInferNewAvailabilityFromInit -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -mllvm -disable-aligned-alloc-awareness=1 -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
+         "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1 -triple x86_64-apple-macosx12.7.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -mrelax-all --mrelax-relocations -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=all -fno-strict-return -fno-rounding-math -funwind-tables=2 -target-sdk-version=13.1 -fvisibility-inlines-hidden-static-local-var -target-cpu penryn -tune-cpu generic -debugger-tuning=lldb -target-linker-version 820.1 -v -resource-dir /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0 -dependency-file CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -stdlib=libc++ -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include -internal-externc-isystem /Library/Developer/CommandLineTools/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -Wno-cast-function-type -Wno-bitwise-instead-of-logical -fdeprecated-macro -fdebug-compilation-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+messageToSelfInClassMethodIdReturnType -clang-vendor-feature=+disableInferNewAvailabilityFromInit -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -mllvm -disable-aligned-alloc-awareness=1 -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
         clang -cc1 version 14.0.0 (clang-1400.0.29.202) default target x86_64-apple-darwin21.6.0
         ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/local/include"
         ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/Library/Frameworks"
@@ -97,13 +97,13 @@ events:
          /Library/Developer/CommandLineTools/usr/include
          /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/System/Library/Frameworks (framework directory)
         End of search list.
-        Linking CXX executable cmTC_47eed
-        /opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_47eed.dir/link.txt --verbose=1
+        Linking CXX executable cmTC_f81de
+        /opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f81de.dir/link.txt --verbose=1
         Apple clang version 14.0.0 (clang-1400.0.29.202)
         Target: x86_64-apple-darwin21.6.0
         Thread model: posix
         InstalledDir: /Library/Developer/CommandLineTools/usr/bin
-         "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -platform_version macos 12.7.0 13.1 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -o cmTC_47eed -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/lib/darwin/libclang_rt.osx.a
+         "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -platform_version macos 12.7.0 13.1 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -o cmTC_f81de -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/lib/darwin/libclang_rt.osx.a
         @(#)PROGRAM:ld  PROJECT:ld64-820.1
         BUILD 20:07:01 Nov  7 2022
         configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
@@ -111,9 +111,9 @@ events:
         	/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/lib
         Framework search paths:
         	/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/
-        /Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_47eed
-        gmake[2]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ'
-        gmake[1]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ'
+        /Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_f81de
+        gmake[2]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw'
+        gmake[1]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw'
         
       exitCode: 0
   -
@@ -157,20 +157,20 @@ events:
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
-        ignore line: [Change Dir: '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ']
+        ignore line: [Change Dir: '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw']
         ignore line: []
-        ignore line: [Run Build Command(s): /opt/local/bin/cmake -E env VERBOSE=1 /usr/local/bin/gmake -f Makefile cmTC_47eed/fast]
-        ignore line: [gmake[1]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ']
-        ignore line: [/usr/local/bin/gmake  -f CMakeFiles/cmTC_47eed.dir/build.make CMakeFiles/cmTC_47eed.dir/build]
-        ignore line: [gmake[2]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ']
-        ignore line: [Building CXX object CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o]
-        ignore line: [/Library/Developer/CommandLineTools/usr/bin/c++   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7   -v -Wl -v -MD -MT CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Run Build Command(s): /opt/local/bin/cmake -E env VERBOSE=1 /usr/local/bin/gmake -f Makefile cmTC_f81de/fast]
+        ignore line: [gmake[1]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw']
+        ignore line: [/usr/local/bin/gmake  -f CMakeFiles/cmTC_f81de.dir/build.make CMakeFiles/cmTC_f81de.dir/build]
+        ignore line: [gmake[2]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw']
+        ignore line: [Building CXX object CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/Library/Developer/CommandLineTools/usr/bin/c++   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7   -v -Wl -v -MD -MT CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Apple clang version 14.0.0 (clang-1400.0.29.202)]
         ignore line: [Target: x86_64-apple-darwin21.6.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
         ignore line: [clang: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
-        ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1 -triple x86_64-apple-macosx12.7.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -mrelax-all --mrelax-relocations -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=all -fno-strict-return -fno-rounding-math -funwind-tables=2 -target-sdk-version=13.1 -fvisibility-inlines-hidden-static-local-var -target-cpu penryn -tune-cpu generic -debugger-tuning=lldb -target-linker-version 820.1 -v -resource-dir /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0 -dependency-file CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -stdlib=libc++ -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include -internal-externc-isystem /Library/Developer/CommandLineTools/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -Wno-cast-function-type -Wno-bitwise-instead-of-logical -fdeprecated-macro -fdebug-compilation-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-Tr7LYZ -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+messageToSelfInClassMethodIdReturnType -clang-vendor-feature=+disableInferNewAvailabilityFromInit -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -mllvm -disable-aligned-alloc-awareness=1 -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1 -triple x86_64-apple-macosx12.7.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -mrelax-all --mrelax-relocations -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=all -fno-strict-return -fno-rounding-math -funwind-tables=2 -target-sdk-version=13.1 -fvisibility-inlines-hidden-static-local-var -target-cpu penryn -tune-cpu generic -debugger-tuning=lldb -target-linker-version 820.1 -v -resource-dir /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0 -dependency-file CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -stdlib=libc++ -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include -internal-externc-isystem /Library/Developer/CommandLineTools/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -Wno-cast-function-type -Wno-bitwise-instead-of-logical -fdeprecated-macro -fdebug-compilation-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-gH94vw -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+messageToSelfInClassMethodIdReturnType -clang-vendor-feature=+disableInferNewAvailabilityFromInit -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -mllvm -disable-aligned-alloc-awareness=1 -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/local/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [clang -cc1 version 14.0.0 (clang-1400.0.29.202) default target x86_64-apple-darwin21.6.0]
         ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/local/include"]
         ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/Library/Frameworks"]
@@ -182,13 +182,13 @@ events:
         ignore line: [ /Library/Developer/CommandLineTools/usr/include]
         ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/System/Library/Frameworks (framework directory)]
         ignore line: [End of search list.]
-        ignore line: [Linking CXX executable cmTC_47eed]
-        ignore line: [/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_47eed.dir/link.txt --verbose=1]
+        ignore line: [Linking CXX executable cmTC_f81de]
+        ignore line: [/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f81de.dir/link.txt --verbose=1]
         ignore line: [Apple clang version 14.0.0 (clang-1400.0.29.202)]
         ignore line: [Target: x86_64-apple-darwin21.6.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
-        link line: [ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -platform_version macos 12.7.0 13.1 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -o cmTC_47eed -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/lib/darwin/libclang_rt.osx.a]
+        link line: [ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -platform_version macos 12.7.0 13.1 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -o cmTC_f81de -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/lib/darwin/libclang_rt.osx.a]
           arg [/Library/Developer/CommandLineTools/usr/bin/ld] ==> ignore
           arg [-demangle] ==> ignore
           arg [-lto_library] ==> ignore, skip following value
@@ -203,11 +203,11 @@ events:
           arg [-syslibroot] ==> ignore
           arg [/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_47eed] ==> ignore
+          arg [cmTC_f81de] ==> ignore
           arg [-search_paths_first] ==> ignore
           arg [-headerpad_max_install_names] ==> ignore
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_47eed.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_f81de.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
           arg [-lc++] ==> lib [c++]
           arg [-lSystem] ==> lib [System]
           arg [/Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/lib/darwin/libclang_rt.osx.a] ==> lib [/Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/lib/darwin/libclang_rt.osx.a]
@@ -249,8 +249,8 @@ events:
     checks:
       - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
     directories:
-      source: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G"
-      binary: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G"
+      source: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58"
+      binary: "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -262,19 +262,19 @@ events:
       variable: "CMAKE_HAVE_LIBC_PTHREAD"
       cached: true
       stdout: |
-        Change Dir: '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G'
+        Change Dir: '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58'
         
-        Run Build Command(s): /opt/local/bin/cmake -E env VERBOSE=1 /usr/local/bin/gmake -f Makefile cmTC_f6fd0/fast
-        gmake[1]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G'
-        /usr/local/bin/gmake  -f CMakeFiles/cmTC_f6fd0.dir/build.make CMakeFiles/cmTC_f6fd0.dir/build
-        gmake[2]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G'
-        Building CXX object CMakeFiles/cmTC_f6fd0.dir/src.cxx.o
-        /Library/Developer/CommandLineTools/usr/bin/c++ -DCMAKE_HAVE_LIBC_PTHREAD  -std=gnu++17 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7 -MD -MT CMakeFiles/cmTC_f6fd0.dir/src.cxx.o -MF CMakeFiles/cmTC_f6fd0.dir/src.cxx.o.d -o CMakeFiles/cmTC_f6fd0.dir/src.cxx.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G/src.cxx
-        Linking CXX executable cmTC_f6fd0
-        /opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f6fd0.dir/link.txt --verbose=1
-        /Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_f6fd0.dir/src.cxx.o -o cmTC_f6fd0
-        gmake[2]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G'
-        gmake[1]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-ja9z8G'
+        Run Build Command(s): /opt/local/bin/cmake -E env VERBOSE=1 /usr/local/bin/gmake -f Makefile cmTC_0cb8f/fast
+        gmake[1]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58'
+        /usr/local/bin/gmake  -f CMakeFiles/cmTC_0cb8f.dir/build.make CMakeFiles/cmTC_0cb8f.dir/build
+        gmake[2]: Entering directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58'
+        Building CXX object CMakeFiles/cmTC_0cb8f.dir/src.cxx.o
+        /Library/Developer/CommandLineTools/usr/bin/c++ -DCMAKE_HAVE_LIBC_PTHREAD  -std=gnu++17 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7 -MD -MT CMakeFiles/cmTC_0cb8f.dir/src.cxx.o -MF CMakeFiles/cmTC_0cb8f.dir/src.cxx.o.d -o CMakeFiles/cmTC_0cb8f.dir/src.cxx.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58/src.cxx
+        Linking CXX executable cmTC_0cb8f
+        /opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0cb8f.dir/link.txt --verbose=1
+        /Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.7 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_0cb8f.dir/src.cxx.o -o cmTC_0cb8f
+        gmake[2]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58'
+        gmake[1]: Leaving directory '/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles/CMakeScratch/TryCompile-YKMz58'
         
       exitCode: 0
 ...

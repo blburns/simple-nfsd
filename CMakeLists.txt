@@ -3,7 +3,7 @@
 # Copyright  SimpleDaemons
 
 cmake_minimum_required(VERSION 3.16)
-project(simple-nfsd VERSION 0.2.0 LANGUAGES CXX)
+project(simple-nfsd VERSION 0.2.1 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -54,6 +54,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Source files
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
 file(GLOB_RECURSE HEADERS "include/*.hpp" "include/*.h")
+
+# Explicitly list source files for better control
+set(SOURCES
+    src/main.cpp
+    src/nfsd_app.cpp
+    src/config_manager.cpp
+    src/nfs_server_simple.cpp
+    src/rpc_protocol.cpp
+    src/auth_manager.cpp
+    src/portmapper.cpp
+)
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})

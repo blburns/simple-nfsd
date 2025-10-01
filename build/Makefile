@@ -337,6 +337,30 @@ src/nfsd_app.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/nfsd_app.cpp.s
 .PHONY : src/nfsd_app.cpp.s
 
+src/portmapper.o: src/portmapper.cpp.o
+.PHONY : src/portmapper.o
+
+# target to build an object file
+src/portmapper.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o
+.PHONY : src/portmapper.cpp.o
+
+src/portmapper.i: src/portmapper.cpp.i
+.PHONY : src/portmapper.i
+
+# target to preprocess a source file
+src/portmapper.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.i
+.PHONY : src/portmapper.cpp.i
+
+src/portmapper.s: src/portmapper.cpp.s
+.PHONY : src/portmapper.s
+
+# target to generate assembly for a file
+src/portmapper.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.s
+.PHONY : src/portmapper.cpp.s
+
 src/rpc_protocol.o: src/rpc_protocol.cpp.o
 .PHONY : src/rpc_protocol.o
 
@@ -393,6 +417,9 @@ help:
 	@echo "... src/nfsd_app.o"
 	@echo "... src/nfsd_app.i"
 	@echo "... src/nfsd_app.s"
+	@echo "... src/portmapper.o"
+	@echo "... src/portmapper.i"
+	@echo "... src/portmapper.s"
 	@echo "... src/rpc_protocol.o"
 	@echo "... src/rpc_protocol.i"
 	@echo "... src/rpc_protocol.s"

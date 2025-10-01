@@ -476,6 +476,7 @@ tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o: \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/config_manager.hpp \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/rpc_protocol.hpp \
   /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/auth_manager.hpp \
+  /Users/blb/Workspace/SimpleDaemons/simple-nfsd/include/simple_nfsd/portmapper.hpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/thread \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/fstream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/filesystem \
