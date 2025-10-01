@@ -3,7 +3,7 @@
 # Copyright  SimpleDaemons
 
 cmake_minimum_required(VERSION 3.16)
-project(simple-nfsd VERSION 0.2.1 LANGUAGES CXX)
+project(simple-nfsd VERSION 0.2.2 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -64,6 +64,7 @@ set(SOURCES
     src/rpc_protocol.cpp
     src/auth_manager.cpp
     src/portmapper.cpp
+    src/security_manager.cpp
 )
 
 # Create executable

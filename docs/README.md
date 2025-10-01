@@ -61,4 +61,4 @@ If you find any issues with the documentation or have suggestions for improvemen
 ---
 
 **Last Updated**: December 2024  
-**Version**: 0.1.0 (Phase 2 - 75% Complete)
+**Version**: 0.2.1 (Phase 2 - NFSv2 & NFSv3 Complete)

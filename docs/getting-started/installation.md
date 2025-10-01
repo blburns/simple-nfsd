@@ -176,6 +176,7 @@ sudo useradd -r -s /bin/false -d /var/lib/simple-nfsd nfsd
 ```bash
 # Check version
 simple-nfsd --version
+# Expected output: Simple NFS Daemon v0.2.1
 
 # Check help
 simple-nfsd --help

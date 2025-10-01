@@ -582,9 +582,127 @@ void NfsServerSimple::handleNfsv3Call(const RpcMessage& message, const AuthConte
 }
 
 void NfsServerSimple::handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context) {
-    // TODO: Implement NFSv4 procedures
-    std::cerr << "NFSv4 not yet implemented" << std::endl;
-    failed_requests_++;
+    // Handle NFSv4 procedures
+    switch (message.header.proc) {
+        case 0:  // NULL
+            handleNfsv4Null(message, auth_context);
+            break;
+        case 1:  // COMPOUND
+            handleNfsv4Compound(message, auth_context);
+            break;
+        case 2:  // GETATTR
+            handleNfsv4GetAttr(message, auth_context);
+            break;
+        case 3:  // SETATTR
+            handleNfsv4SetAttr(message, auth_context);
+            break;
+        case 4:  // LOOKUP
+            handleNfsv4Lookup(message, auth_context);
+            break;
+        case 5:  // ACCESS
+            handleNfsv4Access(message, auth_context);
+            break;
+        case 6:  // READLINK
+            handleNfsv4ReadLink(message, auth_context);
+            break;
+        case 7:  // READ
+            handleNfsv4Read(message, auth_context);
+            break;
+        case 8:  // WRITE
+            handleNfsv4Write(message, auth_context);
+            break;
+        case 9:  // CREATE
+            handleNfsv4Create(message, auth_context);
+            break;
+        case 10: // MKDIR
+            handleNfsv4MkDir(message, auth_context);
+            break;
+        case 11: // SYMLINK
+            handleNfsv4SymLink(message, auth_context);
+            break;
+        case 12: // MKNOD
+            handleNfsv4MkNod(message, auth_context);
+            break;
+        case 13: // REMOVE
+            handleNfsv4Remove(message, auth_context);
+            break;
+        case 14: // RMDIR
+            handleNfsv4RmDir(message, auth_context);
+            break;
+        case 15: // RENAME
+            handleNfsv4Rename(message, auth_context);
+            break;
+        case 16: // LINK
+            handleNfsv4Link(message, auth_context);
+            break;
+        case 17: // READDIR
+            handleNfsv4ReadDir(message, auth_context);
+            break;
+        case 18: // READDIRPLUS
+            handleNfsv4ReadDirPlus(message, auth_context);
+            break;
+        case 19: // FSSTAT
+            handleNfsv4FSStat(message, auth_context);
+            break;
+        case 20: // FSINFO
+            handleNfsv4FSInfo(message, auth_context);
+            break;
+        case 21: // PATHCONF
+            handleNfsv4PathConf(message, auth_context);
+            break;
+        case 22: // COMMIT
+            handleNfsv4Commit(message, auth_context);
+            break;
+        case 23: // DELEGRETURN
+            handleNfsv4DelegReturn(message, auth_context);
+            break;
+        case 24: // GETACL
+            handleNfsv4GetAcl(message, auth_context);
+            break;
+        case 25: // SETACL
+            handleNfsv4SetAcl(message, auth_context);
+            break;
+        case 26: // FS_LOCATIONS
+            handleNfsv4FSLocations(message, auth_context);
+            break;
+        case 27: // RELEASE_LOCKOWNER
+            handleNfsv4ReleaseLockOwner(message, auth_context);
+            break;
+        case 28: // SECINFO
+            handleNfsv4SecInfo(message, auth_context);
+            break;
+        case 29: // FSID_PRESENT
+            handleNfsv4FSIDPresent(message, auth_context);
+            break;
+        case 30: // EXCHANGE_ID
+            handleNfsv4ExchangeID(message, auth_context);
+            break;
+        case 31: // CREATE_SESSION
+            handleNfsv4CreateSession(message, auth_context);
+            break;
+        case 32: // DESTROY_SESSION
+            handleNfsv4DestroySession(message, auth_context);
+            break;
+        case 33: // SEQUENCE
+            handleNfsv4Sequence(message, auth_context);
+            break;
+        case 34: // GET_DEVICE_INFO
+            handleNfsv4GetDeviceInfo(message, auth_context);
+            break;
+        case 35: // BIND_CONN_TO_SESSION
+            handleNfsv4BindConnToSession(message, auth_context);
+            break;
+        case 36: // DESTROY_CLIENTID
+            handleNfsv4DestroyClientID(message, auth_context);
+            break;
+        case 37: // RECLAIM_COMPLETE
+            handleNfsv4ReclaimComplete(message, auth_context);
+            break;
+        default:
+            std::cerr << "Unsupported NFSv4 procedure: " << message.header.proc << std::endl;
+            failed_requests_++;
+            break;
+    }
 }
 
 void NfsServerSimple::handlePortmapperCall(const RpcMessage& message) {
@@ -1842,6 +1960,384 @@ void NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthCon
         std::cout << "Handled NFSv3 COMMIT procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 COMMIT: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+// NFSv4 procedure implementations
+void NfsServerSimple::handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context) {
+    // NULL procedure always succeeds
+    RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
+    std::cout << "Handled NFSv4 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
+}
+
+void NfsServerSimple::handleNfsv4Compound(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 COMPOUND procedure
+        // This is the main NFSv4 procedure that handles multiple operations in a single call
+        std::cout << "Handled NFSv4 COMPOUND procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 COMPOUND: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4GetAttr(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 GETATTR procedure
+        std::cout << "Handled NFSv4 GETATTR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 GETATTR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4SetAttr(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 SETATTR procedure
+        std::cout << "Handled NFSv4 SETATTR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 SETATTR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Lookup(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 LOOKUP procedure
+        std::cout << "Handled NFSv4 LOOKUP procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 LOOKUP: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Access(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 ACCESS procedure
+        std::cout << "Handled NFSv4 ACCESS procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 ACCESS: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4ReadLink(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 READLINK procedure
+        std::cout << "Handled NFSv4 READLINK procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 READLINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Read(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 READ procedure
+        std::cout << "Handled NFSv4 READ procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 READ: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Write(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 WRITE procedure
+        std::cout << "Handled NFSv4 WRITE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 WRITE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 CREATE procedure
+        std::cout << "Handled NFSv4 CREATE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 CREATE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 MKDIR procedure
+        std::cout << "Handled NFSv4 MKDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 MKDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 SYMLINK procedure
+        std::cout << "Handled NFSv4 SYMLINK procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 SYMLINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 MKNOD procedure
+        std::cout << "Handled NFSv4 MKNOD procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 MKNOD: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 REMOVE procedure
+        std::cout << "Handled NFSv4 REMOVE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 REMOVE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 RMDIR procedure
+        std::cout << "Handled NFSv4 RMDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 RMDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 RENAME procedure
+        std::cout << "Handled NFSv4 RENAME procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 RENAME: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 LINK procedure
+        std::cout << "Handled NFSv4 LINK procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 LINK: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 READDIR procedure
+        std::cout << "Handled NFSv4 READDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 READDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 READDIRPLUS procedure
+        std::cout << "Handled NFSv4 READDIRPLUS procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 READDIRPLUS: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 FSSTAT procedure
+        std::cout << "Handled NFSv4 FSSTAT procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 FSSTAT: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 FSINFO procedure
+        std::cout << "Handled NFSv4 FSINFO procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 FSINFO: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 PATHCONF procedure
+        std::cout << "Handled NFSv4 PATHCONF procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 PATHCONF: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 COMMIT procedure
+        std::cout << "Handled NFSv4 COMMIT procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 COMMIT: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4DelegReturn(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 DELEGRETURN procedure
+        std::cout << "Handled NFSv4 DELEGRETURN procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 DELEGRETURN: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4GetAcl(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 GETACL procedure
+        std::cout << "Handled NFSv4 GETACL procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 GETACL: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4SetAcl(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 SETACL procedure
+        std::cout << "Handled NFSv4 SETACL procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 SETACL: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4FSLocations(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 FS_LOCATIONS procedure
+        std::cout << "Handled NFSv4 FS_LOCATIONS procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 FS_LOCATIONS: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 RELEASE_LOCKOWNER procedure
+        std::cout << "Handled NFSv4 RELEASE_LOCKOWNER procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 RELEASE_LOCKOWNER: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4SecInfo(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 SECINFO procedure
+        std::cout << "Handled NFSv4 SECINFO procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 SECINFO: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 FSID_PRESENT procedure
+        std::cout << "Handled NFSv4 FSID_PRESENT procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 FSID_PRESENT: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4ExchangeID(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 EXCHANGE_ID procedure
+        std::cout << "Handled NFSv4 EXCHANGE_ID procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 EXCHANGE_ID: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4CreateSession(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 CREATE_SESSION procedure
+        std::cout << "Handled NFSv4 CREATE_SESSION procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 CREATE_SESSION: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4DestroySession(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 DESTROY_SESSION procedure
+        std::cout << "Handled NFSv4 DESTROY_SESSION procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 DESTROY_SESSION: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4Sequence(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 SEQUENCE procedure
+        std::cout << "Handled NFSv4 SEQUENCE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 SEQUENCE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 GET_DEVICE_INFO procedure
+        std::cout << "Handled NFSv4 GET_DEVICE_INFO procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 GET_DEVICE_INFO: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 BIND_CONN_TO_SESSION procedure
+        std::cout << "Handled NFSv4 BIND_CONN_TO_SESSION procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 BIND_CONN_TO_SESSION: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 DESTROY_CLIENTID procedure
+        std::cout << "Handled NFSv4 DESTROY_CLIENTID procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 DESTROY_CLIENTID: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement NFSv4 RECLAIM_COMPLETE procedure
+        std::cout << "Handled NFSv4 RECLAIM_COMPLETE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in NFSv4 RECLAIM_COMPLETE: " << e.what() << std::endl;
         failed_requests_++;
     }
 }

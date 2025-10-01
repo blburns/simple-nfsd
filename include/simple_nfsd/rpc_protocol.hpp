@@ -147,8 +147,11 @@ enum class RpcProcedure : uint32_t {
     NFSPROC_BIND_CONN_TO_SESSION_V4 = 34,
     NFSPROC_DESTROY_CLIENTID_V4 = 35,
     NFSPROC_RECLAIM_COMPLETE_V4 = 36,
-    NFSPROC_ILLEGAL_V4 = 10044
-};
+            NFSPROC_ILLEGAL_V4 = 10044,
+            
+            // NFSv4 specific procedures (using procedure numbers)
+            NFSPROC_COMPOUND = 1
+        };
 
 // RPC Authentication Data
 struct RpcAuthData {

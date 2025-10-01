@@ -14,7 +14,7 @@
 
 # Variables
 PROJECT_NAME = simple-nfsd
-VERSION = 0.2.1
+VERSION = 0.2.2
 BUILD_DIR = build
 DIST_DIR = dist
 PACKAGE_DIR = packaging

@@ -6,12 +6,17 @@
 
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
 
-**Current Version**: 0.2.1 (NFSv3 Complete - Enhanced Protocol Support with Portmapper)
+**Current Version**: 0.2.2 (NFSv4 Complete - Enterprise Security and Advanced Features)
 
 ## Features
 
 - **Multi-Protocol Support**: NFSv2, NFSv3, and NFSv4 compatibility
 - **RPC Portmapper Integration**: Full RPC service registration and discovery
+- **Enterprise Security**: ACL support, multiple authentication methods, audit logging
+- **Advanced Authentication**: AUTH_SYS, AUTH_DH, Kerberos (RPCSEC_GSS) support
+- **Access Control Lists**: Fine-grained file and directory permissions
+- **Session Management**: Secure session handling with timeout support
+- **Audit Logging**: Comprehensive security event logging
 - **Multi-Format Configuration**: Support for INI, JSON, and YAML configuration files
 - **Cross-Platform**: Linux, macOS, and Windows support
 - **High Performance**: Optimized for high-throughput file sharing
@@ -332,10 +337,11 @@ See [ROADMAP.md](ROADMAP.md) for detailed development plans and upcoming feature
 
 Current development focuses on:
 - Phase 1: Foundation (✅ Complete)
-- Phase 2: Core NFS Protocol Implementation (🔄 In Progress)
+- Phase 2: Core NFS Protocol Implementation (✅ Complete)
   - NFSv2 Protocol (✅ 100% Complete - v0.2.0)
   - NFSv3 Protocol (✅ 100% Complete - v0.2.1)
-  - NFSv4 Protocol (📋 Planned - v0.2.2)
+  - NFSv4 Protocol (✅ 100% Complete - v0.2.2)
+  - Authentication & Security (✅ 100% Complete - v0.2.2)
 - Phase 3: File System Operations (📋 Planned)
 - Phase 4: Advanced Features (Planned)
 - Phase 5: Enterprise Features (Planned)

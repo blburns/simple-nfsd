@@ -157,6 +157,46 @@ private:
     void handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context);
     
+    // NFSv4 procedures
+    void handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Compound(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4GetAttr(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4SetAttr(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Lookup(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Access(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4ReadLink(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Read(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Write(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4DelegReturn(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4GetAcl(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4SetAcl(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4FSLocations(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4ReleaseLockOwner(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4SecInfo(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4FSIDPresent(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4ExchangeID(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4CreateSession(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4DestroySession(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4Sequence(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4GetDeviceInfo(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4BindConnToSession(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4DestroyClientID(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv4ReclaimComplete(const RpcMessage& message, const AuthContext& auth_context);
+    
     // File system operations
     bool fileExists(const std::string& path) const;
     bool isDirectory(const std::string& path) const;

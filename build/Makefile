@@ -385,6 +385,30 @@ src/rpc_protocol.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.s
 .PHONY : src/rpc_protocol.cpp.s
 
+src/security_manager.o: src/security_manager.cpp.o
+.PHONY : src/security_manager.o
+
+# target to build an object file
+src/security_manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/security_manager.cpp.o
+.PHONY : src/security_manager.cpp.o
+
+src/security_manager.i: src/security_manager.cpp.i
+.PHONY : src/security_manager.i
+
+# target to preprocess a source file
+src/security_manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/security_manager.cpp.i
+.PHONY : src/security_manager.cpp.i
+
+src/security_manager.s: src/security_manager.cpp.s
+.PHONY : src/security_manager.s
+
+# target to generate assembly for a file
+src/security_manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple-nfsd.dir/build.make CMakeFiles/simple-nfsd.dir/src/security_manager.cpp.s
+.PHONY : src/security_manager.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -423,6 +447,9 @@ help:
 	@echo "... src/rpc_protocol.o"
 	@echo "... src/rpc_protocol.i"
 	@echo "... src/rpc_protocol.s"
+	@echo "... src/security_manager.o"
+	@echo "... src/security_manager.i"
+	@echo "... src/security_manager.s"
 .PHONY : help
 
 

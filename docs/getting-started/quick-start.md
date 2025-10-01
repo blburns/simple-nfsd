@@ -4,9 +4,10 @@ Get Simple NFS Daemon up and running in minutes with this quick start guide.
 
 ## Prerequisites
 
-- Simple NFS Daemon installed (see [Installation Guide](installation.md))
+- Simple NFS Daemon v0.2.1+ installed (see [Installation Guide](installation.md))
 - Root or sudo access
 - Basic understanding of NFS concepts
+- NFS client tools installed on client machines
 
 ## Step 1: Create Basic Configuration
 
@@ -25,6 +26,15 @@ sudo tee /etc/simple-nfsd/simple-nfsd.conf > /dev/null << 'EOF'
         "options": ["rw", "sync", "no_subtree_check"]
       }
     ],
+    "protocols": {
+      "nfsv2": true,
+      "nfsv3": true,
+      "nfsv4": false
+    },
+    "portmapper": {
+      "enable": true,
+      "port": 111
+    },
     "logging": {
       "enable": true,
       "level": "info"

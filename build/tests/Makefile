@@ -349,6 +349,30 @@ __/src/rpc_protocol.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/rpc_protocol.cpp.s
 .PHONY : __/src/rpc_protocol.cpp.s
 
+__/src/security_manager.o: __/src/security_manager.cpp.o
+.PHONY : __/src/security_manager.o
+
+# target to build an object file
+__/src/security_manager.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/security_manager.cpp.o
+.PHONY : __/src/security_manager.cpp.o
+
+__/src/security_manager.i: __/src/security_manager.cpp.i
+.PHONY : __/src/security_manager.i
+
+# target to preprocess a source file
+__/src/security_manager.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/security_manager.cpp.i
+.PHONY : __/src/security_manager.cpp.i
+
+__/src/security_manager.s: __/src/security_manager.cpp.s
+.PHONY : __/src/security_manager.s
+
+# target to generate assembly for a file
+__/src/security_manager.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/__/src/security_manager.cpp.s
+.PHONY : __/src/security_manager.cpp.s
+
 test_main.o: test_main.cpp.o
 .PHONY : test_main.o
 
@@ -469,6 +493,30 @@ test_nfsv3_portmapper.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv3_portmapper.cpp.s
 .PHONY : test_nfsv3_portmapper.cpp.s
 
+test_nfsv4_security.o: test_nfsv4_security.cpp.o
+.PHONY : test_nfsv4_security.o
+
+# target to build an object file
+test_nfsv4_security.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv4_security.cpp.o
+.PHONY : test_nfsv4_security.cpp.o
+
+test_nfsv4_security.i: test_nfsv4_security.cpp.i
+.PHONY : test_nfsv4_security.i
+
+# target to preprocess a source file
+test_nfsv4_security.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv4_security.cpp.i
+.PHONY : test_nfsv4_security.cpp.i
+
+test_nfsv4_security.s: test_nfsv4_security.cpp.s
+.PHONY : test_nfsv4_security.s
+
+# target to generate assembly for a file
+test_nfsv4_security.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv4_security.cpp.s
+.PHONY : test_nfsv4_security.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -503,6 +551,9 @@ help:
 	@echo "... __/src/rpc_protocol.o"
 	@echo "... __/src/rpc_protocol.i"
 	@echo "... __/src/rpc_protocol.s"
+	@echo "... __/src/security_manager.o"
+	@echo "... __/src/security_manager.i"
+	@echo "... __/src/security_manager.s"
 	@echo "... test_main.o"
 	@echo "... test_main.i"
 	@echo "... test_main.s"
@@ -518,6 +569,9 @@ help:
 	@echo "... test_nfsv3_portmapper.o"
 	@echo "... test_nfsv3_portmapper.i"
 	@echo "... test_nfsv3_portmapper.s"
+	@echo "... test_nfsv4_security.o"
+	@echo "... test_nfsv4_security.i"
+	@echo "... test_nfsv4_security.s"
 .PHONY : help
 
 

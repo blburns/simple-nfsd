@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/simple-nfsd.dir/src/portmapper.cpp.o.d"
   "CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o"
   "CMakeFiles/simple-nfsd.dir/src/rpc_protocol.cpp.o.d"
+  "CMakeFiles/simple-nfsd.dir/src/security_manager.cpp.o"
+  "CMakeFiles/simple-nfsd.dir/src/security_manager.cpp.o.d"
   "simple-nfsd"
   "simple-nfsd.pdb"
 )

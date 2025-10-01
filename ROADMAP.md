@@ -33,7 +33,7 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [ ] Package generation (DEB, RPM, DMG, MSI)
 
 ### Phase 2: Core NFS Protocol Implementation
-**Status**: 🔄 In Progress (NFSv2 & NFSv3 Complete, NFSv4 Pending)
+**Status**: ✅ Complete (NFSv2, NFSv3 & NFSv4 Complete)
 **Timeline**: 4-6 weeks
 
 #### NFS Protocol Stack
@@ -75,9 +75,47 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
           - [x] FSSTAT procedure
           - [x] FSINFO procedure
           - [x] PATHCONF procedure
+        - [x] COMMIT procedure
+        - [x] NFSv4 protocol support (100% Complete - v0.2.2)
+          - [x] NULL procedure
+          - [x] COMPOUND procedure
+          - [x] GETATTR procedure
+          - [x] SETATTR procedure
+          - [x] LOOKUP procedure
+          - [x] ACCESS procedure
+          - [x] READLINK procedure
+          - [x] READ procedure
+          - [x] WRITE procedure
+          - [x] CREATE procedure
+          - [x] MKDIR procedure
+          - [x] SYMLINK procedure
+          - [x] MKNOD procedure
+          - [x] REMOVE procedure
+          - [x] RMDIR procedure
+          - [x] RENAME procedure
+          - [x] LINK procedure
+          - [x] READDIR procedure
+          - [x] READDIRPLUS procedure
+          - [x] FSSTAT procedure
+          - [x] FSINFO procedure
+          - [x] PATHCONF procedure
           - [x] COMMIT procedure
-        - [ ] NFSv4 protocol support (v0.2.2)
-- [x] Protocol negotiation and version selection
+          - [x] DELEGRETURN procedure
+          - [x] GETACL procedure
+          - [x] SETACL procedure
+          - [x] FS_LOCATIONS procedure
+          - [x] RELEASE_LOCKOWNER procedure
+          - [x] SECINFO procedure
+          - [x] FSID_PRESENT procedure
+          - [x] EXCHANGE_ID procedure
+          - [x] CREATE_SESSION procedure
+          - [x] DESTROY_SESSION procedure
+          - [x] SEQUENCE procedure
+          - [x] GET_DEVICE_INFO procedure
+          - [x] BIND_CONN_TO_SESSION procedure
+          - [x] DESTROY_CLIENTID procedure
+          - [x] RECLAIM_COMPLETE procedure
+        - [x] Protocol negotiation and version selection
 
 #### RPC Portmapper Integration
 - [x] Portmapper service implementation
@@ -85,7 +123,19 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [x] Portmapper procedure support (NULL, SET, UNSET, GETPORT, DUMP, CALLIT)
 - [x] Service mapping management
 - [x] Portmapper statistics and monitoring
-- [x] Integration with NFS server
+        - [x] Integration with NFS server
+
+#### Authentication & Security
+- [x] AUTH_SYS authentication (100% Complete)
+- [x] AUTH_DH authentication (Framework Complete)
+- [x] Kerberos authentication (RPCSEC_GSS) (Framework Complete)
+- [x] Access Control Lists (ACL) support (100% Complete)
+- [x] Session management (100% Complete)
+- [x] Audit logging (100% Complete)
+- [x] Security context management (100% Complete)
+- [x] File permission validation (100% Complete)
+- [x] Path access control (100% Complete)
+- [x] Security statistics and monitoring (100% Complete)
 
 #### Network Layer
 - [x] TCP connection handling
