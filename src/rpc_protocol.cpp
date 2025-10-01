@@ -42,14 +42,14 @@ std::vector<uint8_t> RpcUtils::serializeMessage(const RpcMessage& message) {
     std::vector<uint8_t> result;
     
     // Calculate total size needed
-    size_t totalSize = 4 * 7; // Header fields
-    totalSize += 4 + message.header.cred.length; // Credentials
+    size_t totalSize = 4 * 7; // Header fields (28 bytes)
+    totalSize += 4 + message.header.cred.length; // Credentials (4 + length)
     totalSize = align4(totalSize);
-    totalSize += 4 + message.header.verf.length; // Verifier
+    totalSize += 4 + message.header.verf.length; // Verifier (4 + length)
     totalSize = align4(totalSize);
     totalSize += message.data.size(); // Data
     
-    result.reserve(totalSize);
+    result.resize(totalSize);
     
     size_t offset = 0;
     
@@ -65,8 +65,7 @@ std::vector<uint8_t> RpcUtils::serializeMessage(const RpcMessage& message) {
     writeUint32(result.data(), offset, static_cast<uint32_t>(message.header.cred.flavor));
     writeUint32(result.data(), offset, message.header.cred.length);
     if (message.header.cred.length > 0) {
-        result.insert(result.end(), message.header.cred.body.begin(), 
-                     message.header.cred.body.end());
+        memcpy(result.data() + offset, message.header.cred.body.data(), message.header.cred.length);
         offset += message.header.cred.length;
     }
     
@@ -77,8 +76,7 @@ std::vector<uint8_t> RpcUtils::serializeMessage(const RpcMessage& message) {
     writeUint32(result.data(), offset, static_cast<uint32_t>(message.header.verf.flavor));
     writeUint32(result.data(), offset, message.header.verf.length);
     if (message.header.verf.length > 0) {
-        result.insert(result.end(), message.header.verf.body.begin(), 
-                     message.header.verf.body.end());
+        memcpy(result.data() + offset, message.header.verf.body.data(), message.header.verf.length);
         offset += message.header.verf.length;
     }
     
@@ -86,7 +84,9 @@ std::vector<uint8_t> RpcUtils::serializeMessage(const RpcMessage& message) {
     offset = align4(offset);
     
     // Serialize data
-    result.insert(result.end(), message.data.begin(), message.data.end());
+    if (!message.data.empty()) {
+        memcpy(result.data() + offset, message.data.data(), message.data.size());
+    }
     
     return result;
 }

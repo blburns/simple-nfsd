@@ -1,0 +1,47 @@
+#!/bin/bash
+# NFS testing script for Vagrant VM
+# Usage: ./vm-nfs-test
+
+set -e
+
+# Check if Vagrant VM is running
+if ! vagrant status | grep -q "running"; then
+    echo "Starting Vagrant VM..."
+    vagrant up
+fi
+
+echo "Testing NFS server..."
+
+# Test NFS mount on VM
+vagrant ssh -c "
+    # Create test mount point
+    sudo mkdir -p /mnt/nfs-test
+    
+    # Mount NFS share
+    echo 'Mounting NFS share...'
+    sudo mount -t nfs4 localhost:/srv/nfs /mnt/nfs-test
+    
+    # Test file operations
+    echo 'Testing file operations...'
+    echo 'Hello from NFS!' | sudo tee /mnt/nfs-test/test.txt
+    sudo ls -la /mnt/nfs-test/
+    
+    # Test file reading
+    echo 'Reading file:'
+    sudo cat /mnt/nfs-test/test.txt
+    
+    # Test directory creation
+    echo 'Creating directory...'
+    sudo mkdir -p /mnt/nfs-test/test-dir
+    echo 'Test file in subdirectory' | sudo tee /mnt/nfs-test/test-dir/subfile.txt
+    
+    # List contents
+    echo 'Directory contents:'
+    sudo find /mnt/nfs-test -type f -exec ls -la {} \;
+    
+    # Unmount
+    echo 'Unmounting...'
+    sudo umount /mnt/nfs-test
+    
+    echo 'NFS test completed successfully!'
+"

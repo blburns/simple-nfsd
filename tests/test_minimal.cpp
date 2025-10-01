@@ -135,6 +135,7 @@ TEST_F(MinimalTest, NfsServerHealth) {
     config.enable_udp = true;
     
     nfs_server->initialize(config);
+    nfs_server->start();
     
     EXPECT_TRUE(nfs_server->isHealthy());
 }
@@ -186,8 +187,10 @@ TEST_F(MinimalTest, RpcMessageDeserialization) {
     original_message.header.vers = 2;
     original_message.header.proc = 0;
     original_message.header.cred.flavor = SimpleNfsd::RpcAuthFlavor::AUTH_NONE;
+    original_message.header.cred.length = 0;
     original_message.header.cred.body = {};
     original_message.header.verf.flavor = SimpleNfsd::RpcAuthFlavor::AUTH_NONE;
+    original_message.header.verf.length = 0;
     original_message.header.verf.body = {};
     original_message.data = {0x01, 0x02, 0x03, 0x04};
     
@@ -303,10 +306,11 @@ TEST_F(MinimalTest, ComponentIntegration) {
 TEST_F(MinimalTest, ErrorHandling) {
     // Test with invalid data
     std::vector<uint8_t> invalid_data = {0x01, 0x02, 0x03}; // Too small
-    SimpleNfsd::RpcMessage message = SimpleNfsd::RpcUtils::deserializeMessage(invalid_data);
     
-    // Should handle gracefully (implementation dependent)
-    EXPECT_TRUE(true);
+    // Should throw an exception for invalid data
+    EXPECT_THROW({
+        SimpleNfsd::RpcMessage message = SimpleNfsd::RpcUtils::deserializeMessage(invalid_data);
+    }, std::runtime_error);
     
     // Test with invalid config file
     auto config_manager = std::make_unique<SimpleNfsd::ConfigManager>();

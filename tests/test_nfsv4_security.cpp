@@ -30,6 +30,7 @@ protected:
         server_config.enable_tcp = true;
         server_config.enable_udp = true;
         nfs_server->initialize(server_config);
+        nfs_server->start();
 
         // Create test root directory
         std::filesystem::create_directories(server_config.root_path);

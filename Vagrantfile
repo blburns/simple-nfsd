@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Use Ubuntu 22.04 LTS as base box
+  config.vm.box = "ubuntu/jammy64"
+  
+  # VM configuration
+  config.vm.hostname = "simple-nfsd-dev"
+  
+  # Network configuration
+  config.vm.network "private_network", ip: "192.168.1.100"
+  config.vm.network "forwarded_port", guest: 2049, host: 2049, id: "nfs"
+  config.vm.network "forwarded_port", guest: 111, host: 111, id: "rpcbind"
+  
+  # VM resources
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "simple-nfsd-dev"
+    vb.memory = "2048"
+    vb.cpus = 2
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
+  
+  # Provisioning with Ansible
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "automation/playbook.yml"
+    ansible.inventory_path = "automation/inventory.ini"
+    ansible.limit = "development"
+    ansible.extra_vars = {
+      git_repo_url: ".",
+      git_branch: "main"
+    }
+    ansible.verbose = true
+  end
+  
+  # Sync current directory to VM (including build directory)
+  config.vm.synced_folder ".", "/vagrant", type: "rsync", 
+    rsync__exclude: [".git/", "dist/", "*.o", "*.so", "*.a"]
+  
+  # Mount build directory for easy access
+  config.vm.synced_folder "./build", "/opt/simple-nfsd/build", type: "rsync"
+  
+  # Post-provisioning script
+  config.vm.provision "shell", inline: <<-SHELL
+    # Create log directories
+    sudo mkdir -p /var/log/simple-nfsd
+    sudo chown nfsdev:nfsdev /var/log/simple-nfsd
+    
+    # Create configuration directory
+    sudo mkdir -p /etc/simple-nfsd
+    sudo chown nfsdev:nfsdev /etc/simple-nfsd
+    
+    # Enable and start services
+    sudo systemctl enable simple-nfsd
+    sudo systemctl start simple-nfsd
+    
+    # Show status
+    echo "=== Simple NFS Daemon Status ==="
+    sudo systemctl status simple-nfsd --no-pager
+    echo ""
+    echo "=== Test Results ==="
+    cd /opt/simple-nfsd/build && sudo -u nfsdev make test
+  SHELL
+end

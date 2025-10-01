@@ -1,0 +1,43 @@
+#!/bin/bash
+# Build script for Vagrant VM
+# Usage: ./vm-build [clean|test|install]
+
+set -e
+
+# Check if Vagrant VM is running
+if ! vagrant status | grep -q "running"; then
+    echo "Starting Vagrant VM..."
+    vagrant up
+fi
+
+# Sync files to VM
+echo "Syncing files to VM..."
+vagrant rsync
+
+# Run build commands on VM
+case "${1:-build}" in
+    "clean")
+        echo "Cleaning build directory..."
+        vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsdev rm -rf build && mkdir -p build"
+        ;;
+    "test")
+        echo "Running tests..."
+        vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev make test"
+        ;;
+    "install")
+        echo "Installing service..."
+        vagrant ssh -c "cd /opt/simple-nfsd && sudo systemctl enable simple-nfsd && sudo systemctl start simple-nfsd"
+        ;;
+    "status")
+        echo "Checking service status..."
+        vagrant ssh -c "sudo systemctl status simple-nfsd --no-pager"
+        ;;
+    "logs")
+        echo "Showing service logs..."
+        vagrant ssh -c "sudo journalctl -u simple-nfsd -f"
+        ;;
+    *)
+        echo "Building project..."
+        vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsdev ./build.sh"
+        ;;
+esac

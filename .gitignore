@@ -1,0 +1,38 @@
+# Build artifacts
+build/
+dist/
+*.o
+*.so
+*.a
+*.exe
+
+# Debug files
+debug/
+*.debug
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+
+# Test artifacts
+Testing/
+test-results/

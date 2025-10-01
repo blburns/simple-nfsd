@@ -1,0 +1,14 @@
+#!/bin/bash
+# SSH wrapper for Vagrant VM
+# Usage: ./vm-ssh "command to run"
+
+set -e
+
+# Check if Vagrant VM is running
+if ! vagrant status | grep -q "running"; then
+    echo "Starting Vagrant VM..."
+    vagrant up
+fi
+
+# Run command on VM
+vagrant ssh -c "$@"

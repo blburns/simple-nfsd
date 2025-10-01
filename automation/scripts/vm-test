@@ -1,0 +1,24 @@
+#!/bin/bash
+# Test script for Vagrant VM
+# Usage: ./vm-test [test-pattern]
+
+set -e
+
+# Check if Vagrant VM is running
+if ! vagrant status | grep -q "running"; then
+    echo "Starting Vagrant VM..."
+    vagrant up
+fi
+
+# Sync files to VM
+echo "Syncing files to VM..."
+vagrant rsync
+
+# Run tests on VM
+if [ -n "$1" ]; then
+    echo "Running specific test: $1"
+    vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev ./tests/simple-nfsd-tests --gtest_filter='$1'"
+else
+    echo "Running all tests..."
+    vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev make test"
+fi

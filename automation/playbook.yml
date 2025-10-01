@@ -1,0 +1,158 @@
+---
+- name: Setup simple-nfsd development environment
+  hosts: all
+  become: yes
+  vars:
+    project_dir: /opt/simple-nfsd
+    build_user: nfsdev
+    build_group: nfsdev
+    
+  tasks:
+    - name: Update package cache
+      package:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+      
+    - name: Install build dependencies (Ubuntu/Debian)
+      package:
+        name:
+          - build-essential
+          - cmake
+          - git
+          - pkg-config
+          - libssl-dev
+          - libjsoncpp-dev
+          - libyaml-cpp-dev
+          - libgtest-dev
+          - libgmock-dev
+          - nfs-common
+          - nfs-kernel-server
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == "Debian"
+      
+    - name: Install build dependencies (CentOS/RHEL)
+      package:
+        name:
+          - gcc-c++
+          - cmake
+          - git
+          - pkgconfig
+          - openssl-devel
+          - jsoncpp-devel
+          - yaml-cpp-devel
+          - gtest-devel
+          - gmock-devel
+          - nfs-utils
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == "RedHat"
+      
+    - name: Create build user
+      user:
+        name: "{{ build_user }}"
+        group: "{{ build_group }}"
+        shell: /bin/bash
+        create_home: yes
+        state: present
+        
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: "{{ build_user }}"
+        group: "{{ build_group }}"
+        mode: '0755'
+        
+    - name: Clone repository
+      git:
+        repo: "{{ git_repo_url | default('https://github.com/blburns/simple-nfsd.git') }}"
+        dest: "{{ project_dir }}"
+        version: "{{ git_branch | default('main') }}"
+        force: yes
+      become_user: "{{ build_user }}"
+      
+    - name: Create build directory
+      file:
+        path: "{{ project_dir }}/build"
+        state: directory
+        owner: "{{ build_user }}"
+        group: "{{ build_group }}"
+        mode: '0755'
+        
+    - name: Configure CMake
+      command: cmake ..
+      args:
+        chdir: "{{ project_dir }}/build"
+      become_user: "{{ build_user }}"
+      
+    - name: Build project
+      make:
+        chdir: "{{ project_dir }}/build"
+        target: all
+      become_user: "{{ build_user }}"
+      
+    - name: Run tests
+      command: make test
+      args:
+        chdir: "{{ project_dir }}/build"
+      become_user: "{{ build_user }}"
+      register: test_result
+      failed_when: false
+      
+    - name: Display test results
+      debug:
+        var: test_result.stdout_lines
+        
+    - name: Create systemd service file
+      template:
+        src: simple-nfsd.service.j2
+        dest: /etc/systemd/system/simple-nfsd.service
+        mode: '0644'
+      notify: reload systemd
+      
+    - name: Enable NFS services
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      loop:
+        - rpcbind
+        - nfs-server
+        
+    - name: Create NFS export directory
+      file:
+        path: /srv/nfs
+        state: directory
+        mode: '0755'
+        
+    - name: Configure NFS exports
+      lineinfile:
+        path: /etc/exports
+        line: "/srv/nfs *(rw,sync,no_subtree_check,no_root_squash)"
+        create: yes
+      notify: restart nfs
+      
+    - name: Create simple-nfsd configuration
+      template:
+        src: simple-nfsd.conf.j2
+        dest: /etc/simple-nfsd/simple-nfsd.conf
+        mode: '0644'
+      notify: restart simple-nfsd
+      
+  handlers:
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+        
+    - name: restart nfs
+      systemd:
+        name: nfs-server
+        state: restarted
+        
+    - name: restart simple-nfsd
+      systemd:
+        name: simple-nfsd
+        state: restarted

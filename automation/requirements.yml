@@ -1,0 +1,14 @@
+---
+# Ansible Galaxy requirements for simple-nfsd project
+
+- name: geerlingguy.docker
+  version: 4.0.1
+
+- name: geerlingguy.pip
+  version: 2.0.0
+
+- name: geerlingguy.security
+  version: 1.8.0
+
+- name: geerlingguy.systemd
+  version: 2.0.0

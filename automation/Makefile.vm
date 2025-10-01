@@ -1,0 +1,54 @@
+# Makefile for Vagrant VM operations
+# Usage: make -f Makefile.vm <target>
+
+.PHONY: vm-up vm-down vm-ssh vm-build vm-test vm-nfs-test vm-status vm-logs vm-clean
+
+# Start VM
+vm-up:
+	vagrant up
+
+# Stop VM
+vm-down:
+	vagrant halt
+
+# SSH into VM
+vm-ssh:
+	vagrant ssh
+
+# Build project on VM
+vm-build:
+	./automation/scripts/vm-build
+
+# Clean build on VM
+vm-clean:
+	./automation/scripts/vm-build clean
+
+# Run tests on VM
+vm-test:
+	./automation/scripts/vm-test
+
+# Run specific test
+vm-test-filter:
+	./automation/scripts/vm-test $(FILTER)
+
+# Test NFS functionality
+vm-nfs-test:
+	./automation/scripts/vm-nfs-test
+
+# Check service status
+vm-status:
+	./automation/scripts/vm-build status
+
+# View service logs
+vm-logs:
+	./automation/scripts/vm-build logs
+
+# Install and start service
+vm-install:
+	./automation/scripts/vm-build install
+
+# Full setup: up, build, test, install
+vm-setup: vm-up vm-build vm-test vm-install
+
+# Development workflow: build, test, install
+vm-dev: vm-build vm-test vm-install

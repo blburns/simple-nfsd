@@ -1,0 +1,28 @@
+[Unit]
+Description=Simple NFS Daemon
+Documentation=https://github.com/blburns/simple-nfsd
+After=network.target rpcbind.service
+
+[Service]
+Type=simple
+User={{ build_user }}
+Group={{ build_group }}
+ExecStart={{ project_dir }}/build/simple-nfsd --config /etc/simple-nfsd/simple-nfsd.conf
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartSec=5s
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{ project_dir }}
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
