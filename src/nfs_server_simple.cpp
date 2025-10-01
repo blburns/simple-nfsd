@@ -441,6 +441,9 @@ void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthConte
         case 1:  // GETATTR
             handleNfsv2GetAttr(message, auth_context);
             break;
+        case 2:  // SETATTR
+            handleNfsv2SetAttr(message, auth_context);
+            break;
         case 3:  // LOOKUP
             handleNfsv2Lookup(message, auth_context);
             break;
@@ -449,6 +452,21 @@ void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthConte
             break;
         case 7:  // WRITE
             handleNfsv2Write(message, auth_context);
+            break;
+        case 8:  // CREATE
+            handleNfsv2Create(message, auth_context);
+            break;
+        case 9:  // MKDIR
+            handleNfsv2MkDir(message, auth_context);
+            break;
+        case 10: // RMDIR
+            handleNfsv2RmDir(message, auth_context);
+            break;
+        case 11: // REMOVE
+            handleNfsv2Remove(message, auth_context);
+            break;
+        case 12: // RENAME
+            handleNfsv2Rename(message, auth_context);
             break;
         case 15: // READDIR
             handleNfsv2ReadDir(message, auth_context);
@@ -1424,6 +1442,87 @@ bool NfsServerSimple::isNfsVersionSupported(uint32_t version) {
 std::vector<uint32_t> NfsServerSimple::getSupportedNfsVersions() {
     // Return supported NFS versions in order of preference (highest first)
     return {4, 3, 2};
+}
+
+// Additional NFSv2 procedures implementation
+void NfsServerSimple::handleNfsv2SetAttr(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement SETATTR procedure
+        // Parse file handle and attributes from message
+        // Check access permissions
+        // Update file attributes
+        std::cout << "Handled NFSv2 SETATTR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in SETATTR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2Create(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement CREATE procedure
+        // Parse directory file handle and filename from message
+        // Check access permissions
+        // Create new file
+        // Return file handle
+        std::cout << "Handled NFSv2 CREATE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in CREATE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2MkDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement MKDIR procedure
+        // Parse directory file handle and directory name from message
+        // Check access permissions
+        // Create new directory
+        // Return directory file handle
+        std::cout << "Handled NFSv2 MKDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in MKDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2RmDir(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement RMDIR procedure
+        // Parse directory file handle from message
+        // Check access permissions
+        // Remove directory (must be empty)
+        std::cout << "Handled NFSv2 RMDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in RMDIR: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2Remove(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement REMOVE procedure
+        // Parse directory file handle and filename from message
+        // Check access permissions
+        // Remove file
+        std::cout << "Handled NFSv2 REMOVE procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in REMOVE: " << e.what() << std::endl;
+        failed_requests_++;
+    }
+}
+
+void NfsServerSimple::handleNfsv2Rename(const RpcMessage& message, const AuthContext& auth_context) {
+    try {
+        // TODO: Implement RENAME procedure
+        // Parse source and destination file handles and names from message
+        // Check access permissions
+        // Rename file/directory
+        std::cout << "Handled NFSv2 RENAME procedure (user: " << auth_context.uid << ")" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in RENAME: " << e.what() << std::endl;
+        failed_requests_++;
+    }
 }
 
 } // namespace SimpleNfsd

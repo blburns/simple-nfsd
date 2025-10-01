@@ -1,0 +1,163 @@
+{
+  "server": {
+    "listen_address": "0.0.0.0",
+    "listen_port": 2049,
+    "root_path": "/var/lib/simple-nfsd/shares",
+    "max_connections": 1000,
+    "thread_pool_size": 64,
+    "worker_threads": 32,
+    "enable_tcp": true,
+    "enable_udp": true,
+    "tcp_keepalive": true,
+    "tcp_keepalive_time": 600,
+    "tcp_keepalive_interval": 60,
+    "tcp_keepalive_probes": 3,
+    "tcp_nodelay": true,
+    "tcp_cork": false
+  },
+  "performance": {
+    "read_buffer_size": 1048576,
+    "write_buffer_size": 1048576,
+    "max_file_size": 1099511627776,
+    "cache_size": 1073741824,
+    "prefetch_size": 1048576,
+    "prefetch_workers": 8
+  },
+  "memory": {
+    "memory_limit": 2147483648,
+    "gc_interval": 300,
+    "gc_threshold": 0.8
+  },
+  "security": {
+    "enable_auth": true,
+    "allow_anonymous": false,
+    "auth_methods": ["AUTH_SYS", "AUTH_DH", "AUTH_KRB5"],
+    "require_encryption": true,
+    "encryption_ciphers": ["AES256-GCM", "AES128-GCM", "AES256-CBC"],
+    "allowed_clients": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
+    "blocked_clients": ["192.168.1.100", "10.0.0.50"],
+    "enable_acl": true,
+    "enable_rbac": true,
+    "default_umask": "022",
+    "root_squash": true,
+    "all_squash": false,
+    "anon_uid": 65534,
+    "anon_gid": 65534,
+    "password_policy": "strict",
+    "session_timeout": 3600,
+    "max_failed_attempts": 3,
+    "lockout_duration": 300
+  },
+  "logging": {
+    "log_level": "debug",
+    "log_file": "/var/log/simple-nfsd.log",
+    "max_log_size": "500MB",
+    "max_log_files": 20,
+    "log_rotation": "hourly",
+    "log_format": "json",
+    "log_compression": "gzip",
+    "audit_log": true,
+    "audit_log_file": "/var/log/simple-nfsd-audit.log",
+    "audit_events": ["connect", "disconnect", "read", "write", "create", "delete", "rename", "chmod", "chown"],
+    "audit_retention": 90,
+    "enable_structured_logging": true,
+    "log_correlation_id": true,
+    "log_trace_id": true
+  },
+  "monitoring": {
+    "enable_metrics": true,
+    "metrics_port": 9090,
+    "metrics_path": "/metrics",
+    "enable_health_check": true,
+    "health_check_interval": 15,
+    "enable_stats": true,
+    "stats_interval": 30,
+    "stats_file": "/var/lib/simple-nfsd/stats.json",
+    "enable_alerts": true,
+    "alert_thresholds": {
+      "cpu": 80,
+      "memory": 85,
+      "disk": 90,
+      "connections": 800
+    },
+    "alert_webhook": "https://alerts.company.com/webhook",
+    "alert_email": "admin@company.com",
+    "enable_tracing": true,
+    "trace_sampling_rate": 0.1,
+    "trace_endpoint": "http://jaeger:14268/api/traces"
+  },
+  "clustering": {
+    "enable_clustering": true,
+    "cluster_nodes": ["nfs1.company.com:2049", "nfs2.company.com:2049", "nfs3.company.com:2049"],
+    "cluster_consensus": "raft",
+    "cluster_heartbeat": 5,
+    "cluster_election_timeout": 10,
+    "enable_load_balancing": true,
+    "load_balancer": "round_robin",
+    "health_check_interval": 10,
+    "failover_timeout": 30
+  },
+  "shares": {
+    "critical_data": {
+      "path": "/var/lib/simple-nfsd/shares/critical_data",
+      "read_only": false,
+      "allowed_clients": ["10.0.0.0/8"],
+      "options": ["sync", "no_subtree_check", "no_root_squash", "hard", "intr"],
+      "max_connections": 100,
+      "replication": 3,
+      "backup_enabled": true,
+      "backup_schedule": "0 2 * * *",
+      "encryption": true,
+      "compression": true
+    },
+    "shared_data": {
+      "path": "/var/lib/simple-nfsd/shares/shared_data",
+      "read_only": false,
+      "allowed_clients": ["172.16.0.0/12"],
+      "options": ["async", "no_subtree_check", "root_squash", "soft", "intr"],
+      "max_connections": 200,
+      "replication": 2,
+      "backup_enabled": true,
+      "backup_schedule": "0 3 * * *",
+      "encryption": false,
+      "compression": true
+    },
+    "backup": {
+      "path": "/var/lib/simple-nfsd/shares/backup",
+      "read_only": true,
+      "allowed_clients": ["10.0.1.0/24"],
+      "options": ["sync", "no_subtree_check", "root_squash", "hard", "intr"],
+      "max_connections": 50,
+      "replication": 1,
+      "backup_enabled": false,
+      "encryption": true,
+      "compression": true
+    },
+    "temp": {
+      "path": "/var/lib/simple-nfsd/shares/temp",
+      "read_only": false,
+      "allowed_clients": ["192.168.0.0/16"],
+      "options": ["async", "no_subtree_check", "all_squash", "soft", "intr"],
+      "max_connections": 500,
+      "replication": 1,
+      "backup_enabled": false,
+      "encryption": false,
+      "compression": false,
+      "auto_cleanup": true,
+      "cleanup_age": "7d"
+    },
+    "archive": {
+      "path": "/var/lib/simple-nfsd/shares/archive",
+      "read_only": true,
+      "allowed_clients": ["10.0.2.0/24"],
+      "options": ["sync", "no_subtree_check", "root_squash", "hard", "intr"],
+      "max_connections": 20,
+      "replication": 3,
+      "backup_enabled": true,
+      "backup_schedule": "0 4 * * 0",
+      "encryption": true,
+      "compression": true,
+      "retention_policy": "7y"
+    }
+  }
+}

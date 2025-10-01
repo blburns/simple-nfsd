@@ -1,0 +1,103 @@
+# Simple NFS Daemon Configuration - Production Setup
+# This is a production-ready configuration with security and performance optimizations
+
+server:
+  listen_address: "0.0.0.0"
+  listen_port: 2049
+  root_path: "/var/lib/simple-nfsd/shares"
+  max_connections: 100
+  thread_pool_size: 16
+  enable_tcp: true
+  enable_udp: true
+  tcp_keepalive: true
+  tcp_keepalive_time: 600
+  tcp_keepalive_interval: 60
+  tcp_keepalive_probes: 3
+
+performance:
+  read_buffer_size: 65536
+  write_buffer_size: 65536
+  max_file_size: 1073741824
+  cache_size: 268435456
+
+security:
+  enable_auth: true
+  allow_anonymous: false
+  auth_methods:
+    - "AUTH_SYS"
+    - "AUTH_DH"
+  require_encryption: false
+  allowed_clients:
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+  blocked_clients:
+    - "192.168.1.100"
+    - "10.0.0.50"
+  enable_acl: true
+  default_umask: "022"
+  root_squash: true
+  all_squash: false
+  anon_uid: 65534
+  anon_gid: 65534
+
+logging:
+  log_level: "info"
+  log_file: "/var/log/simple-nfsd.log"
+  max_log_size: "100MB"
+  max_log_files: 10
+  log_rotation: "daily"
+  log_format: "json"
+  audit_log: true
+  audit_log_file: "/var/log/simple-nfsd-audit.log"
+  audit_events:
+    - "connect"
+    - "disconnect"
+    - "read"
+    - "write"
+    - "create"
+    - "delete"
+
+monitoring:
+  enable_metrics: true
+  metrics_port: 9090
+  metrics_path: "/metrics"
+  enable_health_check: true
+  health_check_interval: 30
+  enable_stats: true
+  stats_interval: 60
+  stats_file: "/var/lib/simple-nfsd/stats.json"
+
+shares:
+  data:
+    path: "/var/lib/simple-nfsd/shares/data"
+    read_only: false
+    allowed_clients:
+      - "10.0.0.0/8"
+    options:
+      - "sync"
+      - "no_subtree_check"
+      - "no_root_squash"
+    max_connections: 50
+  
+  backup:
+    path: "/var/lib/simple-nfsd/shares/backup"
+    read_only: true
+    allowed_clients:
+      - "10.0.1.0/24"
+    options:
+      - "sync"
+      - "no_subtree_check"
+      - "root_squash"
+    max_connections: 10
+  
+  temp:
+    path: "/var/lib/simple-nfsd/shares/temp"
+    read_only: false
+    allowed_clients:
+      - "192.168.0.0/16"
+    options:
+      - "async"
+      - "no_subtree_check"
+      - "all_squash"
+    max_connections: 20
