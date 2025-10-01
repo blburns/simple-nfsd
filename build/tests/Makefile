@@ -397,6 +397,30 @@ test_nfsd_app.cpp.s:
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsd_app.cpp.s
 .PHONY : test_nfsd_app.cpp.s
 
+test_nfsv2_procedures.o: test_nfsv2_procedures.cpp.o
+.PHONY : test_nfsv2_procedures.o
+
+# target to build an object file
+test_nfsv2_procedures.cpp.o:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o
+.PHONY : test_nfsv2_procedures.cpp.o
+
+test_nfsv2_procedures.i: test_nfsv2_procedures.cpp.i
+.PHONY : test_nfsv2_procedures.i
+
+# target to preprocess a source file
+test_nfsv2_procedures.cpp.i:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.i
+.PHONY : test_nfsv2_procedures.cpp.i
+
+test_nfsv2_procedures.s: test_nfsv2_procedures.cpp.s
+.PHONY : test_nfsv2_procedures.s
+
+# target to generate assembly for a file
+test_nfsv2_procedures.cpp.s:
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/simple-nfsd-tests.dir/build.make tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.s
+.PHONY : test_nfsv2_procedures.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -437,6 +461,9 @@ help:
 	@echo "... test_nfsd_app.o"
 	@echo "... test_nfsd_app.i"
 	@echo "... test_nfsd_app.s"
+	@echo "... test_nfsv2_procedures.o"
+	@echo "... test_nfsv2_procedures.i"
+	@echo "... test_nfsv2_procedures.s"
 .PHONY : help
 
 

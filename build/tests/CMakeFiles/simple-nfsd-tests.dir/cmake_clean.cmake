@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o.d"
   "CMakeFiles/simple-nfsd-tests.dir/test_nfsd_app.cpp.o"
   "CMakeFiles/simple-nfsd-tests.dir/test_nfsd_app.cpp.o.d"
+  "CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o"
+  "CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o.d"
   "simple-nfsd-tests"
   "simple-nfsd-tests.pdb"
 )

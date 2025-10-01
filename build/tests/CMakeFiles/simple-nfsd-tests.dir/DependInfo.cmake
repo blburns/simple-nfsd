@@ -16,6 +16,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_main.cpp" "tests/CMakeFiles/simple-nfsd-tests.dir/test_main.cpp.o" "gcc" "tests/CMakeFiles/simple-nfsd-tests.dir/test_main.cpp.o.d"
   "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_minimal.cpp" "tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o" "gcc" "tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o.d"
   "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_nfsd_app.cpp" "tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsd_app.cpp.o" "gcc" "tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsd_app.cpp.o.d"
+  "/Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_nfsv2_procedures.cpp" "tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o" "gcc" "tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

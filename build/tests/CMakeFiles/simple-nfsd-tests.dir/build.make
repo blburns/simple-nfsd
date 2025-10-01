@@ -170,10 +170,24 @@ tests/CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.s"
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests && /Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/src/auth_manager.cpp -o CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.s
 
+tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o: tests/CMakeFiles/simple-nfsd-tests.dir/flags.make
+tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_nfsv2_procedures.cpp
+tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o: tests/CMakeFiles/simple-nfsd-tests.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o"
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests && /Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o -MF CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o.d -o CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_nfsv2_procedures.cpp
+
+tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.i"
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests && /Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_nfsv2_procedures.cpp > CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.i
+
+tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.s"
+	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests && /Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_nfsv2_procedures.cpp -o CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.s
+
 tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o: tests/CMakeFiles/simple-nfsd-tests.dir/flags.make
 tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o: /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_minimal.cpp
 tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o: tests/CMakeFiles/simple-nfsd-tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o"
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests && /Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o -MF CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o.d -o CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o -c /Users/blb/Workspace/SimpleDaemons/simple-nfsd/tests/test_minimal.cpp
 
 tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.i: cmake_force
@@ -193,6 +207,7 @@ simple__nfsd__tests_OBJECTS = \
 "CMakeFiles/simple-nfsd-tests.dir/__/src/nfs_server_simple.cpp.o" \
 "CMakeFiles/simple-nfsd-tests.dir/__/src/rpc_protocol.cpp.o" \
 "CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.o" \
+"CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o" \
 "CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o"
 
 # External object files for target simple-nfsd-tests
@@ -205,12 +220,13 @@ tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/__/src/config_ma
 tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/__/src/nfs_server_simple.cpp.o
 tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/__/src/rpc_protocol.cpp.o
 tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/__/src/auth_manager.cpp.o
+tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/test_nfsv2_procedures.cpp.o
 tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/test_minimal.cpp.o
 tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/build.make
 tests/simple-nfsd-tests: /usr/local/lib/libgtest_main.a
 tests/simple-nfsd-tests: /usr/local/lib/libgtest.a
 tests/simple-nfsd-tests: tests/CMakeFiles/simple-nfsd-tests.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable simple-nfsd-tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable simple-nfsd-tests"
 	cd /Users/blb/Workspace/SimpleDaemons/simple-nfsd/build/tests && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/simple-nfsd-tests.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
