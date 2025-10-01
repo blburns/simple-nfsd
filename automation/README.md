@@ -29,13 +29,22 @@ automation/
 ```bash
 # From project root
 make -f automation/Makefile.vm vm-setup
+
+# Test specific box
+make -f automation/Makefile.vm vm-test-box BOX=ubuntu/jammy64
+
+# Test multiple distributions
+make -f automation/Makefile.vm vm-test-ubuntu
+make -f automation/Makefile.vm vm-test-debian
+make -f automation/Makefile.vm vm-test-centos
+make -f automation/Makefile.vm vm-test-all
 ```
 
 ### Using Scripts Directly
 
-```bash
+   ```bash
 # Start VM
-vagrant up
+   vagrant up
 
 # Build project
 ./automation/scripts/vm-build
@@ -68,19 +77,19 @@ vagrant up
 ### Script Usage
 
 #### vm-ssh
-```bash
+   ```bash
 ./automation/scripts/vm-ssh "command to run"
-```
+   ```
 
 #### vm-build
-```bash
+   ```bash
 ./automation/scripts/vm-build [clean|test|install|status|logs]
-```
+   ```
 
 #### vm-test
-```bash
+   ```bash
 ./automation/scripts/vm-test [test-pattern]
-```
+   ```
 
 #### vm-nfs-test
 ```bash
@@ -158,11 +167,60 @@ make -f automation/Makefile.vm vm-test
 ```
 
 ### NFS Integration Tests
-```bash
+   ```bash
 make -f automation/Makefile.vm vm-nfs-test
-```
+   ```
 
 ### Specific Test Patterns
-```bash
+   ```bash
 make -f automation/Makefile.vm vm-test-filter FILTER="Nfsv2ProceduresTest.*"
 ```
+
+## Multi-Box Testing
+
+Test your NFS daemon across different Linux distributions using pre-built Vagrant boxes from [HashiCorp Vagrant Cloud](https://portal.cloud.hashicorp.com/vagrant/discover/blburns/).
+
+### Quick Testing
+   ```bash
+# Test Ubuntu distributions
+make -f automation/Makefile.vm vm-test-ubuntu
+
+# Test Debian distributions  
+make -f automation/Makefile.vm vm-test-debian
+
+# Test CentOS/RHEL distributions
+make -f automation/Makefile.vm vm-test-centos
+
+# Test all common distributions
+make -f automation/Makefile.vm vm-test-all
+```
+
+### Custom Box Testing
+```bash
+# Test specific box
+make -f automation/Makefile.vm vm-test-box BOX=ubuntu/jammy64
+
+# Test custom list of boxes
+make -f automation/Makefile.vm vm-test-matrix BOXES="ubuntu/jammy64,debian/bullseye64,centos/8"
+
+# Test with specific test pattern
+make -f automation/Makefile.vm vm-test-matrix BOXES="ubuntu/jammy64" FILTER="*Nfsv2*"
+```
+
+### Available Boxes
+See `automation/vagrant-boxes.yml` for a complete list of supported distributions including:
+- **Ubuntu**: 18.04, 20.04, 22.04 LTS
+- **Debian**: 11 (Bullseye), 12 (Bookworm)  
+- **CentOS**: 8, 9 Stream
+- **Rocky Linux**: 8, 9
+- **AlmaLinux**: 8, 9
+- **Fedora**: 38, 39
+- **openSUSE**: Leap 15.4
+- **Arch Linux**: Rolling release
+- **Alpine**: 3.13 (minimal)
+
+### Box Selection Tips
+- **Ubuntu/Debian**: Best for development and testing
+- **CentOS/RHEL**: Enterprise environments and production testing
+- **Fedora**: Latest features and bleeding-edge testing
+- **Alpine**: Minimal footprint and performance testing

@@ -52,3 +52,27 @@ vm-setup: vm-up vm-build vm-test vm-install
 
 # Development workflow: build, test, install
 vm-dev: vm-build vm-test vm-install
+
+# Test specific box
+vm-test-box:
+	VAGRANT_BOX=$(BOX) vagrant up
+	VAGRANT_BOX=$(BOX) ./automation/scripts/vm-build
+	VAGRANT_BOX=$(BOX) ./automation/scripts/vm-test
+	VAGRANT_BOX=$(BOX) vagrant destroy -f
+
+# Test multiple boxes
+vm-test-matrix:
+	./automation/scripts/vm-test-matrix $(BOXES) $(FILTER)
+
+# Test common distributions
+vm-test-ubuntu:
+	./automation/scripts/vm-test-matrix "ubuntu/jammy64,ubuntu/focal64" $(FILTER)
+
+vm-test-debian:
+	./automation/scripts/vm-test-matrix "debian/bullseye64,debian/bookworm64" $(FILTER)
+
+vm-test-centos:
+	./automation/scripts/vm-test-matrix "centos/8,rockylinux/8,almalinux/8" $(FILTER)
+
+vm-test-all:
+	./automation/scripts/vm-test-matrix "ubuntu/jammy64,debian/bullseye64,centos/8,rockylinux/8,fedora/38-cloud-base" $(FILTER)

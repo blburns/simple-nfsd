@@ -2,8 +2,8 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  # Use Ubuntu 22.04 LTS as base box
-  config.vm.box = "ubuntu/jammy64"
+  # Use Ubuntu 22.04 LTS as base box (can be overridden with VAGRANT_BOX)
+  config.vm.box = ENV['VAGRANT_BOX'] || "ubuntu/jammy64"
   
   # VM configuration
   config.vm.hostname = "simple-nfsd-dev"

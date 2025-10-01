@@ -1,0 +1,99 @@
+#!/bin/bash
+# Test matrix script for different Vagrant boxes
+# Usage: ./vm-test-matrix [box1,box2,box3] [test-pattern]
+
+set -e
+
+# Default boxes to test
+DEFAULT_BOXES="ubuntu/jammy64,debian/bullseye64,centos/8,rockylinux/8"
+BOXES="${1:-$DEFAULT_BOXES}"
+TEST_PATTERN="${2:-}"
+
+# Convert comma-separated list to array
+IFS=',' read -ra BOX_ARRAY <<< "$BOXES"
+
+echo "=== Simple NFS Daemon - Multi-Box Testing ==="
+echo "Testing boxes: ${BOXES}"
+echo "Test pattern: ${TEST_PATTERN:-'all tests'}"
+echo ""
+
+# Function to test a single box
+test_box() {
+    local box_name="$1"
+    local box_clean=$(echo "$box_name" | sed 's/[\/-]/_/g')
+    
+    echo "--- Testing $box_name ---"
+    
+    # Set environment variable for Vagrant
+    export VAGRANT_BOX="$box_name"
+    
+    # Clean up any existing VM
+    vagrant destroy -f 2>/dev/null || true
+    
+    # Start VM
+    echo "Starting VM with $box_name..."
+    if ! vagrant up; then
+        echo "❌ Failed to start VM with $box_name"
+        return 1
+    fi
+    
+    # Wait for VM to be ready
+    echo "Waiting for VM to be ready..."
+    sleep 10
+    
+    # Run tests
+    echo "Running tests..."
+    if [ -n "$TEST_PATTERN" ]; then
+        vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev ./tests/simple-nfsd-tests --gtest_filter='$TEST_PATTERN'" || {
+            echo "❌ Tests failed on $box_name"
+            return 1
+        }
+    else
+        vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev make test" || {
+            echo "❌ Tests failed on $box_name"
+            return 1
+        }
+    fi
+    
+    # Test NFS functionality
+    echo "Testing NFS functionality..."
+    vagrant ssh -c "
+        sudo mkdir -p /mnt/nfs-test
+        sudo mount -t nfs4 localhost:/srv/nfs /mnt/nfs-test
+        echo 'NFS test from $box_name' | sudo tee /mnt/nfs-test/test_${box_clean}.txt
+        sudo ls -la /mnt/nfs-test/
+        sudo umount /mnt/nfs-test
+    " || {
+        echo "❌ NFS test failed on $box_name"
+        return 1
+    }
+    
+    echo "✅ $box_name - All tests passed!"
+    
+    # Clean up
+    vagrant destroy -f
+}
+
+# Test each box
+SUCCESS_COUNT=0
+TOTAL_COUNT=${#BOX_ARRAY[@]}
+
+for box in "${BOX_ARRAY[@]}"; do
+    if test_box "$box"; then
+        ((SUCCESS_COUNT++))
+    fi
+    echo ""
+done
+
+# Summary
+echo "=== Test Matrix Results ==="
+echo "Successful: $SUCCESS_COUNT/$TOTAL_COUNT"
+echo "Failed: $((TOTAL_COUNT - SUCCESS_COUNT))/$TOTAL_COUNT"
+
+if [ $SUCCESS_COUNT -eq $TOTAL_COUNT ]; then
+    echo "🎉 All boxes passed!"
+    exit 0
+else
+    echo "❌ Some boxes failed"
+    exit 1
+fi
