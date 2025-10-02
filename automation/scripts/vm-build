@@ -1,8 +1,22 @@
 #!/bin/bash
 # Build script for Vagrant VM
-# Usage: ./vm-build [clean|test|install]
+# Usage: ./vm-build [vm_name] [clean|test|install]
 
 set -e
+
+# Get VM name from first argument or default to ubuntu_dev
+VM_NAME="${1:-ubuntu_dev}"
+VM_DIR="virtuals/$VM_NAME"
+
+# Check if VM directory exists
+if [ ! -d "$VM_DIR" ]; then
+    echo "❌ VM directory $VM_DIR not found"
+    echo "Available VMs: ubuntu_dev, centos_dev"
+    exit 1
+fi
+
+# Change to VM directory
+cd "$VM_DIR"
 
 # Check if Vagrant VM is running
 if ! vagrant status | grep -q "running"; then
@@ -15,7 +29,7 @@ echo "Syncing files to VM..."
 vagrant rsync
 
 # Run build commands on VM
-case "${1:-build}" in
+case "${2:-build}" in
     "clean")
         echo "Cleaning build directory..."
         vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsdev rm -rf build && mkdir -p build"
@@ -41,3 +55,6 @@ case "${1:-build}" in
         vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsdev ./build.sh"
         ;;
 esac
+
+# Return to original directory
+cd - > /dev/null

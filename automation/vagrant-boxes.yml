@@ -1,33 +1,34 @@
 # Vagrant Box Options for Simple NFS Daemon Testing
 # Usage: VAGRANT_BOX=box_name vagrant up
 
-# Ubuntu/Debian Family (Recommended for NFS development)
-ubuntu_22_04: "ubuntu/jammy64"           # Ubuntu 22.04 LTS (default)
-ubuntu_20_04: "ubuntu/focal64"           # Ubuntu 20.04 LTS
-ubuntu_18_04: "ubuntu/bionic64"          # Ubuntu 18.04 LTS
-debian_11: "debian/bullseye64"           # Debian 11 (Bullseye)
-debian_12: "debian/bookworm64"           # Debian 12 (Bookworm)
-
-# CentOS/RHEL Family (Enterprise testing)
-centos_8: "centos/8"                     # CentOS 8
-centos_9: "centos/9-stream"              # CentOS 9 Stream
-rocky_8: "rockylinux/8"                  # Rocky Linux 8
-rocky_9: "rockylinux/9"                  # Rocky Linux 9
-alma_8: "almalinux/8"                    # AlmaLinux 8
-alma_9: "almalinux/9"                    # AlmaLinux 9
-
-# Fedora (Latest features testing)
-fedora_38: "fedora/38-cloud-base"        # Fedora 38
-fedora_39: "fedora/39-cloud-base"        # Fedora 39
-
-# Specialized distributions
-opensuse_leap: "opensuse/Leap-15.4"     # openSUSE Leap 15.4
-archlinux: "archlinux/archlinux"         # Arch Linux (rolling)
-
-# Minimal distributions (for performance testing)
-alpine: "alpine/alpine313"               # Alpine Linux 3.13
-tinycore: "tinycore/tinycore"            # TinyCore Linux
-
-# Development environments
+# Development environments (Primary focus for current system limits)
 ubuntu_dev: "ubuntu/jammy64"             # Ubuntu with dev tools
 centos_dev: "centos/8"                   # CentOS with dev tools
+
+# COMMENTED OUT - Additional distributions (uncomment as needed for expanded testing)
+# Ubuntu/Debian Family (Recommended for NFS development)
+# ubuntu_22_04: "ubuntu/jammy64"           # Ubuntu 22.04 LTS (default)
+# ubuntu_20_04: "ubuntu/focal64"           # Ubuntu 20.04 LTS
+# ubuntu_18_04: "ubuntu/bionic64"          # Ubuntu 18.04 LTS
+# debian_11: "debian/bullseye64"           # Debian 11 (Bullseye)
+# debian_12: "debian/bookworm64"           # Debian 12 (Bookworm)
+
+# CentOS/RHEL Family (Enterprise testing)
+# centos_8: "centos/8"                     # CentOS 8
+# centos_9: "centos/9-stream"              # CentOS 9 Stream
+# rocky_8: "rockylinux/8"                  # Rocky Linux 8
+# rocky_9: "rockylinux/9"                  # Rocky Linux 9
+# alma_8: "almalinux/8"                    # AlmaLinux 8
+# alma_9: "almalinux/9"                    # AlmaLinux 9
+
+# Fedora (Latest features testing)
+# fedora_38: "fedora/38-cloud-base"        # Fedora 38
+# fedora_39: "fedora/39-cloud-base"        # Fedora 39
+
+# Specialized distributions
+# opensuse_leap: "opensuse/Leap-15.4"     # openSUSE Leap 15.4
+# archlinux: "archlinux/archlinux"         # Arch Linux (rolling)
+
+# Minimal distributions (for performance testing)
+# alpine: "alpine/alpine313"               # Alpine Linux 3.13
+# tinycore: "tinycore/tinycore"            # TinyCore Linux

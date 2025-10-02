@@ -1,16 +1,45 @@
 #!/bin/bash
 # Test matrix script for different Vagrant boxes
 # Usage: ./vm-test-matrix [box1,box2,box3] [test-pattern]
+# 
+# Box names can be:
+# - Development aliases: ubuntu_dev, centos_dev
+# - Full box names: ubuntu/jammy64, centos/8, etc.
+# - Mix of both: ubuntu_dev,centos/8
 
 set -e
 
-# Default boxes to test
-DEFAULT_BOXES="ubuntu/jammy64,debian/bullseye64,centos/8,rockylinux/8"
+# Default boxes to test (simplified for current system limits)
+DEFAULT_BOXES="ubuntu_dev,centos_dev"
 BOXES="${1:-$DEFAULT_BOXES}"
 TEST_PATTERN="${2:-}"
 
 # Convert comma-separated list to array
 IFS=',' read -ra BOX_ARRAY <<< "$BOXES"
+
+# Function to resolve box name from vagrant-boxes.yml
+resolve_box_name() {
+    local box_name="$1"
+    
+    # If it's already a full box name (contains /), use it as-is
+    if [[ "$box_name" == *"/"* ]]; then
+        echo "$box_name"
+        return
+    fi
+    
+    # Try to resolve from vagrant-boxes.yml
+    local vagrant_boxes_file="automation/vagrant-boxes.yml"
+    if [ -f "$vagrant_boxes_file" ]; then
+        local resolved=$(grep "^${box_name}:" "$vagrant_boxes_file" | sed 's/.*: *"\([^"]*\)".*/\1/')
+        if [ -n "$resolved" ]; then
+            echo "$resolved"
+            return
+        fi
+    fi
+    
+    # Fallback to original name
+    echo "$box_name"
+}
 
 echo "=== Simple NFS Daemon - Multi-Box Testing ==="
 echo "Testing boxes: ${BOXES}"
@@ -19,13 +48,21 @@ echo ""
 
 # Function to test a single box
 test_box() {
-    local box_name="$1"
+    local box_alias="$1"
+    local box_name=$(resolve_box_name "$box_alias")
     local box_clean=$(echo "$box_name" | sed 's/[\/-]/_/g')
+    local vm_dir="virtuals/$box_alias"
     
-    echo "--- Testing $box_name ---"
+    echo "--- Testing $box_alias ($box_name) ---"
     
-    # Set environment variable for Vagrant
-    export VAGRANT_BOX="$box_name"
+    # Check if VM directory exists
+    if [ ! -d "$vm_dir" ]; then
+        echo "❌ VM directory $vm_dir not found"
+        return 1
+    fi
+    
+    # Change to VM directory
+    cd "$vm_dir"
     
     # Clean up any existing VM
     vagrant destroy -f 2>/dev/null || true
@@ -34,6 +71,7 @@ test_box() {
     echo "Starting VM with $box_name..."
     if ! vagrant up; then
         echo "❌ Failed to start VM with $box_name"
+        cd - > /dev/null
         return 1
     fi
     
@@ -46,11 +84,13 @@ test_box() {
     if [ -n "$TEST_PATTERN" ]; then
         vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev ./tests/simple-nfsd-tests --gtest_filter='$TEST_PATTERN'" || {
             echo "❌ Tests failed on $box_name"
+            cd - > /dev/null
             return 1
         }
     else
         vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev make test" || {
             echo "❌ Tests failed on $box_name"
+            cd - > /dev/null
             return 1
         }
     fi
@@ -65,13 +105,17 @@ test_box() {
         sudo umount /mnt/nfs-test
     " || {
         echo "❌ NFS test failed on $box_name"
+        cd - > /dev/null
         return 1
     }
     
-    echo "✅ $box_name - All tests passed!"
+    echo "✅ $box_alias - All tests passed!"
     
     # Clean up
     vagrant destroy -f
+    
+    # Return to original directory
+    cd - > /dev/null
 }
 
 # Test each box

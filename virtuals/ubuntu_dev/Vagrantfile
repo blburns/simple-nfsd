@@ -1,62 +1,32 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# Multi-VM Vagrantfile for Simple NFS Daemon
-# Manages VMs in the virtuals/ directory structure
+# Ubuntu Development VM Configuration
+# This VM uses Ubuntu 22.04 LTS with development tools
 
 Vagrant.configure("2") do |config|
-  # Define VM configurations
-  vm_configs = {
-    "ubuntu_dev" => {
-      box: "ubuntu/jammy64",
-      hostname: "simple-nfsd-ubuntu-dev",
-      ip: "192.168.1.100",
-      memory: "2048",
-      cpus: 2
-    },
-    "centos_dev" => {
-      box: "centos/8",
-      hostname: "simple-nfsd-centos-dev", 
-      ip: "192.168.1.101",
-      memory: "2048",
-      cpus: 2
-    }
-  }
-  
-  # Get the VM type from environment variable or default to ubuntu_dev
-  vm_type = ENV['VAGRANT_BOX'] || "ubuntu_dev"
-  
-  # Validate VM type
-  unless vm_configs.key?(vm_type)
-    puts "Error: Unknown VM type '#{vm_type}'"
-    puts "Available types: #{vm_configs.keys.join(', ')}"
-    exit 1
-  end
-  
-  vm_config = vm_configs[vm_type]
-  
   # VM configuration
-  config.vm.box = vm_config[:box]
-  config.vm.hostname = vm_config[:hostname]
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.hostname = "simple-nfsd-ubuntu-dev"
   
   # Network configuration
-  config.vm.network "private_network", ip: vm_config[:ip]
+  config.vm.network "private_network", ip: "192.168.1.100"
   config.vm.network "forwarded_port", guest: 2049, host: 2049, id: "nfs"
   config.vm.network "forwarded_port", guest: 111, host: 111, id: "rpcbind"
   
   # VM resources
   config.vm.provider "virtualbox" do |vb|
-    vb.name = vm_config[:hostname]
-    vb.memory = vm_config[:memory]
-    vb.cpus = vm_config[:cpus]
+    vb.name = "simple-nfsd-ubuntu-dev"
+    vb.memory = "2048"
+    vb.cpus = 2
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
   
   # Provisioning with Ansible
   config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "automation/playbook.yml"
-    ansible.inventory_path = "automation/inventory.ini"
+    ansible.playbook = "../../automation/playbook.yml"
+    ansible.inventory_path = "../../automation/inventory.ini"
     ansible.limit = "development"
     ansible.extra_vars = {
       git_repo_url: ".",
@@ -65,12 +35,12 @@ Vagrant.configure("2") do |config|
     ansible.verbose = true
   end
   
-  # Sync current directory to VM (including build directory)
-  config.vm.synced_folder ".", "/vagrant", type: "rsync", 
+  # Sync project directory to VM
+  config.vm.synced_folder "../../", "/vagrant", type: "rsync", 
     rsync__exclude: [".git/", "dist/", "*.o", "*.so", "*.a", "virtuals/"]
   
   # Mount build directory for easy access
-  config.vm.synced_folder "./build", "/opt/simple-nfsd/build", type: "rsync"
+  config.vm.synced_folder "../../build", "/opt/simple-nfsd/build", type: "rsync"
   
   # Post-provisioning script
   config.vm.provision "shell", inline: <<-SHELL
