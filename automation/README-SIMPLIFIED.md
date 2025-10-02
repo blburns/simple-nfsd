@@ -164,8 +164,11 @@ Development files are automatically synchronized between host and VMs:
 - `include/` → `/opt/simple-nfsd/include`
 - `tests/` → `/opt/simple-nfsd/tests`
 - `config/` → `/opt/simple-nfsd/config`
-- `CMakeLists.txt` → `/opt/simple-nfsd/CMakeLists.txt`
-- `Makefile` → `/opt/simple-nfsd/Makefile`
+
+### Project Files (Available via /vagrant)
+- `CMakeLists.txt` → `/vagrant/CMakeLists.txt`
+- `Makefile` → `/vagrant/Makefile`
+- All other project files → `/vagrant/`
 
 ### Build Directory (Read-Write)
 - `build/` → `/opt/simple-nfsd/build`

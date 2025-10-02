@@ -44,8 +44,6 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "../../include", "/opt/simple-nfsd/include", type: "rsync"
   config.vm.synced_folder "../../tests", "/opt/simple-nfsd/tests", type: "rsync"
   config.vm.synced_folder "../../config", "/opt/simple-nfsd/config", type: "rsync"
-  config.vm.synced_folder "../../CMakeLists.txt", "/opt/simple-nfsd/CMakeLists.txt", type: "rsync"
-  config.vm.synced_folder "../../Makefile", "/opt/simple-nfsd/Makefile", type: "rsync"
   
   # Build directory (read-write for build artifacts)
   config.vm.synced_folder "../../build", "/opt/simple-nfsd/build", type: "rsync"
