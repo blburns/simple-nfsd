@@ -139,6 +139,82 @@ The VMs are configured to run in headless mode using VBoxHeadless, which provide
 - VBoxManage command-line tool available
 - SSH access to VMs (configured automatically)
 
+## Networking Configuration
+
+VMs are configured with private network interfaces for testing:
+
+- **Ubuntu Dev VM**: `192.168.1.100`
+- **CentOS Dev VM**: `192.168.1.101`
+- **No Port Forwarding**: Services run directly on VM IPs for testing
+- **Private Network**: VMs communicate on isolated network segment
+
+### Testing Services
+
+Services are accessible directly on the VM IPs:
+- **NFS Server**: `192.168.1.100:2049` (Ubuntu) or `192.168.1.101:2049` (CentOS)
+- **RPC Portmapper**: `192.168.1.100:111` (Ubuntu) or `192.168.1.101:111` (CentOS)
+- **SSH Access**: `192.168.1.100:22` (Ubuntu) or `192.168.1.101:22` (CentOS)
+
+## Shared Directories
+
+Development files are automatically synchronized between host and VMs:
+
+### Source Code Directories (Read-Write)
+- `src/` → `/opt/simple-nfsd/src`
+- `include/` → `/opt/simple-nfsd/include`
+- `tests/` → `/opt/simple-nfsd/tests`
+- `config/` → `/opt/simple-nfsd/config`
+- `CMakeLists.txt` → `/opt/simple-nfsd/CMakeLists.txt`
+- `Makefile` → `/opt/simple-nfsd/Makefile`
+
+### Build Directory (Read-Write)
+- `build/` → `/opt/simple-nfsd/build`
+
+### Benefits
+- **Real-time Development**: Changes on host are immediately available in VM
+- **Build Artifacts**: Compiled binaries are accessible from host
+- **No Manual Sync**: Automatic synchronization via rsync
+- **Cross-Platform Testing**: Build and test on different Linux distributions
+
+## Development Workflow
+
+### 1. Start Development VM
+```bash
+./virtuals/vm-manager up ubuntu_dev
+```
+
+### 2. Develop on Host
+- Edit source files in `src/`, `include/`, `tests/` on your macOS host
+- Changes are automatically synchronized to VM
+
+### 3. Build and Test in VM
+```bash
+# SSH into VM
+./virtuals/vm-manager ssh ubuntu_dev
+
+# Build the application
+cd /opt/simple-nfsd
+sudo -u nfsdev ./build.sh
+
+# Run tests
+cd /opt/simple-nfsd/build
+sudo -u nfsdev make test
+
+# Test NFS functionality
+sudo systemctl start simple-nfsd
+sudo systemctl status simple-nfsd
+```
+
+### 4. Access Build Artifacts
+- Compiled binaries are available in `./build/` on your host
+- Test results and logs are accessible from both host and VM
+
+### 5. Test Services
+```bash
+# Test NFS from another VM or host
+mount -t nfs4 192.168.1.100:/srv/nfs /mnt/nfs-test
+```
+
 ## Notes
 
 - The simplified setup reduces resource usage by focusing on essential development environments

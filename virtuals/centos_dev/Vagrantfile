@@ -11,8 +11,6 @@ Vagrant.configure("2") do |config|
   
   # Network configuration
   config.vm.network "private_network", ip: "192.168.1.101"
-  config.vm.network "forwarded_port", guest: 2049, host: 2049, id: "nfs"
-  config.vm.network "forwarded_port", guest: 111, host: 111, id: "rpcbind"
   
   # VM resources
   config.vm.provider "virtualbox" do |vb|
@@ -37,11 +35,19 @@ Vagrant.configure("2") do |config|
     ansible.verbose = true
   end
   
-  # Sync project directory to VM
+  # Shared directories for development
   config.vm.synced_folder "../../", "/vagrant", type: "rsync", 
-    rsync__exclude: [".git/", "dist/", "*.o", "*.so", "*.a", "virtuals/"]
+    rsync__exclude: [".git/", "dist/", "*.o", "*.so", "*.a", "virtuals/", ".vagrant/"]
   
-  # Mount build directory for easy access
+  # Application source code (read-write for development)
+  config.vm.synced_folder "../../src", "/opt/simple-nfsd/src", type: "rsync"
+  config.vm.synced_folder "../../include", "/opt/simple-nfsd/include", type: "rsync"
+  config.vm.synced_folder "../../tests", "/opt/simple-nfsd/tests", type: "rsync"
+  config.vm.synced_folder "../../config", "/opt/simple-nfsd/config", type: "rsync"
+  config.vm.synced_folder "../../CMakeLists.txt", "/opt/simple-nfsd/CMakeLists.txt", type: "rsync"
+  config.vm.synced_folder "../../Makefile", "/opt/simple-nfsd/Makefile", type: "rsync"
+  
+  # Build directory (read-write for build artifacts)
   config.vm.synced_folder "../../build", "/opt/simple-nfsd/build", type: "rsync"
   
   # Post-provisioning script
