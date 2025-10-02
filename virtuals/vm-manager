@@ -15,6 +15,22 @@ NC='\033[0m' # No Color
 # Available VMs
 AVAILABLE_VMS=("ubuntu_dev" "centos_dev")
 
+# Function to check VBoxHeadless availability
+check_vboxheadless() {
+    if ! which VBoxHeadless >/dev/null 2>&1; then
+        print_error "VBoxHeadless not found. Please install VirtualBox."
+        print_error "Download from: https://www.virtualbox.org/wiki/Downloads"
+        exit 1
+    fi
+    
+    if ! which VBoxManage >/dev/null 2>&1; then
+        print_error "VBoxManage not found. Please install VirtualBox."
+        exit 1
+    fi
+    
+    print_status "Using VBoxHeadless $(VBoxManage --version) for headless VM operation"
+}
+
 # Function to print colored output
 print_status() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -39,7 +55,7 @@ show_usage() {
     echo "Usage: $0 [command] [vm_name]"
     echo ""
     echo "Commands:"
-    echo "  up [vm_name]     - Start a VM"
+    echo "  up [vm_name]     - Start a VM (headless mode)"
     echo "  down [vm_name]   - Stop a VM"
     echo "  destroy [vm_name] - Destroy a VM"
     echo "  status [vm_name] - Show VM status"
@@ -50,6 +66,8 @@ show_usage() {
     echo "  matrix           - Test all VMs"
     echo ""
     echo "Available VMs: ${AVAILABLE_VMS[*]}"
+    echo ""
+    echo "Note: VMs run in headless mode (no GUI) using VBoxHeadless"
     echo ""
     echo "Examples:"
     echo "  $0 up ubuntu_dev"
@@ -78,11 +96,12 @@ start_vm() {
     local vm_name="$1"
     local vm_dir=$(get_vm_dir "$vm_name")
     
-    print_status "Starting $vm_name VM..."
+    print_status "Starting $vm_name VM in headless mode..."
+    check_vboxheadless
     cd "$vm_dir"
     vagrant up
     cd - > /dev/null
-    print_success "$vm_name VM started successfully"
+    print_success "$vm_name VM started successfully (headless)"
 }
 
 # Function to stop a VM

@@ -121,6 +121,23 @@ If you need to test additional distributions, you can:
 3. **Easier Management**: VM manager script provides unified interface
 4. **Version Control Friendly**: VM-specific files are properly ignored
 5. **Scalable**: Easy to add new VMs without cluttering project root
+6. **Headless Operation**: VMs run using VBoxHeadless (no GUI required)
+7. **Resource Efficient**: Headless mode uses fewer system resources
+
+## Headless Mode Requirements
+
+The VMs are configured to run in headless mode using VBoxHeadless, which provides:
+
+- **No GUI Required**: VMs run without opening VirtualBox GUI windows
+- **Lower Resource Usage**: Reduced memory and CPU overhead
+- **Better for Automation**: Perfect for CI/CD and automated testing
+- **SSH Access**: All VM interaction is done via SSH
+
+### Prerequisites
+
+- VirtualBox installed (includes VBoxHeadless)
+- VBoxManage command-line tool available
+- SSH access to VMs (configured automatically)
 
 ## Notes
 
@@ -128,4 +145,5 @@ If you need to test additional distributions, you can:
 - All additional VM configurations are commented out but can be easily re-enabled
 - The automation tooling supports both alias names (ubuntu_dev, centos_dev) and full box names
 - VM files (`.vagrant/`, logs) are excluded from version control
+- VMs run in headless mode for better resource efficiency
 

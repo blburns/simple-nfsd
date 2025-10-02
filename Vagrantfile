@@ -49,8 +49,10 @@ Vagrant.configure("2") do |config|
     vb.name = vm_config[:hostname]
     vb.memory = vm_config[:memory]
     vb.cpus = vm_config[:cpus]
+    vb.gui = false  # Use headless mode
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    vb.customize ["modifyvm", :id, "--vrde", "off"]  # Disable VRDE for headless
   end
   
   # Provisioning with Ansible
