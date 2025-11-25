@@ -6443,6 +6443,7 @@ void NfsServerSimple::handleNfsv4MkNod(const RpcMessagevoid NfsServerSimple::han
         response_data.insert(response_data.end(), handle.begin(), handle.end());
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        sendReply(reply, client_conn);
         successful_requests_++;
         std::cout << "Handled NFSv4 MKNOD procedure (stub) (user: " << auth_context.uid << ")" << std::endl;
         
@@ -7300,6 +7301,7 @@ void NfsServerSimple::handleNfsv4GetAcl(const RpcMessagevoid NfsServerSimple::ha
         response_data.insert(response_data.end(), (uint8_t*)&acl_count, (uint8_t*)&acl_count + 4);
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        sendReply(reply, client_conn);
         successful_requests_++;
         std::cout << "Handled NFSv4 GETACL procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
@@ -7328,6 +7330,7 @@ void NfsServerSimple::handleNfsv4SetAcl(const RpcMessagevoid NfsServerSimple::ha
         // Return success (ACL setting stubbed)
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        sendReply(reply, client_conn);
         successful_requests_++;
         std::cout << "Handled NFSv4 SETACL procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
