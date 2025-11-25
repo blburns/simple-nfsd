@@ -10,10 +10,27 @@
 #include <sys/xattr.h>
 #include <algorithm>
 #include <sstream>
+#include <thread>
+#include <atomic>
+#ifdef __linux__
+#include <sys/inotify.h>
+#include <sys/select.h>
+#elif __APPLE__
+#include <CoreServices/CoreServices.h>
+#endif
+#include <thread>
+#include <atomic>
+#ifdef __linux__
+#include <sys/inotify.h>
+#include <sys/select.h>
+#elif __APPLE__
+#include <CoreServices/CoreServices.h>
+#endif
 
 namespace SimpleNfsd {
 
-FilesystemManager::FilesystemManager() : next_handle_id_(1), initialized_(false) {}
+FilesystemManager::FilesystemManager() 
+    : next_handle_id_(1), initialized_(false), monitoring_enabled_(false), stop_monitoring_(false) {}
 
 FilesystemManager::~FilesystemManager() {
     shutdown();
@@ -703,6 +720,211 @@ std::vector<std::string> FilesystemManager::listExportedPaths() const {
     }
     
     return paths;
+}
+
+// File system caching implementation
+bool FilesystemManager::getCachedFileContent(const std::string& path, std::vector<uint8_t>& content) {
+    std::lock_guard<std::mutex> lock(content_cache_mutex_);
+    
+    auto it = content_cache_.find(path);
+    if (it != content_cache_.end()) {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - it->second.cached_at);
+        if (elapsed < CachedContent::CACHE_TTL) {
+            content = it->second.content;
+            return true;
+        } else {
+            // Cache expired
+            content_cache_.erase(it);
+        }
+    }
+    
+    return false;
+}
+
+void FilesystemManager::cacheFileContent(const std::string& path, const std::vector<uint8_t>& content) {
+    std::lock_guard<std::mutex> lock(content_cache_mutex_);
+    
+    CachedContent cached;
+    cached.content = content;
+    cached.cached_at = std::chrono::steady_clock::now();
+    content_cache_[path] = cached;
+}
+
+void FilesystemManager::invalidateContentCache(const std::string& path) {
+    std::lock_guard<std::mutex> lock(content_cache_mutex_);
+    content_cache_.erase(path);
+}
+
+void FilesystemManager::clearContentCache() {
+    std::lock_guard<std::mutex> lock(content_cache_mutex_);
+    content_cache_.clear();
+}
+
+// File system monitoring implementation
+bool FilesystemManager::startMonitoring(const std::string& path) {
+    if (monitoring_enabled_) {
+        return true; // Already monitoring
+    }
+    
+    std::lock_guard<std::mutex> lock(monitoring_mutex_);
+    monitoring_enabled_ = true;
+    stop_monitoring_ = false;
+    recent_changes_.clear();
+    
+    // Start monitoring thread
+    monitoring_thread_ = std::thread([this, path]() {
+        #ifdef __linux__
+        int fd = inotify_init();
+        if (fd < 0) {
+            std::cerr << "Failed to initialize inotify" << std::endl;
+            return;
+        }
+        
+        int wd = inotify_add_watch(fd, path.c_str(), IN_MODIFY | IN_CREATE | IN_DELETE | IN_MOVE);
+        if (wd < 0) {
+            std::cerr << "Failed to add watch for: " << path << std::endl;
+            close(fd);
+            return;
+        }
+        
+        char buffer[4096];
+        while (!stop_monitoring_) {
+            fd_set read_fds;
+            FD_ZERO(&read_fds);
+            FD_SET(fd, &read_fds);
+            
+            struct timeval timeout;
+            timeout.tv_sec = 1;
+            timeout.tv_usec = 0;
+            
+            int result = select(fd + 1, &read_fds, nullptr, nullptr, &timeout);
+            if (result > 0 && FD_ISSET(fd, &read_fds)) {
+                ssize_t length = read(fd, buffer, sizeof(buffer));
+                if (length > 0) {
+                    struct inotify_event* event = (struct inotify_event*)buffer;
+                    if (event->len > 0) {
+                        std::lock_guard<std::mutex> lock(monitoring_mutex_);
+                        recent_changes_.push_back(std::string(event->name));
+                        if (recent_changes_.size() > 100) {
+                            recent_changes_.erase(recent_changes_.begin());
+                        }
+                    }
+                }
+            }
+        }
+        
+        inotify_rm_watch(fd, wd);
+        close(fd);
+        #elif __APPLE__
+        // FSEvents implementation would go here
+        // For now, just a placeholder
+        while (!stop_monitoring_) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        #else
+        // Other platforms - not supported
+        (void)path;
+        #endif
+    });
+    
+    return true;
+}
+
+void FilesystemManager::stopMonitoring() {
+    if (!monitoring_enabled_) {
+        return;
+    }
+    
+    stop_monitoring_ = true;
+    if (monitoring_thread_.joinable()) {
+        monitoring_thread_.join();
+    }
+    
+    std::lock_guard<std::mutex> lock(monitoring_mutex_);
+    monitoring_enabled_ = false;
+}
+
+bool FilesystemManager::isMonitoring() const {
+    return monitoring_enabled_;
+}
+
+std::vector<std::string> FilesystemManager::getRecentChanges() const {
+    std::lock_guard<std::mutex> lock(monitoring_mutex_);
+    return recent_changes_;
+}
+
+// Quota management implementation
+bool FilesystemManager::getQuotaInfo(const std::string& path, uint32_t uid, QuotaInfo& quota) {
+    std::lock_guard<std::mutex> lock(quota_mutex_);
+    
+    auto key = std::make_pair(path, uid);
+    auto it = quota_map_.find(key);
+    if (it != quota_map_.end()) {
+        quota.used_bytes = it->second.used_bytes;
+        quota.soft_limit = it->second.soft_limit;
+        quota.hard_limit = it->second.hard_limit;
+        quota.available_bytes = (it->second.hard_limit > it->second.used_bytes) ? 
+                                (it->second.hard_limit - it->second.used_bytes) : 0;
+        return true;
+    }
+    
+    // No quota set - return unlimited
+    quota.used_bytes = 0;
+    quota.soft_limit = 0; // 0 = unlimited
+    quota.hard_limit = 0; // 0 = unlimited
+    quota.available_bytes = UINT64_MAX;
+    return true;
+}
+
+bool FilesystemManager::checkQuota(const std::string& path, uint32_t uid, uint64_t requested_bytes) {
+    QuotaInfo quota;
+    if (!getQuotaInfo(path, uid, quota)) {
+        return false;
+    }
+    
+    // If no limits set (0 = unlimited), allow
+    if (quota.hard_limit == 0) {
+        return true;
+    }
+    
+    // Check if adding requested_bytes would exceed hard limit
+    return (quota.used_bytes + requested_bytes) <= quota.hard_limit;
+}
+
+bool FilesystemManager::setQuota(const std::string& path, uint32_t uid, uint64_t soft_limit, uint64_t hard_limit) {
+    std::lock_guard<std::mutex> lock(quota_mutex_);
+    
+    auto key = std::make_pair(path, uid);
+    QuotaEntry entry;
+    entry.uid = uid;
+    entry.soft_limit = soft_limit;
+    entry.hard_limit = hard_limit;
+    
+    // Calculate current usage (simplified - would need actual filesystem quota support)
+    entry.used_bytes = 0; // Placeholder - would query filesystem
+    
+    quota_map_[key] = entry;
+    return true;
+}
+
+// Export hot-reload implementation
+bool FilesystemManager::reloadExports() {
+    // This would reload exports from the current config
+    // For now, just clear the export cache
+    std::lock_guard<std::mutex> lock(export_cache_mutex_);
+    export_cache_.clear();
+    export_cache_time_ = std::chrono::steady_clock::now();
+    return true;
+}
+
+bool FilesystemManager::reloadExportConfig(const std::string& config_file) {
+    // This would reload the entire config from file
+    // For now, just clear caches
+    reloadExports();
+    clearAttributeCache();
+    clearContentCache();
+    return true;
 }
 
 } // namespace SimpleNfsd

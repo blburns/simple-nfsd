@@ -117,6 +117,33 @@ public:
     bool getExportInfo(const std::string& path, NfsServerConfig::Export& export_info) const;
     std::vector<std::string> listExportedPaths() const;
 
+    // File system caching
+    bool getCachedFileContent(const std::string& path, std::vector<uint8_t>& content);
+    void cacheFileContent(const std::string& path, const std::vector<uint8_t>& content);
+    void invalidateContentCache(const std::string& path);
+    void clearContentCache();
+
+    // File system monitoring
+    bool startMonitoring(const std::string& path);
+    void stopMonitoring();
+    bool isMonitoring() const;
+    std::vector<std::string> getRecentChanges() const;
+
+    // Quota management
+    struct QuotaInfo {
+        uint64_t used_bytes;
+        uint64_t soft_limit;
+        uint64_t hard_limit;
+        uint64_t available_bytes;
+    };
+    bool getQuotaInfo(const std::string& path, uint32_t uid, QuotaInfo& quota);
+    bool checkQuota(const std::string& path, uint32_t uid, uint64_t requested_bytes);
+    bool setQuota(const std::string& path, uint32_t uid, uint64_t soft_limit, uint64_t hard_limit);
+
+    // Export hot-reload
+    bool reloadExports();
+    bool reloadExportConfig(const std::string& config_file);
+
 private:
     NfsServerConfig config_;
     std::map<uint32_t, FileHandle> file_handles_;
@@ -137,6 +164,32 @@ private:
     mutable std::map<std::string, bool> export_cache_;
     mutable std::mutex export_cache_mutex_;
     std::chrono::steady_clock::time_point export_cache_time_;
+
+    // Content cache
+    struct CachedContent {
+        std::vector<uint8_t> content;
+        std::chrono::steady_clock::time_point cached_at;
+        static constexpr std::chrono::seconds CACHE_TTL{60}; // 60 second TTL for content
+    };
+    std::map<std::string, CachedContent> content_cache_;
+    std::mutex content_cache_mutex_;
+
+    // File system monitoring
+    bool monitoring_enabled_;
+    std::vector<std::string> recent_changes_;
+    mutable std::mutex monitoring_mutex_;
+    std::thread monitoring_thread_;
+    std::atomic<bool> stop_monitoring_;
+
+    // Quota management
+    struct QuotaEntry {
+        uint32_t uid;
+        uint64_t soft_limit;
+        uint64_t hard_limit;
+        uint64_t used_bytes;
+    };
+    std::map<std::pair<std::string, uint32_t>, QuotaEntry> quota_map_;
+    std::mutex quota_mutex_;
 
     // Helper methods
     std::string sanitizePath(const std::string& path) const;
