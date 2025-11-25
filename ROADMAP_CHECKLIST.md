@@ -234,36 +234,40 @@
   - [x] Queue management
 
 ### Authentication & Security
-- [ ] AUTH_SYS authentication
-  - [ ] AUTH_SYS implementation
-  - [ ] User/group mapping
+- [x] AUTH_SYS authentication (100% Complete)
+  - [x] AUTH_SYS implementation (authenticateAUTH_SYS, parseAuthSysCredentials)
+  - [x] User/group mapping (loadUserDatabase, loadGroupDatabase, getUserInfo, getGroupInfo)
+  - [x] Credential validation (validateAuthSysCredentials)
+  - [x] Security context (AuthContext, SecurityContext)
+  - [x] Root squash support (root_squash_, all_squash_)
+  - [x] Anonymous access support (anon_uid_, anon_gid_)
+- [ ] AUTH_DH authentication (Framework Complete - Implementation Pending)
+  - [x] AUTH_DH framework (authenticateAUTH_DH stub)
+  - [ ] AUTH_DH implementation (TODO: Diffie-Hellman key exchange)
   - [ ] Credential validation
   - [ ] Security context
-- [ ] AUTH_DH authentication
-  - [ ] AUTH_DH implementation
-  - [ ] Diffie-Hellman key exchange
-  - [ ] Credential validation
+- [ ] Kerberos authentication (RPCSEC_GSS) (Framework Complete - Implementation Pending)
+  - [x] Kerberos framework (authenticateKerberos stub)
+  - [ ] GSSAPI integration (TODO)
+  - [ ] Kerberos ticket validation (TODO)
+  - [ ] SPNEGO support (TODO)
   - [ ] Security context
-- [ ] Kerberos authentication (RPCSEC_GSS)
-  - [ ] GSSAPI integration
-  - [ ] Kerberos ticket validation
-  - [ ] SPNEGO support
-  - [ ] Security context
-- [ ] NFSv4 security flavors
-  - [ ] Security flavor negotiation
-  - [ ] Security flavor implementation
-  - [ ] Security flavor validation
-  - [ ] Security flavor management
-- [ ] User and group mapping
-  - [ ] User database
-  - [ ] Group membership
-  - [ ] Permission mapping
-  - [ ] Identity management
-- [ ] Access control lists (ACLs)
-  - [ ] ACL parsing
-  - [ ] Permission checking
-  - [ ] Security descriptor handling
-  - [ ] ACL management
+- [x] NFSv4 security flavors (100% Complete)
+  - [x] Security flavor negotiation (SECINFO procedure)
+  - [x] Security flavor implementation (AUTH_SYS supported)
+  - [x] Security flavor validation
+  - [x] Security flavor management
+- [x] User and group mapping (100% Complete)
+  - [x] User database (loadUserDatabase from /etc/passwd)
+  - [x] Group membership (loadGroupDatabase from /etc/group, gids support)
+  - [x] Permission mapping (checkPathAccess, checkAccess)
+  - [x] Identity management (getUserInfo, getGroupInfo, uid/gid mapping)
+- [x] Access control lists (ACLs) (Framework Complete - Basic Implementation)
+  - [x] ACL parsing (getFileAcl, setFileAcl in SecurityManager)
+  - [x] Permission checking (checkPathAccess checks ACLs)
+  - [x] Security descriptor handling (FileAcl structure)
+  - [x] ACL management (setFileAcl, getFileAcl, removeFileAcl)
+  - [ ] Full NFSv4 ACL support (GETACL/SETACL procedures are stubs)
 
 ---
 
