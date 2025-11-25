@@ -275,87 +275,90 @@
 
 ---
 
-## Phase 3: File System Operations 📋 PLANNED
+## Phase 3: File System Operations 🔄 IN PROGRESS
 **Timeline**: 6-8 weeks
-**Status**: 0% Complete
-**Target**: Q3 2025
+**Status**: ~60% Complete (Many core operations already implemented via NFS procedures)
+**Target**: Q1 2025
+**Started**: December 2024
 
 ### File Operations
-- [ ] File open/close operations
-  - [ ] File handle management
-  - [ ] File access modes
-  - [ ] File sharing modes
-  - [ ] File handle validation
-- [ ] Read/write operations
-  - [ ] File reading
-  - [ ] File writing
-  - [ ] Seek operations
-  - [ ] Truncate operations
-  - [ ] Data integrity
-- [ ] File locking mechanisms
+- [x] File handle management (100% Complete)
+  - [x] File handle management (getHandleForPath, getPathFromHandle)
+  - [x] File handle validation (handle validation in all procedures)
+  - [x] Handle-to-path mapping (NFSv2 32-bit, NFSv3 64-bit, NFSv4 variable-length)
+  - [ ] File access modes (NFS is stateless, but could add stateful tracking)
+  - [ ] File sharing modes (NFS is stateless, but could add stateful tracking)
+- [x] Read/write operations (100% Complete)
+  - [x] File reading (READ procedures for NFSv2/v3/v4)
+  - [x] File writing (WRITE procedures for NFSv2/v3/v4)
+  - [x] Seek operations (offset-based in READ/WRITE)
+  - [x] Truncate operations (SETATTR with size)
+  - [x] Data integrity (file system operations)
+- [ ] File locking mechanisms (0% Complete - Not Yet Implemented)
   - [ ] Shared locks
   - [ ] Exclusive locks
   - [ ] Lock conflict resolution
   - [ ] Lock management
-- [ ] Directory listing and traversal
-  - [ ] Directory reading
-  - [ ] File enumeration
-  - [ ] Directory creation/deletion
-  - [ ] Directory traversal
-- [ ] File attribute management
-  - [ ] File attributes
-  - [ ] Extended attributes
-  - [ ] Timestamp management
-  - [ ] Attribute caching
-- [ ] Symbolic link support
-  - [ ] Symlink creation
-  - [ ] Symlink resolution
-  - [ ] Symlink following
-  - [ ] Symlink validation
-- [ ] Hard link support
-  - [ ] Hard link creation
-  - [ ] Hard link counting
-  - [ ] Hard link resolution
-  - [ ] Hard link management
-- [ ] File system operations (create, delete, rename)
-  - [ ] File creation
-  - [ ] File deletion
-  - [ ] File renaming
-  - [ ] Directory operations
-  - [ ] Operation validation
+  - [ ] NLM (Network Lock Manager) integration
+- [x] Directory listing and traversal (100% Complete)
+  - [x] Directory reading (READDIR procedures for NFSv2/v3/v4)
+  - [x] File enumeration (READDIR, READDIRPLUS)
+  - [x] Directory creation/deletion (MKDIR, RMDIR procedures)
+  - [x] Directory traversal (LOOKUP, path resolution)
+- [x] File attribute management (90% Complete)
+  - [x] File attributes (GETATTR, SETATTR procedures)
+  - [x] Timestamp management (atime, mtime, ctime in attributes)
+  - [ ] Extended attributes (xattrs - not yet implemented)
+  - [ ] Attribute caching (not yet implemented)
+- [x] Symbolic link support (100% Complete)
+  - [x] Symlink creation (SYMLINK procedures for NFSv2/v3/v4)
+  - [x] Symlink resolution (READLINK procedures)
+  - [x] Symlink following (LOOKUP follows symlinks)
+  - [x] Symlink validation (path validation)
+- [x] Hard link support (100% Complete)
+  - [x] Hard link creation (LINK procedures for NFSv2/v3/v4)
+  - [x] Hard link counting (file system tracks link count)
+  - [x] Hard link resolution (path resolution)
+  - [x] Hard link management (file system operations)
+- [x] File system operations (create, delete, rename) (100% Complete)
+  - [x] File creation (CREATE procedures for NFSv2/v3/v4)
+  - [x] File deletion (REMOVE procedures for NFSv2/v3/v4)
+  - [x] File renaming (RENAME procedures for NFSv2/v3/v4)
+  - [x] Directory operations (MKDIR, RMDIR)
+  - [x] Operation validation (access checks, path validation)
 
 ### Export Management
-- [ ] Export configuration and management
-  - [ ] Export definition
-  - [ ] Export parameters
-  - [ ] Export validation
-  - [ ] Export lifecycle
-- [ ] Export permissions and access control
-  - [ ] Export-level permissions
-  - [ ] Client access control
-  - [ ] Network access control
-  - [ ] Permission enforcement
-- [ ] Export enumeration
-  - [ ] Export listing
-  - [ ] Export discovery
-  - [ ] Export information
-  - [ ] Export status
-- [ ] Export security options
-  - [ ] Security descriptor creation
-  - [ ] Permission inheritance
-  - [ ] Access control enforcement
-  - [ ] Security validation
-- [ ] Root squash support
-  - [ ] Root squash implementation
-  - [ ] Root squash configuration
-  - [ ] Root squash validation
-  - [ ] Root squash management
-- [ ] Subtree checking
+- [x] Export configuration and management (80% Complete)
+  - [x] Export definition (NfsServerConfig::Export structure)
+  - [x] Export parameters (path, clients, options, comment)
+  - [x] Export validation (isPathExported, isPathWithinExport)
+  - [ ] Export lifecycle (hot-reload not yet implemented)
+- [x] Export permissions and access control (90% Complete)
+  - [x] Export-level permissions (checkPathAccess, checkAccess)
+  - [x] Client access control (client IP checking in exports)
+  - [x] Network access control (export client list)
+  - [x] Permission enforcement (access checks in all procedures)
+- [ ] Export enumeration (0% Complete - Not Yet Implemented)
+  - [ ] Export listing (SHOWMOUNT equivalent)
+  - [ ] Export discovery (export enumeration API)
+  - [ ] Export information (export status/details)
+  - [ ] Export status (export health/state)
+- [x] Export security options (80% Complete)
+  - [x] Security descriptor creation (SecurityContext)
+  - [x] Permission inheritance (checkPathAccess)
+  - [x] Access control enforcement (all procedures)
+  - [x] Security validation (authentication, authorization)
+- [x] Root squash support (100% Complete)
+  - [x] Root squash implementation (AuthManager::root_squash_)
+  - [x] Root squash configuration (config options)
+  - [x] Root squash validation (auth context mapping)
+  - [x] Root squash management (anon_uid_, anon_gid_)
+- [ ] Subtree checking (0% Complete - Not Yet Implemented)
   - [ ] Subtree check implementation
   - [ ] Subtree check configuration
   - [ ] Subtree check validation
   - [ ] Subtree check management
-- [ ] Export caching
+- [ ] Export caching (0% Complete - Not Yet Implemented)
   - [ ] Export cache implementation
   - [ ] Export cache management
   - [ ] Export cache invalidation
