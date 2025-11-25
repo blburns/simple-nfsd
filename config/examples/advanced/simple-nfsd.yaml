@@ -61,6 +61,43 @@ security:
   max_failed_attempts: 3
   lockout_duration: 300
 
+file_access_tracking:
+  enabled: true
+  timeout: 7200
+  track_modes:
+    - "READ_ONLY"
+    - "WRITE_ONLY"
+    - "READ_WRITE"
+    - "APPEND"
+  track_sharing:
+    - "EXCLUSIVE"
+    - "SHARED_READ"
+    - "SHARED_WRITE"
+    - "SHARED_ALL"
+  cleanup_interval: 60
+  conflict_detection: true
+  logging: true
+
+acl_management:
+  enabled: true
+  default_acl:
+    entries:
+      - type: 1
+        id: 0
+        permissions: 7
+        name: "owner"
+      - type: 2
+        id: 0
+        permissions: 5
+        name: "group"
+      - type: 4
+        id: 0
+        permissions: 5
+        name: "others"
+  inherit_acls: true
+  acl_cache: true
+  acl_cache_ttl: 300
+
 logging:
   log_level: "debug"
   log_file: "/var/log/simple-nfsd.log"

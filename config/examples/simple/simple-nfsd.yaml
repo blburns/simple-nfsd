@@ -14,6 +14,11 @@ security:
   allow_anonymous: false
   auth_methods:
     - "AUTH_SYS"
+  enable_acl: true
+
+file_access_tracking:
+  enabled: true
+  timeout: 3600
 
 logging:
   log_level: "info"

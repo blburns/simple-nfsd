@@ -15,6 +15,8 @@ This directory contains basic configuration examples for Simple NFS Daemon, suit
 - **Minimal Performance Tuning**: Default buffer sizes
 - **Basic Export Configuration**: Simple read/write shares
 - **Standard Logging**: INFO level logging
+- **ACL Support**: Basic ACL support (NFSv4 GETACL/SETACL)
+- **File Access Tracking**: Basic file access mode tracking
 
 ## Usage
 

@@ -131,9 +131,10 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 
 #### Authentication & Security
 - [x] AUTH_SYS authentication (100% Complete)
-- [x] AUTH_DH authentication (Framework Complete)
-- [x] Kerberos authentication (RPCSEC_GSS) (Framework Complete)
-- [x] Access Control Lists (ACL) support (100% Complete)
+- [x] AUTH_DH authentication (Framework Complete - Crypto Integration Pending)
+- [x] Kerberos authentication (RPCSEC_GSS) (Framework Complete - GSSAPI Integration Pending)
+- [x] Access Control Lists (ACL) support (100% Complete - Full NFSv4 GETACL/SETACL)
+- [x] File access and sharing mode tracking (100% Complete - Stateful tracking)
 - [x] Session management (100% Complete)
 - [x] Audit logging (100% Complete)
 - [x] Security context management (100% Complete)
@@ -149,13 +150,6 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [x] Portmapper integration
 - [x] RPC registration and discovery
 
-#### Authentication & Security
-- [ ] AUTH_SYS authentication
-- [ ] AUTH_DH authentication
-- [ ] Kerberos authentication (RPCSEC_GSS)
-- [ ] NFSv4 security flavors
-- [ ] User and group mapping
-- [ ] Access control lists (ACLs)
 
 ### Phase 3: File System Operations ✅ COMPLETE
 **Status**: ✅ 100% Complete
@@ -188,7 +182,9 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [x] File system monitoring (100% Complete - inotify integration)
 - [x] Quota management (100% Complete - framework)
 - [x] File system caching (100% Complete - metadata and content)
-- [ ] VFS (Virtual File System) integration (Optional - Advanced Feature)
+- [x] VFS (Virtual File System) integration (100% Complete - framework)
+- [x] File access modes tracking (100% Complete - READ_ONLY, WRITE_ONLY, READ_WRITE, APPEND)
+- [x] File sharing modes tracking (100% Complete - EXCLUSIVE, SHARED_READ, SHARED_WRITE, SHARED_ALL)
 
 ### Phase 4: Advanced Features
 **Status**: 📋 Planned

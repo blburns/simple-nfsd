@@ -10,6 +10,8 @@ This directory contains advanced configuration examples for Simple NFS Daemon, d
 
 - **Full NFS Protocol Support**: NFSv3 and NFSv4 with all features
 - **Advanced Security**: AUTH_SYS, AUTH_DH, Kerberos, and LDAP
+- **Full ACL Support**: Complete NFSv4 ACL support with advanced ACL management
+- **Advanced File Access Tracking**: Stateful tracking with all access modes (READ_ONLY, WRITE_ONLY, READ_WRITE, APPEND) and sharing modes (EXCLUSIVE, SHARED_READ, SHARED_WRITE, SHARED_ALL)
 - **High Performance**: Optimized for maximum throughput
 - **Clustering Support**: Multi-node cluster configuration
 - **Advanced Monitoring**: Real-time monitoring and alerting

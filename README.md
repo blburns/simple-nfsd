@@ -1,13 +1,14 @@
 # Simple NFS Daemon
 
-[![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://github.com/blburns/simple-nfsd)
+[![Version](https://img.shields.io/badge/version-0.5.1-blue.svg)](https://github.com/blburns/simple-nfsd)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/blburns/simple-nfsd)
 
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
 
-**Current Version**: 0.5.0 (NFSv2, NFSv3 & NFSv4 Complete + Phase 3 Complete - Production Ready)  
-**Phase 3 Status**: ✅ 100% Complete (File System Operations Complete)
+**Current Version**: 0.5.1 (NFSv2, NFSv3 & NFSv4 Complete + Phase 3 Complete + Full ACL Support - Production Ready)  
+**Phase 3 Status**: ✅ 100% Complete (File System Operations Complete)  
+**Latest Features**: Full NFSv4 ACL support, File access/sharing mode tracking
 
 ## Features
 
@@ -30,7 +31,8 @@ A lightweight, high-performance NFS server implementation designed for modern sy
 ### ✅ **NFSv4 Protocol (Complete - Production Ready)**
 - **All 38 NFSv4 Procedures**: NULL, COMPOUND, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK, READ, WRITE, CREATE, MKDIR, SYMLINK, MKNOD, REMOVE, RMDIR, RENAME, LINK, READDIR, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT, DELEGRETURN, GETACL, SETACL, FS_LOCATIONS, RELEASE_LOCKOWNER, SECINFO, FSID_PRESENT, EXCHANGE_ID, CREATE_SESSION, DESTROY_SESSION, SEQUENCE, GET_DEVICE_INFO, BIND_CONN_TO_SESSION, DESTROY_CLIENTID, RECLAIM_COMPLETE
 - **Variable-Length Handles**: NFSv4 uses opaque variable-length file handles
-- **Advanced Features**: COMPOUND operations framework, ACL support, session management, delegation support
+- **Advanced Features**: COMPOUND operations framework, **Full ACL support (GETACL/SETACL)**, session management, delegation support
+- **File Access Tracking**: Stateful file access and sharing mode tracking (READ_ONLY, WRITE_ONLY, READ_WRITE, APPEND, EXCLUSIVE, SHARED_READ, SHARED_WRITE, SHARED_ALL)
 - **Comprehensive Testing**: Full test suite for all NFSv4 procedures
 
 ### **Core Infrastructure (Complete)**
@@ -41,6 +43,8 @@ A lightweight, high-performance NFS server implementation designed for modern sy
 - **Easy Deployment**: Docker containerization and system service support
 - **Comprehensive Testing**: 123/131 tests passing (94% success rate)
 - **Static Linking**: Self-contained binary generation
+- **Security Features**: Full ACL support, file access tracking, authentication (AUTH_SYS, AUTH_DH, Kerberos frameworks)
+- **File System Features**: Extended attributes, file locking (NLM), caching, monitoring, quota management
 
 ## Quick Start
 
@@ -371,5 +375,7 @@ Current development focuses on:
   - ✅ File system monitoring (inotify integration)
   - ✅ Quota management framework
   - ✅ Export hot-reload
+  - ✅ **Full NFSv4 ACL support (GETACL/SETACL procedures)**
+  - ✅ **File access and sharing mode tracking (stateful)**
 - Phase 4: Advanced Features (📋 Planned)
 - Phase 5: Enterprise Features (📋 Planned)

@@ -10,6 +10,8 @@ This directory contains production-ready configuration examples for Simple NFS D
 
 - **Full NFS Protocol Support**: NFSv3 and NFSv4
 - **Enhanced Security**: AUTH_SYS and AUTH_DH authentication
+- **Full ACL Support**: Complete NFSv4 ACL support (GETACL/SETACL)
+- **File Access Tracking**: Stateful file access and sharing mode tracking
 - **Performance Optimized**: Larger buffers and connection limits
 - **Network Access Control**: Allowed/denied network lists
 - **Monitoring Integration**: Health checks and metrics

@@ -140,7 +140,8 @@ Supported NFS protocol versions.
   "options": ["rw", "sync", "no_subtree_check"],
   "security": {
     "authentication": "sys",
-    "encryption": false
+    "encryption": false,
+    "enable_acl": true
   },
   "quotas": {
     "enabled": true,
@@ -150,6 +151,12 @@ Supported NFS protocol versions.
   "caching": {
     "enabled": true,
     "ttl": 300
+  },
+  "file_access_tracking": {
+    "enabled": true,
+    "timeout": 3600,
+    "track_modes": ["READ_ONLY", "WRITE_ONLY", "READ_WRITE", "APPEND"],
+    "track_sharing": ["EXCLUSIVE", "SHARED_READ", "SHARED_WRITE", "SHARED_ALL"]
   }
 }
 ```
