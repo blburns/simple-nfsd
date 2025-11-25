@@ -29,7 +29,7 @@ This directory contains Docker deployment examples for simple-nfsd.
 | `SIMPLE-NFSD_CONFIG` | `/etc/simple-nfsd/simple-nfsd.conf` | Configuration file path |
 | `SIMPLE-NFSD_LOG_LEVEL` | `info` | Log level (debug, info, warn, error) |
 | `SIMPLE-NFSD_BIND_ADDRESS` | `0.0.0.0` | Bind address |
-| `SIMPLE-NFSD_BIND_PORT` | `` | Bind port |
+| `SIMPLE-NFSD_BIND_PORT` | `80` | Bind port |
 
 ### Volumes
 
@@ -66,7 +66,7 @@ docker-compose down -v
 
 The container includes health checks that verify the service is responding:
 
-- **Check command:** `nc -z localhost `
+- **Check command:** `nc -z localhost 80`
 - **Interval:** 30 seconds
 - **Timeout:** 10 seconds
 - **Retries:** 3
@@ -97,11 +97,11 @@ docker-compose exec simple-nfsd cat /etc/simple-nfsd/simple-nfsd.conf
 ### Port conflicts
 ```bash
 # Check what's using the port
-netstat -tlnp | grep 
+netstat -tlnp | grep 80
 
 # Change port in docker-compose.yml
 ports:
-  - "8080:/tcp"
+  - "8080:80/tcp"
 ```
 
 ### Permission issues

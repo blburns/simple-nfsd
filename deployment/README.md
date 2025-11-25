@@ -175,10 +175,10 @@ Configure firewall rules as needed:
 
 ```bash
 # Linux (ufw)
-sudo ufw allow /tcp
+sudo ufw allow 80/tcp
 
 # Linux (firewalld)
-sudo firewall-cmd --permanent --add-port=/tcp
+sudo firewall-cmd --permanent --add-port=80/tcp
 sudo firewall-cmd --reload
 
 # macOS
@@ -203,8 +203,8 @@ sudo pfctl -f /etc/pf.conf
 
 2. **Port availability:**
    ```bash
-   netstat -tlnp | grep 
-   ss -tlnp | grep 
+   netstat -tlnp | grep 80
+   ss -tlnp | grep 80
    ```
 
 3. **Process monitoring:**
@@ -252,7 +252,7 @@ sudo pfctl -f /etc/pf.conf
    - Verify directory ownership
 
 3. **Port already in use:**
-   - Check what's using the port: `netstat -tlnp | grep `
+   - Check what's using the port: `netstat -tlnp | grep 80`
    - Stop conflicting service or change port
 
 4. **Service stops unexpectedly:**

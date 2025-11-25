@@ -1,6 +1,6 @@
 # Makefile for simple-nfsd
 # Simple NFS Daemon - A lightweight and secure NFS server
-# Copyright  SimpleDaemons <info@simpledaemons.com>
+# Copyright 2024 SimpleDaemons <info@simpledaemons.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 # Variables
 PROJECT_NAME = simple-nfsd
-VERSION = 0.2.2
+VERSION = 0.1.0
 BUILD_DIR = build
 DIST_DIR = dist
 PACKAGE_DIR = packaging
@@ -425,7 +425,7 @@ docker-build:
 	docker build -t $(PROJECT_NAME):$(VERSION) .
 
 docker-run:
-	docker run -d --name $(PROJECT_NAME)-$(VERSION) -p : $(PROJECT_NAME):$(VERSION)
+	docker run -d --name $(PROJECT_NAME)-$(VERSION) -p 80:80 $(PROJECT_NAME):$(VERSION)
 
 docker-stop:
 	docker stop $(PROJECT_NAME)-$(VERSION)
@@ -463,8 +463,8 @@ else ifeq ($(PLATFORM),windows)
 		scripts\build-windows.bat --service; \
 	) else ( \
 		echo "Windows build script not found. Please install service manually:"; \
-		echo "  sc create  binPath= \"$(INSTALL_PREFIX)\\bin\\$(PROJECT_NAME).exe\""; \
-		echo "  sc start "; \
+		echo "  sc create SimpleHTTPDaemon binPath= \"$(INSTALL_PREFIX)\\bin\\$(PROJECT_NAME).exe\""; \
+		echo "  sc start SimpleHTTPDaemon"; \
 	)
 endif
 
@@ -492,18 +492,8 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Checking service status on Windows..."
-	@sc query 
+	@sc query SimpleHTTPDaemon
 endif
-
-# Version information
-version:
-	@echo "$(PROJECT_NAME) version $(VERSION)"
-	@echo "Platform: $(PLATFORM)"
-	@echo "Build directory: $(BUILD_DIR)"
-	@echo "Distribution directory: $(DIST_DIR)"
-	@echo ""
-	@echo "Available tags:"
-	@git tag -l | sort -V | tail -10
 
 # Help - Main help (most common targets)
 help:
@@ -521,7 +511,6 @@ help:
 	@echo "  package-source   - Create source code packages (TAR.GZ + ZIP)"
 	@echo "  package-all      - Create all packages (binary + source)"
 	@echo "  package-info     - Show package information"
-	@echo "  version          - Show version information"
 	@echo ""
 	@echo "Development targets:"
 	@echo "  dev-build        - Build in debug mode"
@@ -839,7 +828,7 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Starting service on Windows..."
-	@sc start 
+	@sc start SimpleHTTPDaemon
 endif
 
 service-stop:
@@ -861,7 +850,7 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Stopping service on Windows..."
-	@sc stop 
+	@sc stop SimpleHTTPDaemon
 endif
 
 service-restart:
@@ -885,9 +874,9 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Restarting service on Windows..."
-	@sc stop 
+	@sc stop SimpleHTTPDaemon
 	@timeout /t 2 /nobreak >nul
-	@sc start 
+	@sc start SimpleHTTPDaemon
 endif
 
 service-enable:
@@ -909,7 +898,7 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Enabling service on Windows..."
-	@sc config  start= auto
+	@sc config SimpleHTTPDaemon start= auto
 endif
 
 service-disable:
@@ -931,7 +920,7 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Disabling service on Windows..."
-	@sc config  start= disabled
+	@sc config SimpleHTTPDaemon start= disabled
 endif
 
 service-uninstall:
@@ -957,9 +946,9 @@ else ifeq ($(PLATFORM),linux)
 	fi
 else ifeq ($(PLATFORM),windows)
 	@echo "Uninstalling service on Windows..."
-	@sc query  >nul 2>&1 && ( \
-		sc stop ; \
-		sc delete ; \
+	@sc query SimpleHTTPDaemon >nul 2>&1 && ( \
+		sc stop SimpleHTTPDaemon; \
+		sc delete SimpleHTTPDaemon; \
 		echo "Service uninstalled successfully"; \
 	) || echo "Service not found"
 endif
@@ -1057,7 +1046,7 @@ endif
         service-start service-stop service-restart service-enable service-disable \
         config-install config-backup log-rotate backup restore distclean \
         debug release sanitize rebuild test-verbose start stop restart status \
-        version help help-all help-build help-package help-deps help-service help-docker help-config help-platform
+        help help-all help-build help-package help-deps help-service help-docker help-config help-platform
 
 # Default target
 .DEFAULT_GOAL := all

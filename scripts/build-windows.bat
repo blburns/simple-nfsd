@@ -276,7 +276,7 @@ if "%ENABLE_STATIC_LINKING%"=="ON" (
     if not exist "%DIST_DIR%" mkdir "%DIST_DIR%"
     
     REM Create static binary directory
-    set "STATIC_DIR=%DIST_DIR%\simple-nfsd--static-windows"
+    set "STATIC_DIR=%DIST_DIR%\simple-nfsd-0.1.0-static-windows"
     if not exist "%STATIC_DIR%" mkdir "%STATIC_DIR%"
     
     REM Copy binary and files
@@ -287,10 +287,10 @@ if "%ENABLE_STATIC_LINKING%"=="ON" (
     
     REM Create ZIP package
     cd /d "%DIST_DIR%"
-    powershell -Command "Compress-Archive -Path 'simple-nfsd--static-windows' -DestinationPath 'simple-nfsd--static-windows.zip' -Force"
-    rmdir /s /q "simple-nfsd--static-windows"
+    powershell -Command "Compress-Archive -Path 'simple-nfsd-0.1.0-static-windows' -DestinationPath 'simple-nfsd-0.1.0-static-windows.zip' -Force"
+    rmdir /s /q "simple-nfsd-0.1.0-static-windows"
     
-    call :print_success "Static binary package created: simple-nfsd--static-windows.zip"
+    call :print_success "Static binary package created: simple-nfsd-0.1.0-static-windows.zip"
 )
 goto :eof
 

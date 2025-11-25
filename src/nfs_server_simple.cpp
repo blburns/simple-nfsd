@@ -275,11 +275,13 @@ void NfsServerSimple::tcpListenerLoop() {
 }
 
 void NfsServerSimple::udpListenerLoop() {
-    int server_socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (server_socket < 0) {
+    udp_server_socket_ = socket(AF_INET, SOCK_DGRAM, 0);
+    if (udp_server_socket_ < 0) {
         std::cerr << "Failed to create UDP socket: " << strerror(errno) << std::endl;
         return;
     }
+    
+    int server_socket = udp_server_socket_;  // Keep for compatibility
     
     // Set socket options
     int opt = 1;
@@ -337,13 +339,15 @@ void NfsServerSimple::udpListenerLoop() {
         }
         
         if (bytes_received > 0) {
-            // Convert client address to vector
-            std::vector<uint8_t> client_address_bytes(sizeof(client_addr));
-            std::memcpy(client_address_bytes.data(), &client_addr, sizeof(client_addr));
+            // Create client connection info for UDP
+            ClientConnection client_conn;
+            client_conn.is_tcp = false;
+            client_conn.udp_socket = udp_server_socket_;
+            client_conn.udp_addr = client_addr;
             
             // Process the message
             std::vector<uint8_t> message_data(buffer, buffer + bytes_received);
-            processRpcMessage(client_address_bytes, message_data);
+            processRpcMessage(client_conn, message_data);
         }
     }
     
@@ -366,19 +370,21 @@ void NfsServerSimple::handleClientConnection(int client_socket) {
             break;
         }
         
-        // Convert client address to vector (simplified for TCP)
-        std::vector<uint8_t> client_address_bytes(4, 0); // Placeholder
+        // Create client connection info for TCP
+        ClientConnection client_conn;
+        client_conn.is_tcp = true;
+        client_conn.tcp_socket = client_socket;
         
         // Process the message
         std::vector<uint8_t> message_data(buffer, buffer + bytes_received);
-        processRpcMessage(client_address_bytes, message_data);
+        processRpcMessage(client_conn, message_data);
     }
     
     close(client_socket);
     active_connections_--;
 }
 
-void NfsServerSimple::processRpcMessage(const std::vector<uint8_t>& client_address, const std::vector<uint8_t>& raw_message) {
+void NfsServerSimple::processRpcMessage(const ClientConnection& client_conn, const std::vector<uint8_t>& raw_message) {
     try {
         total_requests_++;
         
@@ -389,12 +395,15 @@ void NfsServerSimple::processRpcMessage(const std::vector<uint8_t>& client_addre
         if (!RpcUtils::validateMessage(message)) {
             std::cerr << "Invalid RPC message received" << std::endl;
             failed_requests_++;
+            // Send error reply
+            RpcMessage error_reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::GARBAGE_ARGS, {});
+            sendReply(error_reply, client_conn);
             return;
         }
         
         // Handle RPC call
         if (message.header.type == RpcMessageType::CALL) {
-            handleRpcCall(message);
+            handleRpcCall(message, client_conn);
         } else {
             std::cerr << "Unexpected RPC message type" << std::endl;
             failed_requests_++;
@@ -406,17 +415,19 @@ void NfsServerSimple::processRpcMessage(const std::vector<uint8_t>& client_addre
     }
 }
 
-void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
+void NfsServerSimple::handleRpcCall(const RpcMessage& message, const ClientConnection& client_conn) {
     try {
         // Route based on RPC program
         if (message.header.prog == static_cast<uint32_t>(RpcProgram::PORTMAP)) {
-            handlePortmapperCall(message);
+            handlePortmapperCall(message, client_conn);
             return;
         }
         
         if (message.header.prog != static_cast<uint32_t>(RpcProgram::NFS)) {
             std::cerr << "Unsupported RPC program: " << message.header.prog << std::endl;
             failed_requests_++;
+            RpcMessage error_reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::PROG_UNAVAIL, {});
+            sendReply(error_reply, client_conn);
             return;
         }
         
@@ -425,6 +436,8 @@ void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
         if (!authenticateRequest(message, auth_context)) {
             std::cerr << "Authentication failed for RPC call" << std::endl;
             failed_requests_++;
+            RpcMessage error_reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SYSTEM_ERR, {});
+            sendReply(error_reply, client_conn);
             return;
         }
         
@@ -433,23 +446,27 @@ void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
         if (negotiated_version == 0) {
             std::cerr << "No compatible NFS version found for: " << message.header.vers << std::endl;
             failed_requests_++;
+            RpcMessage error_reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::PROG_MISMATCH, {});
+            sendReply(error_reply, client_conn);
             return;
         }
         
         // Handle based on negotiated NFS version
         switch (negotiated_version) {
             case 2:
-                handleNfsv2Call(message, auth_context);
+                handleNfsv2Call(message, auth_context, client_conn);
                 break;
             case 3:
-                handleNfsv3Call(message, auth_context);
+                handleNfsv3Call(message, auth_context, client_conn);
                 break;
             case 4:
-                handleNfsv4Call(message, auth_context);
+                handleNfsv4Call(message, auth_context, client_conn);
                 break;
             default:
                 std::cerr << "Unsupported NFS version after negotiation: " << negotiated_version << std::endl;
                 failed_requests_++;
+                RpcMessage error_reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::PROG_MISMATCH, {});
+                sendReply(error_reply, client_conn);
                 return;
         }
         
@@ -461,11 +478,60 @@ void NfsServerSimple::handleRpcCall(const RpcMessage& message) {
     }
 }
 
-void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthContext& auth_context) {
+bool NfsServerSimple::sendReply(const RpcMessage& reply, const ClientConnection& client_conn) {
+    try {
+        // Serialize the reply message
+        std::vector<uint8_t> reply_data = RpcUtils::serializeMessage(reply);
+        
+        if (client_conn.is_tcp) {
+            // Send via TCP
+            if (client_conn.tcp_socket < 0) {
+                std::cerr << "Invalid TCP socket for reply" << std::endl;
+                return false;
+            }
+            
+            ssize_t bytes_sent = send(client_conn.tcp_socket, reply_data.data(), reply_data.size(), 0);
+            if (bytes_sent < 0) {
+                std::cerr << "Failed to send TCP reply: " << strerror(errno) << std::endl;
+                return false;
+            }
+            
+            if (static_cast<size_t>(bytes_sent) != reply_data.size()) {
+                std::cerr << "Partial TCP reply sent: " << bytes_sent << " of " << reply_data.size() << std::endl;
+                return false;
+            }
+        } else {
+            // Send via UDP
+            if (client_conn.udp_socket < 0) {
+                std::cerr << "Invalid UDP socket for reply" << std::endl;
+                return false;
+            }
+            
+            ssize_t bytes_sent = sendto(client_conn.udp_socket, reply_data.data(), reply_data.size(), 0,
+                                       (struct sockaddr*)&client_conn.udp_addr, sizeof(client_conn.udp_addr));
+            if (bytes_sent < 0) {
+                std::cerr << "Failed to send UDP reply: " << strerror(errno) << std::endl;
+                return false;
+            }
+            
+            if (static_cast<size_t>(bytes_sent) != reply_data.size()) {
+                std::cerr << "Partial UDP reply sent: " << bytes_sent << " of " << reply_data.size() << std::endl;
+                return false;
+            }
+        }
+        
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending reply: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // Handle NFSv2 procedures
     switch (message.header.proc) {
         case 0:  // NULL
-            handleNfsv2Null(message, auth_context);
+            handleNfsv2Null(message, auth_context, client_conn);
             break;
         case 1:  // GETATTR
             handleNfsv2GetAttr(message, auth_context);
@@ -516,7 +582,7 @@ void NfsServerSimple::handleNfsv2Call(const RpcMessage& message, const AuthConte
     }
 }
 
-void NfsServerSimple::handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context) {
+void NfsServerSimple::handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // Handle NFSv3 procedures
     switch (message.header.proc) {
         case 0:  // NULL
@@ -592,7 +658,7 @@ void NfsServerSimple::handleNfsv3Call(const RpcMessage& message, const AuthConte
     }
 }
 
-void NfsServerSimple::handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context) {
+void NfsServerSimple::handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // Handle NFSv4 procedures
     switch (message.header.proc) {
         case 0:  // NULL
@@ -716,7 +782,7 @@ void NfsServerSimple::handleNfsv4Call(const RpcMessage& message, const AuthConte
     }
 }
 
-void NfsServerSimple::handlePortmapperCall(const RpcMessage& message) {
+void NfsServerSimple::handlePortmapperCall(const RpcMessage& message, const ClientConnection& client_conn) {
     if (!portmapper_) {
         std::cerr << "Portmapper not initialized" << std::endl;
         failed_requests_++;
@@ -726,10 +792,10 @@ void NfsServerSimple::handlePortmapperCall(const RpcMessage& message) {
     portmapper_->handleRpcCall(message);
 }
 
-void NfsServerSimple::handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context) {
+void NfsServerSimple::handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // NULL procedure always succeeds (no authentication required)
     RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
-    // TODO: Send reply back to client
+    sendReply(reply, client_conn);
     std::cout << "Handled NFSv2 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 // Jenkins Pipeline for simple-nfsd
 // Simple NFS Daemon - A lightweight and secure NFS server
-// Copyright  SimpleDaemons
+// Copyright 2024 SimpleDaemons
 
 pipeline {
     agent any

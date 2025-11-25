@@ -82,6 +82,9 @@ private:
     std::unique_ptr<std::thread> tcp_thread_;
     std::unique_ptr<std::thread> udp_thread_;
     
+    // Network sockets (for reply sending)
+    int udp_server_socket_ = -1;
+    
     // File handle management
     mutable std::mutex handles_mutex_;
     std::map<std::string, uint64_t> path_to_handle_;
@@ -103,23 +106,36 @@ private:
     std::atomic<uint64_t> bytes_written_{0};
     std::atomic<uint64_t> active_connections_{0};
     
+    // Client connection info
+    struct ClientConnection {
+        int tcp_socket = -1;  // TCP socket (if TCP connection)
+        struct sockaddr_in udp_addr;  // UDP address (if UDP connection)
+        int udp_socket = -1;  // UDP server socket (for sending replies)
+        bool is_tcp = false;
+        
+        ClientConnection() : tcp_socket(-1), udp_socket(-1), is_tcp(false) {
+            memset(&udp_addr, 0, sizeof(udp_addr));
+        }
+    };
+    
     // Private methods
     void tcpListenerLoop();
     void udpListenerLoop();
     void handleClientConnection(int client_socket);
-    void processRpcMessage(const std::vector<uint8_t>& client_address, const std::vector<uint8_t>& raw_message);
-    void handleRpcCall(const RpcMessage& message);
+    void processRpcMessage(const ClientConnection& client_conn, const std::vector<uint8_t>& raw_message);
+    void handleRpcCall(const RpcMessage& message, const ClientConnection& client_conn);
+    bool sendReply(const RpcMessage& reply, const ClientConnection& client_conn);
     
     // NFS procedure handlers
-    void handleNfsv2Call(const RpcMessage& message, const AuthContext& auth_context);
-    void handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context);
-    void handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2Call(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn);
+    void handleNfsv3Call(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn);
+    void handleNfsv4Call(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn);
     
     // Portmapper integration
-    void handlePortmapperCall(const RpcMessage& message);
+    void handlePortmapperCall(const RpcMessage& message, const ClientConnection& client_conn);
     
     // NFSv2 procedures
-    void handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context);
+    void handleNfsv2Null(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn);
     void handleNfsv2GetAttr(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2SetAttr(const RpcMessage& message, const AuthContext& auth_context);
     void handleNfsv2Lookup(const RpcMessage& message, const AuthContext& auth_context);

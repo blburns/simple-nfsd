@@ -1,0 +1,17 @@
+[Unit]
+Description=Simple NFS Daemon - A lightweight and secure NFS server
+After=network.target
+
+[Service]
+Type=simple
+User=simple-nfsd
+Group=simple-nfsd
+ExecStart=/usr/local/bin/simple-nfsd
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=simple-nfsd
+
+[Install]
+WantedBy=multi-user.target
