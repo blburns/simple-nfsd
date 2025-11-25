@@ -11,6 +11,9 @@
 #include <chrono>
 #include <algorithm>
 #include <sstream>
+#include <cstring>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 namespace SimpleNfsd {
 
@@ -122,37 +125,110 @@ void Portmapper::handleNull(const RpcMessage& message) {
 
 void Portmapper::handleSet(const RpcMessage& message) {
     // Parse the mapping from the request
-    // TODO: Implement proper parsing of portmap mapping data
-    std::cout << "Handled portmapper SET procedure" << std::endl;
+    PortmapMapping mapping;
+    if (!deserializeMapping(message.data, mapping)) {
+        std::cerr << "Failed to parse portmap mapping data" << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
+        return;
+    }
     
-    {
-        std::lock_guard<std::mutex> stats_lock(stats_mutex_);
-        stats_.successful_requests++;
-        stats_.mappings_registered++;
+    // Register the mapping
+    if (registerService(mapping.program, mapping.version, mapping.protocol, mapping.port, mapping.owner)) {
+        std::cout << "Registered mapping: program=" << mapping.program 
+                  << ", version=" << mapping.version 
+                  << ", protocol=" << mapping.protocol 
+                  << ", port=" << mapping.port << std::endl;
+        
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.successful_requests++;
+            stats_.mappings_registered++;
+        }
+    } else {
+        std::cerr << "Failed to register mapping" << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
     }
 }
 
 void Portmapper::handleUnset(const RpcMessage& message) {
     // Parse the mapping to unregister
-    // TODO: Implement proper parsing of portmap mapping data
-    std::cout << "Handled portmapper UNSET procedure" << std::endl;
+    PortmapMapping mapping;
+    if (!deserializeMapping(message.data, mapping)) {
+        std::cerr << "Failed to parse portmap mapping data" << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
+        return;
+    }
     
-    {
-        std::lock_guard<std::mutex> stats_lock(stats_mutex_);
-        stats_.successful_requests++;
-        stats_.mappings_unregistered++;
+    // Unregister the mapping
+    if (unregisterService(mapping.program, mapping.version, mapping.protocol)) {
+        std::cout << "Unregistered mapping: program=" << mapping.program 
+                  << ", version=" << mapping.version 
+                  << ", protocol=" << mapping.protocol << std::endl;
+        
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.successful_requests++;
+            stats_.mappings_unregistered++;
+        }
+    } else {
+        std::cerr << "Failed to unregister mapping" << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
     }
 }
 
 void Portmapper::handleGetPort(const RpcMessage& message) {
     // Parse program, version, and protocol from request
-    // TODO: Implement proper parsing and lookup
-    std::cout << "Handled portmapper GETPORT procedure" << std::endl;
+    // XDR format: program (uint32), version (uint32), protocol (uint32)
+    if (message.data.size() < 12) {
+        std::cerr << "Invalid GETPORT request: insufficient data" << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
+        return;
+    }
     
-    {
-        std::lock_guard<std::mutex> stats_lock(stats_mutex_);
-        stats_.successful_requests++;
-        stats_.lookups_performed++;
+    size_t offset = 0;
+    uint32_t program = ntohl(*reinterpret_cast<const uint32_t*>(message.data.data() + offset));
+    offset += 4;
+    uint32_t version = ntohl(*reinterpret_cast<const uint32_t*>(message.data.data() + offset));
+    offset += 4;
+    uint32_t protocol = ntohl(*reinterpret_cast<const uint32_t*>(message.data.data() + offset));
+    
+    // Lookup the port
+    uint32_t port = getPort(program, version, protocol);
+    
+    if (port != 0) {
+        std::cout << "GETPORT lookup: program=" << program 
+                  << ", version=" << version 
+                  << ", protocol=" << protocol 
+                  << ", port=" << port << std::endl;
+        
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.successful_requests++;
+            stats_.lookups_performed++;
+        }
+    } else {
+        std::cout << "GETPORT lookup failed: program=" << program 
+                  << ", version=" << version 
+                  << ", protocol=" << protocol << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
     }
 }
 
@@ -168,8 +244,50 @@ void Portmapper::handleDump(const RpcMessage& message) {
 
 void Portmapper::handleCallIt(const RpcMessage& message) {
     // Call a procedure on a remote program
-    // TODO: Implement remote procedure call forwarding
-    std::cout << "Handled portmapper CALLIT procedure" << std::endl;
+    // XDR format: program (uint32), version (uint32), procedure (uint32), args (opaque)
+    if (message.data.size() < 12) {
+        std::cerr << "Invalid CALLIT request: insufficient data" << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
+        return;
+    }
+    
+    size_t offset = 0;
+    uint32_t program = ntohl(*reinterpret_cast<const uint32_t*>(message.data.data() + offset));
+    offset += 4;
+    uint32_t version = ntohl(*reinterpret_cast<const uint32_t*>(message.data.data() + offset));
+    offset += 4;
+    uint32_t procedure = ntohl(*reinterpret_cast<const uint32_t*>(message.data.data() + offset));
+    offset += 4;
+    
+    // Get the port for this program/version/protocol
+    // Note: We default to TCP for CALLIT
+    uint32_t port = getPort(program, version, IPPROTO_TCP);
+    
+    if (port == 0) {
+        std::cerr << "CALLIT failed: no port found for program=" << program 
+                  << ", version=" << version << std::endl;
+        {
+            std::lock_guard<std::mutex> stats_lock(stats_mutex_);
+            stats_.failed_requests++;
+        }
+        return;
+    }
+    
+    // Extract procedure arguments (remaining data after program/version/procedure)
+    std::vector<uint8_t> args(message.data.begin() + offset, message.data.end());
+    
+    std::cout << "CALLIT: program=" << program 
+              << ", version=" << version 
+              << ", procedure=" << procedure 
+              << ", port=" << port 
+              << ", args_size=" << args.size() << std::endl;
+    
+    // Note: Full RPC forwarding would require establishing a connection to the target
+    // and forwarding the call. For now, we log the request and mark it as handled.
+    // A full implementation would need socket connection management.
     
     {
         std::lock_guard<std::mutex> stats_lock(stats_mutex_);
@@ -380,16 +498,64 @@ void Portmapper::cleanupExpiredMappings() {
 }
 
 std::vector<uint8_t> Portmapper::serializeMapping(const PortmapMapping& mapping) const {
-    // TODO: Implement proper XDR serialization
+    // XDR serialization of PortmapMapping
+    // Format: program (uint32), version (uint32), protocol (uint32), port (uint32)
+    // Note: owner and timestamp are not part of standard XDR portmap mapping
     std::vector<uint8_t> data;
-    // Placeholder implementation
+    data.resize(16); // 4 uint32_t values
+    
+    size_t offset = 0;
+    uint32_t program_net = htonl(mapping.program);
+    memcpy(data.data() + offset, &program_net, 4);
+    offset += 4;
+    
+    uint32_t version_net = htonl(mapping.version);
+    memcpy(data.data() + offset, &version_net, 4);
+    offset += 4;
+    
+    uint32_t protocol_net = htonl(mapping.protocol);
+    memcpy(data.data() + offset, &protocol_net, 4);
+    offset += 4;
+    
+    uint32_t port_net = htonl(mapping.port);
+    memcpy(data.data() + offset, &port_net, 4);
+    
     return data;
 }
 
 bool Portmapper::deserializeMapping(const std::vector<uint8_t>& data, PortmapMapping& mapping) const {
-    // TODO: Implement proper XDR deserialization
-    // Placeholder implementation
-    return false;
+    // XDR deserialization of PortmapMapping
+    // Format: program (uint32), version (uint32), protocol (uint32), port (uint32)
+    if (data.size() < 16) {
+        return false;
+    }
+    
+    size_t offset = 0;
+    uint32_t program_net = 0;
+    memcpy(&program_net, data.data() + offset, 4);
+    mapping.program = ntohl(program_net);
+    offset += 4;
+    
+    uint32_t version_net = 0;
+    memcpy(&version_net, data.data() + offset, 4);
+    mapping.version = ntohl(version_net);
+    offset += 4;
+    
+    uint32_t protocol_net = 0;
+    memcpy(&protocol_net, data.data() + offset, 4);
+    mapping.protocol = ntohl(protocol_net);
+    offset += 4;
+    
+    uint32_t port_net = 0;
+    memcpy(&port_net, data.data() + offset, 4);
+    mapping.port = ntohl(port_net);
+    
+    // Set default values for optional fields
+    mapping.owner = "";
+    mapping.timestamp = std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    
+    return true;
 }
 
 RpcMessage Portmapper::createSuccessReply(const RpcMessage& request, const std::vector<uint8_t>& data) const {

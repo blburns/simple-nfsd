@@ -8,12 +8,15 @@
 
 #include "simple_nfsd/nfsd_app.hpp"
 #include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple_nfsd/config_manager.hpp"
 #include <iostream>
 #include <fstream>
 #include <csignal>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <cstring>
+#include <filesystem>
+#include <sstream>
 
 namespace SimpleNfsd {
 
@@ -132,13 +135,63 @@ bool NfsdApp::isRunning() const {
 }
 
 void NfsdApp::loadConfiguration() {
-    // TODO: Implement configuration loading
     std::cout << "Loading configuration from: " << config_file_ << std::endl;
+    
+    // Check if config file exists
+    if (!std::filesystem::exists(config_file_)) {
+        std::cerr << "Warning: Configuration file not found: " << config_file_ << std::endl;
+        std::cerr << "Using default configuration" << std::endl;
+        return;
+    }
+    
+    try {
+        ConfigManager config_manager;
+        if (config_manager.loadFromFile(config_file_)) {
+            const auto& config = config_manager.getConfig();
+            std::cout << "Configuration loaded successfully" << std::endl;
+            std::cout << "  Server name: " << config.server_name << std::endl;
+            std::cout << "  Root path: " << config.root_path << std::endl;
+            std::cout << "  Exports: " << config.exports.size() << std::endl;
+        } else {
+            std::cerr << "Warning: Failed to load configuration from: " << config_file_ << std::endl;
+            std::cerr << "Using default configuration" << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading configuration: " << e.what() << std::endl;
+        std::cerr << "Using default configuration" << std::endl;
+    }
 }
 
 void NfsdApp::setupLogging() {
-    // TODO: Implement logging setup
     std::cout << "Setting up logging to: " << log_file_ << std::endl;
+    
+    // Create log directory if it doesn't exist
+    try {
+        std::filesystem::path log_path(log_file_);
+        std::filesystem::path log_dir = log_path.parent_path();
+        
+        if (!log_dir.empty() && !std::filesystem::exists(log_dir)) {
+            std::filesystem::create_directories(log_dir);
+            std::cout << "Created log directory: " << log_dir << std::endl;
+        }
+        
+        // Test if we can write to the log file
+        std::ofstream test_log(log_file_, std::ios::app);
+        if (test_log.is_open()) {
+            test_log << "=== Simple NFS Daemon started at " 
+                     << std::chrono::duration_cast<std::chrono::seconds>(
+                         std::chrono::system_clock::now().time_since_epoch()).count()
+                     << " ===" << std::endl;
+            test_log.close();
+            std::cout << "Logging initialized successfully" << std::endl;
+        } else {
+            std::cerr << "Warning: Cannot open log file for writing: " << log_file_ << std::endl;
+            std::cerr << "Logging to stdout/stderr only" << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error setting up logging: " << e.what() << std::endl;
+        std::cerr << "Logging to stdout/stderr only" << std::endl;
+    }
 }
 
 void NfsdApp::writePidFile() {

@@ -369,9 +369,23 @@ bool FilesystemManager::readSymlink(const std::string& path, std::string& target
 }
 
 bool FilesystemManager::isPathExported(const std::string& path) {
-    // For now, all paths under root_path are considered exported
-    // TODO: Implement proper export configuration
-    return path.find(config_.root_path) == 0;
+    // Check if path is within any configured export
+    std::string sanitized_path = sanitizePath(path);
+    
+    // If no exports configured, default to root_path
+    if (config_.exports.empty()) {
+        return sanitized_path.find(config_.root_path) == 0;
+    }
+    
+    // Check against configured exports
+    for (const auto& export_config : config_.exports) {
+        std::string export_path = sanitizePath(export_config.path);
+        if (sanitized_path.find(export_path) == 0) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 bool FilesystemManager::validateExportPath(const std::string& path) {
@@ -412,9 +426,23 @@ std::string FilesystemManager::sanitizePath(const std::string& path) {
 }
 
 bool FilesystemManager::isPathWithinExport(const std::string& path) {
-    // For now, all paths under root_path are considered within export
-    // TODO: Implement proper export configuration
-    return path.find(config_.root_path) == 0;
+    // Check if path is within any configured export
+    std::string sanitized_path = sanitizePath(path);
+    
+    // If no exports configured, default to root_path
+    if (config_.exports.empty()) {
+        return sanitized_path.find(config_.root_path) == 0;
+    }
+    
+    // Check against configured exports
+    for (const auto& export_config : config_.exports) {
+        std::string export_path = sanitizePath(export_config.path);
+        if (sanitized_path.find(export_path) == 0) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 uint32_t FilesystemManager::generateFileId(const std::string& path) {
