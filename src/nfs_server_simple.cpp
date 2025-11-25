@@ -2779,14 +2779,14 @@ void NfsServerSimple::handleNfsv2SymLink(const RpcMessage& message, const AuthCo
 }
 
 // NFSv3 procedure implementations
-void NfsServerSimple::handleNfsv3Null(const RpcMessagevoid NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // NULL procedure always succeeds
     RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
         sendReply(reply, client_conn);
     std::cout << "Handled NFSv3 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
 }
 
-void NfsServerSimple::handleNfsv3GetAttr(const RpcMessagevoid NfsServerSimple::handleNfsv3GetAttr(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3GetAttr(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3GetAttr(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3GetAttr(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 GETATTR uses 64-bit file handles (8 bytes)
         if (message.data.size() < 8) {
@@ -2917,7 +2917,7 @@ void NfsServerSimple::handleNfsv3GetAttr(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv3SetAttr(const RpcMessagevoid NfsServerSimple::handleNfsv3SetAttr(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3SetAttr(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3SetAttr(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3SetAttr(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 SETATTR uses 64-bit file handle
         if (message.data.size() < 8) {
@@ -3027,7 +3027,7 @@ void NfsServerSimple::handleNfsv3SetAttr(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv3Lookup(const RpcMessagevoid NfsServerSimple::handleNfsv3Lookup(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Lookup(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Lookup(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Lookup(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 LOOKUP uses 64-bit directory handle
         if (message.data.size() < 16) {
@@ -3178,7 +3178,7 @@ void NfsServerSimple::handleNfsv3Lookup(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3Access(const RpcMessagevoid NfsServerSimple::handleNfsv3Access(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Access(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Access(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Access(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 ACCESS uses 64-bit file handle
         if (message.data.size() < 12) {
@@ -3304,7 +3304,7 @@ void NfsServerSimple::handleNfsv3Access(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3ReadLink(const RpcMessagevoid NfsServerSimple::handleNfsv3ReadLink(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3ReadLink(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3ReadLink(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3ReadLink(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 READLINK uses 64-bit file handle
         if (message.data.size() < 8) {
@@ -3424,7 +3424,7 @@ void NfsServerSimple::handleNfsv3ReadLink(const RpcMessagevoid NfsServerSimple::
     }
 }
 
-void NfsServerSimple::handleNfsv3Read(const RpcMessagevoid NfsServerSimple::handleNfsv3Read(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Read(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Read(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Read(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 READ uses 64-bit file handle and offset
         if (message.data.size() < 24) {
@@ -3564,7 +3564,7 @@ void NfsServerSimple::handleNfsv3Read(const RpcMessagevoid NfsServerSimple::hand
     }
 }
 
-void NfsServerSimple::handleNfsv3Write(const RpcMessagevoid NfsServerSimple::handleNfsv3Write(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Write(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Write(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Write(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 WRITE uses 64-bit file handle and offset
         if (message.data.size() < 28) {
@@ -3725,7 +3725,7 @@ void NfsServerSimple::handleNfsv3Write(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv3Create(const RpcMessagevoid NfsServerSimple::handleNfsv3Create(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Create(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Create(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Create(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 CREATE uses 64-bit directory handle
         if (message.data.size() < 16) {
@@ -3887,7 +3887,7 @@ void NfsServerSimple::handleNfsv3Create(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3MkDir(const RpcMessagevoid NfsServerSimple::handleNfsv3MkDir(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3MkDir(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3MkDir(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3MkDir(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 MKDIR uses 64-bit directory handle
         if (message.data.size() < 16) {
@@ -4047,7 +4047,7 @@ void NfsServerSimple::handleNfsv3MkDir(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv3SymLink(const RpcMessagevoid NfsServerSimple::handleNfsv3SymLink(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3SymLink(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3SymLink(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3SymLink(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 SYMLINK uses 64-bit directory handle
         if (message.data.size() < 20) {
@@ -4225,7 +4225,7 @@ void NfsServerSimple::handleNfsv3SymLink(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv3MkNod(const RpcMessagevoid NfsServerSimple::handleNfsv3MkNod(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3MkNod(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3MkNod(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3MkNod(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 MKNOD - create special file (simplified implementation)
         // This is a complex procedure that creates device files, FIFOs, etc.
@@ -4241,7 +4241,7 @@ void NfsServerSimple::handleNfsv3MkNod(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv3Remove(const RpcMessagevoid NfsServerSimple::handleNfsv3Remove(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Remove(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Remove(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Remove(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 REMOVE uses 64-bit directory handle
         if (message.data.size() < 16) {
@@ -4333,7 +4333,7 @@ void NfsServerSimple::handleNfsv3Remove(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3RmDir(const RpcMessagevoid NfsServerSimple::handleNfsv3RmDir(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3RmDir(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3RmDir(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3RmDir(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 RMDIR uses 64-bit directory handle
         if (message.data.size() < 16) {
@@ -4431,7 +4431,7 @@ void NfsServerSimple::handleNfsv3RmDir(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv3Rename(const RpcMessagevoid NfsServerSimple::handleNfsv3Rename(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Rename(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Rename(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Rename(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 RENAME uses 64-bit handles for both source and destination
         if (message.data.size() < 24) {
@@ -4558,7 +4558,7 @@ void NfsServerSimple::handleNfsv3Rename(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3Link(const RpcMessagevoid NfsServerSimple::handleNfsv3Link(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Link(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Link(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Link(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 LINK uses 64-bit handles
         if (message.data.size() < 24) {
@@ -4717,7 +4717,7 @@ void NfsServerSimple::handleNfsv3Link(const RpcMessagevoid NfsServerSimple::hand
     }
 }
 
-void NfsServerSimple::handleNfsv3ReadDir(const RpcMessagevoid NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 READDIR uses 64-bit directory handle and cookie
         if (message.data.size() < 20) {
@@ -4823,7 +4823,7 @@ void NfsServerSimple::handleNfsv3ReadDir(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessagevoid NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 READDIRPLUS uses 64-bit directory handle and cookie, returns attributes
         if (message.data.size() < 20) {
@@ -5003,7 +5003,7 @@ void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessagevoid NfsServerSimpl
     }
 }
 
-void NfsServerSimple::handleNfsv3FSStat(const RpcMessagevoid NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 FSSTAT uses 64-bit file handle
         if (message.data.size() < 8) {
@@ -5134,7 +5134,7 @@ void NfsServerSimple::handleNfsv3FSStat(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3FSInfo(const RpcMessagevoid NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 FSINFO uses 64-bit file handle
         if (message.data.size() < 8) {
@@ -5275,7 +5275,7 @@ void NfsServerSimple::handleNfsv3FSInfo(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv3PathConf(const RpcMessagevoid NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 PATHCONF uses 64-bit file handle
         if (message.data.size() < 8) {
@@ -5402,7 +5402,7 @@ void NfsServerSimple::handleNfsv3PathConf(const RpcMessagevoid NfsServerSimple::
     }
 }
 
-void NfsServerSimple::handleNfsv3Commit(const RpcMessagevoid NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv3 COMMIT uses 64-bit file handle and offset
         if (message.data.size() < 24) {
@@ -5507,7 +5507,7 @@ static uint32_t decodeNfsv4Handle(const std::vector<uint8_t>& data, size_t& offs
 }
 
 // NFSv4 procedure implementations
-void NfsServerSimple::handleNfsv4Null(const RpcMessagevoid NfsServerSimple::handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // NULL procedure always succeeds
     RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
     successful_requests_++;
@@ -5515,7 +5515,7 @@ void NfsServerSimple::handleNfsv4Null(const RpcMessagevoid NfsServerSimple::hand
     std::cout << "Handled NFSv4 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
 }
 
-void NfsServerSimple::handleNfsv4Compound(const RpcMessagevoid NfsServerSimple::handleNfsv4Compound(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Compound(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Compound(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Compound(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 COMPOUND is the main entry point that processes multiple operations
         // For now, this is a simplified implementation
@@ -5549,7 +5549,7 @@ void NfsServerSimple::handleNfsv4Compound(const RpcMessagevoid NfsServerSimple::
     }
 }
 
-void NfsServerSimple::handleNfsv4GetAttr(const RpcMessagevoid NfsServerSimple::handleNfsv4GetAttr(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4GetAttr(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4GetAttr(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4GetAttr(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 GETATTR uses variable-length file handle
         if (message.data.size() < 4) {
@@ -5634,7 +5634,7 @@ void NfsServerSimple::handleNfsv4GetAttr(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv4SetAttr(const RpcMessagevoid NfsServerSimple::handleNfsv4SetAttr(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4SetAttr(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4SetAttr(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4SetAttr(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 SETATTR uses variable-length file handle
         if (message.data.size() < 8) {
@@ -5696,7 +5696,7 @@ void NfsServerSimple::handleNfsv4SetAttr(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv4Lookup(const RpcMessagevoid NfsServerSimple::handleNfsv4Lookup(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Lookup(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Lookup(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Lookup(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 LOOKUP uses variable-length directory handle and filename
         if (message.data.size() < 8) {
@@ -5783,7 +5783,7 @@ void NfsServerSimple::handleNfsv4Lookup(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4Access(const RpcMessagevoid NfsServerSimple::handleNfsv4Access(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Access(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Access(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Access(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 ACCESS uses variable-length file handle
         if (message.data.size() < 8) {
@@ -5854,7 +5854,7 @@ void NfsServerSimple::handleNfsv4Access(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4ReadLink(const RpcMessagevoid NfsServerSimple::handleNfsv4ReadLink(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4ReadLink(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4ReadLink(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4ReadLink(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 READLINK uses variable-length file handle
         if (message.data.size() < 4) {
@@ -5921,7 +5921,7 @@ void NfsServerSimple::handleNfsv4ReadLink(const RpcMessagevoid NfsServerSimple::
     }
 }
 
-void NfsServerSimple::handleNfsv4Read(const RpcMessagevoid NfsServerSimple::handleNfsv4Read(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Read(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Read(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Read(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 READ uses variable-length file handle, 64-bit offset, and count
         if (message.data.size() < 20) {
@@ -6029,7 +6029,7 @@ void NfsServerSimple::handleNfsv4Read(const RpcMessagevoid NfsServerSimple::hand
     }
 }
 
-void NfsServerSimple::handleNfsv4Write(const RpcMessagevoid NfsServerSimple::handleNfsv4Write(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Write(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Write(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Write(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 WRITE uses variable-length file handle, 64-bit offset, count, and data
         if (message.data.size() < 20) {
@@ -6169,7 +6169,7 @@ void NfsServerSimple::handleNfsv4Write(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv4Create(const RpcMessagevoid NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 CREATE uses variable-length directory handle and filename
         if (message.data.size() < 8) {
@@ -6259,7 +6259,7 @@ void NfsServerSimple::handleNfsv4Create(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4MkDir(const RpcMessagevoid NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 MKDIR uses variable-length directory handle and directory name
         if (message.data.size() < 8) {
@@ -6347,7 +6347,7 @@ void NfsServerSimple::handleNfsv4MkDir(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv4SymLink(const RpcMessagevoid NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 SYMLINK uses variable-length directory handle, symlink name, and target
         if (message.data.size() < 12) {
@@ -6451,7 +6451,7 @@ void NfsServerSimple::handleNfsv4SymLink(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv4MkNod(const RpcMessagevoid NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 MKNOD uses variable-length directory handle and filename
         // For now, this is a stub as special files are complex
@@ -6487,7 +6487,7 @@ void NfsServerSimple::handleNfsv4MkNod(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv4Remove(const RpcMessagevoid NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 REMOVE uses variable-length directory handle and filename
         if (message.data.size() < 8) {
@@ -6568,7 +6568,7 @@ void NfsServerSimple::handleNfsv4Remove(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4RmDir(const RpcMessagevoid NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 RMDIR uses variable-length directory handle and directory name
         if (message.data.size() < 8) {
@@ -6649,7 +6649,7 @@ void NfsServerSimple::handleNfsv4RmDir(const RpcMessagevoid NfsServerSimple::han
     }
 }
 
-void NfsServerSimple::handleNfsv4Rename(const RpcMessagevoid NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 RENAME uses variable-length old and new directory handles and names
         if (message.data.size() < 16) {
@@ -6772,7 +6772,7 @@ void NfsServerSimple::handleNfsv4Rename(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4Link(const RpcMessagevoid NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 LINK uses variable-length file handle and destination directory handle/name
         if (message.data.size() < 16) {
@@ -6867,7 +6867,7 @@ void NfsServerSimple::handleNfsv4Link(const RpcMessagevoid NfsServerSimple::hand
     }
 }
 
-void NfsServerSimple::handleNfsv4ReadDir(const RpcMessagevoid NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 READDIR uses variable-length directory handle, cookie, and count
         if (message.data.size() < 20) {
@@ -6988,7 +6988,7 @@ void NfsServerSimple::handleNfsv4ReadDir(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessagevoid NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 READDIRPLUS is similar to READDIR but returns attributes
         // For now, implement as READDIR (attributes can be added later)
@@ -7000,7 +7000,7 @@ void NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessagevoid NfsServerSimpl
     }
 }
 
-void NfsServerSimple::handleNfsv4FSStat(const RpcMessagevoid NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 FSSTAT uses variable-length file handle
         if (message.data.size() < 4) {
@@ -7074,7 +7074,7 @@ void NfsServerSimple::handleNfsv4FSStat(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4FSInfo(const RpcMessagevoid NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 FSINFO uses variable-length file handle
         if (message.data.size() < 4) {
@@ -7157,7 +7157,7 @@ void NfsServerSimple::handleNfsv4FSInfo(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4PathConf(const RpcMessagevoid NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 PATHCONF uses variable-length file handle
         if (message.data.size() < 4) {
@@ -7225,7 +7225,7 @@ void NfsServerSimple::handleNfsv4PathConf(const RpcMessagevoid NfsServerSimple::
     }
 }
 
-void NfsServerSimple::handleNfsv4Commit(const RpcMessagevoid NfsServerSimple::handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 COMMIT uses variable-length file handle, 64-bit offset, and count
         if (message.data.size() < 20) {
@@ -7306,7 +7306,7 @@ void NfsServerSimple::handleNfsv4Commit(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4DelegReturn(const RpcMessagevoid NfsServerSimple::handleNfsv4DelegReturn(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4DelegReturn(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4DelegReturn(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4DelegReturn(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 DELEGRETURN returns a delegation
         // For now, return success
@@ -7321,7 +7321,7 @@ void NfsServerSimple::handleNfsv4DelegReturn(const RpcMessagevoid NfsServerSimpl
     }
 }
 
-void NfsServerSimple::handleNfsv4GetAcl(const RpcMessagevoid NfsServerSimple::handleNfsv4GetAcl(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4GetAcl(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4GetAcl(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4GetAcl(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 GETACL retrieves ACL for a file
         if (message.data.size() < 4) {
@@ -7354,7 +7354,7 @@ void NfsServerSimple::handleNfsv4GetAcl(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4SetAcl(const RpcMessagevoid NfsServerSimple::handleNfsv4SetAcl(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4SetAcl(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4SetAcl(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4SetAcl(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 SETACL sets ACL for a file
         if (message.data.size() < 4) {
@@ -7383,7 +7383,7 @@ void NfsServerSimple::handleNfsv4SetAcl(const RpcMessagevoid NfsServerSimple::ha
     }
 }
 
-void NfsServerSimple::handleNfsv4FSLocations(const RpcMessagevoid NfsServerSimple::handleNfsv4FSLocations(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4FSLocations(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4FSLocations(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4FSLocations(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 FS_LOCATIONS returns filesystem locations
         if (message.data.size() < 4) {
@@ -7416,7 +7416,7 @@ void NfsServerSimple::handleNfsv4FSLocations(const RpcMessagevoid NfsServerSimpl
     }
 }
 
-void NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessagevoid NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 RELEASE_LOCKOWNER releases a lock owner
         std::vector<uint8_t> response_data;
@@ -7430,7 +7430,7 @@ void NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessagevoid NfsServer
     }
 }
 
-void NfsServerSimple::handleNfsv4SecInfo(const RpcMessagevoid NfsServerSimple::handleNfsv4SecInfo(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4SecInfo(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4SecInfo(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4SecInfo(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 SECINFO returns security information
         if (message.data.size() < 8) {
@@ -7459,7 +7459,7 @@ void NfsServerSimple::handleNfsv4SecInfo(const RpcMessagevoid NfsServerSimple::h
     }
 }
 
-void NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessagevoid NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 FSID_PRESENT checks if FSID is present
         std::vector<uint8_t> response_data;
@@ -7477,7 +7477,7 @@ void NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessagevoid NfsServerSimpl
     }
 }
 
-void NfsServerSimple::handleNfsv4ExchangeID(const RpcMessagevoid NfsServerSimple::handleNfsv4ExchangeID(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4ExchangeID(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4ExchangeID(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4ExchangeID(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 EXCHANGE_ID exchanges client and server IDs
         std::vector<uint8_t> response_data;
@@ -7499,7 +7499,7 @@ void NfsServerSimple::handleNfsv4ExchangeID(const RpcMessagevoid NfsServerSimple
     }
 }
 
-void NfsServerSimple::handleNfsv4CreateSession(const RpcMessagevoid NfsServerSimple::handleNfsv4CreateSession(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4CreateSession(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4CreateSession(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4CreateSession(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 CREATE_SESSION creates a new session
         std::vector<uint8_t> response_data;
@@ -7517,7 +7517,7 @@ void NfsServerSimple::handleNfsv4CreateSession(const RpcMessagevoid NfsServerSim
     }
 }
 
-void NfsServerSimple::handleNfsv4DestroySession(const RpcMessagevoid NfsServerSimple::handleNfsv4DestroySession(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4DestroySession(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4DestroySession(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4DestroySession(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 DESTROY_SESSION destroys a session
         std::vector<uint8_t> response_data;
@@ -7531,7 +7531,7 @@ void NfsServerSimple::handleNfsv4DestroySession(const RpcMessagevoid NfsServerSi
     }
 }
 
-void NfsServerSimple::handleNfsv4Sequence(const RpcMessagevoid NfsServerSimple::handleNfsv4Sequence(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4Sequence(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4Sequence(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4Sequence(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 SEQUENCE handles sequence numbers for session
         std::vector<uint8_t> response_data;
@@ -7549,7 +7549,7 @@ void NfsServerSimple::handleNfsv4Sequence(const RpcMessagevoid NfsServerSimple::
     }
 }
 
-void NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessagevoid NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 GET_DEVICE_INFO returns device information
         std::vector<uint8_t> response_data;
@@ -7567,7 +7567,7 @@ void NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessagevoid NfsServerSim
     }
 }
 
-void NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessagevoid NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 BIND_CONN_TO_SESSION binds connection to session
         std::vector<uint8_t> response_data;
@@ -7581,7 +7581,7 @@ void NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessagevoid NfsServe
     }
 }
 
-void NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessagevoid NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 DESTROY_CLIENTID destroys a client ID
         std::vector<uint8_t> response_data;
@@ -7595,7 +7595,7 @@ void NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessagevoid NfsServerS
     }
 }
 
-void NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessagevoid NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
+void NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     try {
         // NFSv4 RECLAIM_COMPLETE indicates reclaim is complete
         std::vector<uint8_t> response_data;
