@@ -2782,6 +2782,7 @@ void NfsServerSimple::handleNfsv2SymLink(const RpcMessage& message, const AuthCo
 void NfsServerSimple::handleNfsv3Null(const RpcMessagevoid NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) { message, const AuthContextvoid NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) { auth_context, const ClientConnectionvoid NfsServerSimple::handleNfsv3Null(const RpcMessage& message, const AuthContext& auth_context) { client_conn) {
     // NULL procedure always succeeds
     RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
+        sendReply(reply, client_conn);
     std::cout << "Handled NFSv3 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
 }
 
@@ -2907,6 +2908,7 @@ void NfsServerSimple::handleNfsv3GetAttr(const RpcMessagevoid NfsServerSimple::h
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 GETATTR for file: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -3016,6 +3018,7 @@ void NfsServerSimple::handleNfsv3SetAttr(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 SETATTR for file: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -3166,6 +3169,7 @@ void NfsServerSimple::handleNfsv3Lookup(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 LOOKUP for: " << full_path << " (handle: " << file_handle_id << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -3291,6 +3295,7 @@ void NfsServerSimple::handleNfsv3Access(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 ACCESS for: " << file_path << " (mask: 0x" << std::hex << access_mask << std::dec << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -3410,6 +3415,7 @@ void NfsServerSimple::handleNfsv3ReadLink(const RpcMessagevoid NfsServerSimple::
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 READLINK for: " << file_path << " -> " << target << std::endl;
         
     } catch (const std::exception& e) {
@@ -3549,6 +3555,7 @@ void NfsServerSimple::handleNfsv3Read(const RpcMessagevoid NfsServerSimple::hand
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 READ for: " << file_path << " (offset: " << offset << ", count: " << count << ", read: " << file_data.size() << " bytes)" << std::endl;
         
     } catch (const std::exception& e) {
@@ -3709,6 +3716,7 @@ void NfsServerSimple::handleNfsv3Write(const RpcMessagevoid NfsServerSimple::han
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 WRITE for: " << file_path << " (offset: " << offset << ", written: " << file_data.size() << " bytes)" << std::endl;
         
     } catch (const std::exception& e) {
@@ -3870,6 +3878,7 @@ void NfsServerSimple::handleNfsv3Create(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 CREATE for: " << full_path << " (handle: " << file_handle_id << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -4029,6 +4038,7 @@ void NfsServerSimple::handleNfsv3MkDir(const RpcMessagevoid NfsServerSimple::han
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 MKDIR for: " << full_path << " (handle: " << dir_handle_new << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -4206,6 +4216,7 @@ void NfsServerSimple::handleNfsv3SymLink(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 SYMLINK: " << symlink_full_path << " -> " << target_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -4222,6 +4233,7 @@ void NfsServerSimple::handleNfsv3MkNod(const RpcMessagevoid NfsServerSimple::han
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 MKNOD procedure (user: " << auth_context.uid << ") - simplified" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 MKNOD: " << e.what() << std::endl;
@@ -4312,6 +4324,7 @@ void NfsServerSimple::handleNfsv3Remove(const RpcMessagevoid NfsServerSimple::ha
         // WCC data (pre-op and post-op attributes) - simplified
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 REMOVE for: " << full_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -4409,6 +4422,7 @@ void NfsServerSimple::handleNfsv3RmDir(const RpcMessagevoid NfsServerSimple::han
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 RMDIR for: " << full_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -4535,6 +4549,7 @@ void NfsServerSimple::handleNfsv3Rename(const RpcMessagevoid NfsServerSimple::ha
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 RENAME: " << src_full_path << " -> " << dst_full_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -4693,6 +4708,7 @@ void NfsServerSimple::handleNfsv3Link(const RpcMessagevoid NfsServerSimple::hand
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 LINK: " << src_file_path << " -> " << dst_full_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -4798,6 +4814,7 @@ void NfsServerSimple::handleNfsv3ReadDir(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 READDIR for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -4977,6 +4994,7 @@ void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessagevoid NfsServerSimpl
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 READDIRPLUS for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -5107,6 +5125,7 @@ void NfsServerSimple::handleNfsv3FSStat(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 FSSTAT for: " << file_path << " (total: " << space.capacity << ", free: " << space.available << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -5247,6 +5266,7 @@ void NfsServerSimple::handleNfsv3FSInfo(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 FSINFO for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -5373,6 +5393,7 @@ void NfsServerSimple::handleNfsv3PathConf(const RpcMessagevoid NfsServerSimple::
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 PATHCONF for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -5439,6 +5460,7 @@ void NfsServerSimple::handleNfsv3Commit(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv3 COMMIT for: " << file_path << " (offset: " << offset << ", count: " << count << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -5489,6 +5511,7 @@ void NfsServerSimple::handleNfsv4Null(const RpcMessagevoid NfsServerSimple::hand
     // NULL procedure always succeeds
     RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, {});
     successful_requests_++;
+        sendReply(reply, client_conn);
     std::cout << "Handled NFSv4 NULL procedure (user: " << auth_context.uid << ")" << std::endl;
 }
 
@@ -5517,6 +5540,7 @@ void NfsServerSimple::handleNfsv4Compound(const RpcMessagevoid NfsServerSimple::
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 COMPOUND procedure (framework) (user: " << auth_context.uid << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -5601,6 +5625,7 @@ void NfsServerSimple::handleNfsv4GetAttr(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 GETATTR for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -5662,6 +5687,7 @@ void NfsServerSimple::handleNfsv4SetAttr(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 SETATTR for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -5748,6 +5774,7 @@ void NfsServerSimple::handleNfsv4Lookup(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 LOOKUP for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -5818,6 +5845,7 @@ void NfsServerSimple::handleNfsv4Access(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 ACCESS for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -5884,6 +5912,7 @@ void NfsServerSimple::handleNfsv4ReadLink(const RpcMessagevoid NfsServerSimple::
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 READLINK for: " << file_path << " -> " << target << std::endl;
         
     } catch (const std::exception& e) {
@@ -5991,6 +6020,7 @@ void NfsServerSimple::handleNfsv4Read(const RpcMessagevoid NfsServerSimple::hand
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 READ for: " << file_path << " (offset: " << read_offset << ", count: " << bytes_read << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -6130,6 +6160,7 @@ void NfsServerSimple::handleNfsv4Write(const RpcMessagevoid NfsServerSimple::han
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 WRITE for: " << file_path << " (offset: " << write_offset << ", count: " << write_data.size() << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -6219,6 +6250,7 @@ void NfsServerSimple::handleNfsv4Create(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 CREATE for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6306,6 +6338,7 @@ void NfsServerSimple::handleNfsv4MkDir(const RpcMessagevoid NfsServerSimple::han
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 MKDIR for: " << new_dir_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6409,6 +6442,7 @@ void NfsServerSimple::handleNfsv4SymLink(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 SYMLINK for: " << symlink_path << " -> " << target_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6525,6 +6559,7 @@ void NfsServerSimple::handleNfsv4Remove(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 REMOVE for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6605,6 +6640,7 @@ void NfsServerSimple::handleNfsv4RmDir(const RpcMessagevoid NfsServerSimple::han
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 RMDIR for: " << target_dir_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6727,6 +6763,7 @@ void NfsServerSimple::handleNfsv4Rename(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 RENAME from: " << old_file_path << " to: " << new_file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6821,6 +6858,7 @@ void NfsServerSimple::handleNfsv4Link(const RpcMessagevoid NfsServerSimple::hand
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 LINK from: " << file_path << " to: " << link_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -6941,6 +6979,7 @@ void NfsServerSimple::handleNfsv4ReadDir(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 READDIR for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -7026,6 +7065,7 @@ void NfsServerSimple::handleNfsv4FSStat(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 FSSTAT for: " << file_path << " (total: " << space.capacity << ", free: " << space.available << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -7108,6 +7148,7 @@ void NfsServerSimple::handleNfsv4FSInfo(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 FSINFO for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -7175,6 +7216,7 @@ void NfsServerSimple::handleNfsv4PathConf(const RpcMessagevoid NfsServerSimple::
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 PATHCONF for: " << file_path << std::endl;
         
     } catch (const std::exception& e) {
@@ -7255,6 +7297,7 @@ void NfsServerSimple::handleNfsv4Commit(const RpcMessagevoid NfsServerSimple::ha
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 COMMIT for: " << file_path << " (offset: " << commit_offset << ", count: " << count << ")" << std::endl;
         
     } catch (const std::exception& e) {
@@ -7270,6 +7313,7 @@ void NfsServerSimple::handleNfsv4DelegReturn(const RpcMessagevoid NfsServerSimpl
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 DELEGRETURN procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 DELEGRETURN: " << e.what() << std::endl;
@@ -7364,6 +7408,7 @@ void NfsServerSimple::handleNfsv4FSLocations(const RpcMessagevoid NfsServerSimpl
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 FS_LOCATIONS procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 FS_LOCATIONS: " << e.what() << std::endl;
@@ -7377,6 +7422,7 @@ void NfsServerSimple::handleNfsv4ReleaseLockOwner(const RpcMessagevoid NfsServer
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 RELEASE_LOCKOWNER procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 RELEASE_LOCKOWNER: " << e.what() << std::endl;
@@ -7405,6 +7451,7 @@ void NfsServerSimple::handleNfsv4SecInfo(const RpcMessagevoid NfsServerSimple::h
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 SECINFO procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 SECINFO: " << e.what() << std::endl;
@@ -7422,6 +7469,7 @@ void NfsServerSimple::handleNfsv4FSIDPresent(const RpcMessagevoid NfsServerSimpl
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 FSID_PRESENT procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 FSID_PRESENT: " << e.what() << std::endl;
@@ -7443,6 +7491,7 @@ void NfsServerSimple::handleNfsv4ExchangeID(const RpcMessagevoid NfsServerSimple
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 EXCHANGE_ID procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 EXCHANGE_ID: " << e.what() << std::endl;
@@ -7460,6 +7509,7 @@ void NfsServerSimple::handleNfsv4CreateSession(const RpcMessagevoid NfsServerSim
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 CREATE_SESSION procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 CREATE_SESSION: " << e.what() << std::endl;
@@ -7473,6 +7523,7 @@ void NfsServerSimple::handleNfsv4DestroySession(const RpcMessagevoid NfsServerSi
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 DESTROY_SESSION procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 DESTROY_SESSION: " << e.what() << std::endl;
@@ -7490,6 +7541,7 @@ void NfsServerSimple::handleNfsv4Sequence(const RpcMessagevoid NfsServerSimple::
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 SEQUENCE procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 SEQUENCE: " << e.what() << std::endl;
@@ -7507,6 +7559,7 @@ void NfsServerSimple::handleNfsv4GetDeviceInfo(const RpcMessagevoid NfsServerSim
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 GET_DEVICE_INFO procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 GET_DEVICE_INFO: " << e.what() << std::endl;
@@ -7520,6 +7573,7 @@ void NfsServerSimple::handleNfsv4BindConnToSession(const RpcMessagevoid NfsServe
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 BIND_CONN_TO_SESSION procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 BIND_CONN_TO_SESSION: " << e.what() << std::endl;
@@ -7533,6 +7587,7 @@ void NfsServerSimple::handleNfsv4DestroyClientID(const RpcMessagevoid NfsServerS
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 DESTROY_CLIENTID procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 DESTROY_CLIENTID: " << e.what() << std::endl;
@@ -7546,6 +7601,7 @@ void NfsServerSimple::handleNfsv4ReclaimComplete(const RpcMessagevoid NfsServerS
         std::vector<uint8_t> response_data;
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         successful_requests_++;
+        sendReply(reply, client_conn);
         std::cout << "Handled NFSv4 RECLAIM_COMPLETE procedure (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 RECLAIM_COMPLETE: " << e.what() << std::endl;
