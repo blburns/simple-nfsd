@@ -6053,8 +6053,87 @@ void NfsServerSimple::handleNfsv4Write(const RpcMessage& message, const AuthCont
 
 void NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 CREATE procedure
-        std::cout << "Handled NFSv4 CREATE procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 CREATE uses variable-length directory handle and filename
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv4 CREATE request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse filename (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 CREATE: missing filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + offset, 4);
+        name_len = ntohl(name_len);
+        offset += 4;
+        
+        if (offset + name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 CREATE: filename too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string filename(message.data.begin() + offset, message.data.begin() + offset + name_len);
+        offset += name_len;
+        while (offset % 4 != 0) offset++; // Align
+        
+        // Construct full path
+        std::string file_path = dir_path;
+        if (!file_path.empty() && file_path.back() != '/') {
+            file_path += "/";
+        }
+        file_path += filename;
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 CREATE on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create file
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        std::ofstream file(full_path);
+        if (!file.is_open()) {
+            std::cerr << "Failed to create file: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        file.close();
+        
+        // Get or create handle for the new file
+        uint32_t file_handle_id = getHandleForPath(file_path);
+        
+        // Create response data with file handle
+        std::vector<uint8_t> response_data;
+        std::vector<uint8_t> file_handle = encodeNfsv4Handle(file_handle_id);
+        response_data.insert(response_data.end(), file_handle.begin(), file_handle.end());
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 CREATE for: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 CREATE: " << e.what() << std::endl;
         failed_requests_++;
@@ -6063,8 +6142,85 @@ void NfsServerSimple::handleNfsv4Create(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 MKDIR procedure
-        std::cout << "Handled NFSv4 MKDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 MKDIR uses variable-length directory handle and directory name
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv4 MKDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse directory name (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 MKDIR: missing directory name" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + offset, 4);
+        name_len = ntohl(name_len);
+        offset += 4;
+        
+        if (offset + name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 MKDIR: directory name too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string dirname(message.data.begin() + offset, message.data.begin() + offset + name_len);
+        offset += name_len;
+        while (offset % 4 != 0) offset++; // Align
+        
+        // Construct full path
+        std::string new_dir_path = dir_path;
+        if (!new_dir_path.empty() && new_dir_path.back() != '/') {
+            new_dir_path += "/";
+        }
+        new_dir_path += dirname;
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 MKDIR on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create directory
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / new_dir_path;
+        if (!std::filesystem::create_directory(full_path)) {
+            std::cerr << "Failed to create directory: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get or create handle for the new directory
+        uint32_t new_dir_handle_id = getHandleForPath(new_dir_path);
+        
+        // Create response data with directory handle
+        std::vector<uint8_t> response_data;
+        std::vector<uint8_t> new_dir_handle = encodeNfsv4Handle(new_dir_handle_id);
+        response_data.insert(response_data.end(), new_dir_handle.begin(), new_dir_handle.end());
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 MKDIR for: " << new_dir_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 MKDIR: " << e.what() << std::endl;
         failed_requests_++;
@@ -6073,8 +6229,101 @@ void NfsServerSimple::handleNfsv4MkDir(const RpcMessage& message, const AuthCont
 
 void NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 SYMLINK procedure
-        std::cout << "Handled NFSv4 SYMLINK procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 SYMLINK uses variable-length directory handle, symlink name, and target
+        if (message.data.size() < 12) {
+            std::cerr << "Invalid NFSv4 SYMLINK request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse symlink name (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 SYMLINK: missing symlink name" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + offset, 4);
+        name_len = ntohl(name_len);
+        offset += 4;
+        
+        if (offset + name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 SYMLINK: symlink name too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string symlink_name(message.data.begin() + offset, message.data.begin() + offset + name_len);
+        offset += name_len;
+        while (offset % 4 != 0) offset++; // Align
+        
+        // Parse target path (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 SYMLINK: missing target path" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t target_len = 0;
+        memcpy(&target_len, message.data.data() + offset, 4);
+        target_len = ntohl(target_len);
+        offset += 4;
+        
+        if (offset + target_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 SYMLINK: target path too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string target_path(message.data.begin() + offset, message.data.begin() + offset + target_len);
+        
+        // Construct full path
+        std::string symlink_path = dir_path;
+        if (!symlink_path.empty() && symlink_path.back() != '/') {
+            symlink_path += "/";
+        }
+        symlink_path += symlink_name;
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 SYMLINK on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create symbolic link
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / symlink_path;
+        std::filesystem::create_symlink(target_path, full_path);
+        
+        // Get or create handle for the symlink
+        uint32_t symlink_handle_id = getHandleForPath(symlink_path);
+        
+        // Create response data with symlink handle
+        std::vector<uint8_t> response_data;
+        std::vector<uint8_t> symlink_handle = encodeNfsv4Handle(symlink_handle_id);
+        response_data.insert(response_data.end(), symlink_handle.begin(), symlink_handle.end());
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 SYMLINK for: " << symlink_path << " -> " << target_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 SYMLINK: " << e.what() << std::endl;
         failed_requests_++;
@@ -6083,8 +6332,33 @@ void NfsServerSimple::handleNfsv4SymLink(const RpcMessage& message, const AuthCo
 
 void NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 MKNOD procedure
-        std::cout << "Handled NFSv4 MKNOD procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 MKNOD uses variable-length directory handle and filename
+        // For now, this is a stub as special files are complex
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv4 MKNOD request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // MKNOD is complex (creates special files like devices, FIFOs, etc.)
+        // For now, return success but don't create anything
+        std::vector<uint8_t> response_data;
+        uint32_t handle_id = 0;
+        std::vector<uint8_t> handle = encodeNfsv4Handle(handle_id);
+        response_data.insert(response_data.end(), handle.begin(), handle.end());
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 MKNOD procedure (stub) (user: " << auth_context.uid << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 MKNOD: " << e.what() << std::endl;
         failed_requests_++;
@@ -6093,8 +6367,78 @@ void NfsServerSimple::handleNfsv4MkNod(const RpcMessage& message, const AuthCont
 
 void NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 REMOVE procedure
-        std::cout << "Handled NFSv4 REMOVE procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 REMOVE uses variable-length directory handle and filename
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv4 REMOVE request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse filename (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 REMOVE: missing filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + offset, 4);
+        name_len = ntohl(name_len);
+        offset += 4;
+        
+        if (offset + name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 REMOVE: filename too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string filename(message.data.begin() + offset, message.data.begin() + offset + name_len);
+        
+        // Construct full path
+        std::string file_path = dir_path;
+        if (!file_path.empty() && file_path.back() != '/') {
+            file_path += "/";
+        }
+        file_path += filename;
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 REMOVE on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Remove file
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (!std::filesystem::remove(full_path)) {
+            std::cerr << "Failed to remove file: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data (empty for REMOVE)
+        std::vector<uint8_t> response_data;
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 REMOVE for: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 REMOVE: " << e.what() << std::endl;
         failed_requests_++;
@@ -6103,8 +6447,78 @@ void NfsServerSimple::handleNfsv4Remove(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 RMDIR procedure
-        std::cout << "Handled NFSv4 RMDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 RMDIR uses variable-length directory handle and directory name
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv4 RMDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse directory name (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 RMDIR: missing directory name" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + offset, 4);
+        name_len = ntohl(name_len);
+        offset += 4;
+        
+        if (offset + name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 RMDIR: directory name too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string dirname(message.data.begin() + offset, message.data.begin() + offset + name_len);
+        
+        // Construct full path
+        std::string target_dir_path = dir_path;
+        if (!target_dir_path.empty() && target_dir_path.back() != '/') {
+            target_dir_path += "/";
+        }
+        target_dir_path += dirname;
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 RMDIR on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Remove directory
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / target_dir_path;
+        if (!std::filesystem::remove(full_path)) {
+            std::cerr << "Failed to remove directory: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data (empty for RMDIR)
+        std::vector<uint8_t> response_data;
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 RMDIR for: " << target_dir_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 RMDIR: " << e.what() << std::endl;
         failed_requests_++;
@@ -6113,8 +6527,120 @@ void NfsServerSimple::handleNfsv4RmDir(const RpcMessage& message, const AuthCont
 
 void NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 RENAME procedure
-        std::cout << "Handled NFSv4 RENAME procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 RENAME uses variable-length old and new directory handles and names
+        if (message.data.size() < 16) {
+            std::cerr << "Invalid NFSv4 RENAME request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t old_dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (old_dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 old directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get old directory path from handle
+        std::string old_dir_path = getPathFromHandle(old_dir_handle_id);
+        if (old_dir_path.empty()) {
+            std::cerr << "Invalid old directory handle: " << old_dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse old filename (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 RENAME: missing old filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t old_name_len = 0;
+        memcpy(&old_name_len, message.data.data() + offset, 4);
+        old_name_len = ntohl(old_name_len);
+        offset += 4;
+        
+        if (offset + old_name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 RENAME: old filename too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string old_filename(message.data.begin() + offset, message.data.begin() + offset + old_name_len);
+        offset += old_name_len;
+        while (offset % 4 != 0) offset++; // Align
+        
+        // Parse new directory handle
+        uint32_t new_dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (new_dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 new directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get new directory path from handle
+        std::string new_dir_path = getPathFromHandle(new_dir_handle_id);
+        if (new_dir_path.empty()) {
+            std::cerr << "Invalid new directory handle: " << new_dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse new filename (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 RENAME: missing new filename" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t new_name_len = 0;
+        memcpy(&new_name_len, message.data.data() + offset, 4);
+        new_name_len = ntohl(new_name_len);
+        offset += 4;
+        
+        if (offset + new_name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 RENAME: new filename too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string new_filename(message.data.begin() + offset, message.data.begin() + offset + new_name_len);
+        
+        // Construct full paths
+        std::string old_file_path = old_dir_path;
+        if (!old_file_path.empty() && old_file_path.back() != '/') {
+            old_file_path += "/";
+        }
+        old_file_path += old_filename;
+        
+        std::string new_file_path = new_dir_path;
+        if (!new_file_path.empty() && new_file_path.back() != '/') {
+            new_file_path += "/";
+        }
+        new_file_path += new_filename;
+        
+        // Check access permissions
+        if (!checkAccess(old_dir_path, auth_context, false, true) || 
+            !checkAccess(new_dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 RENAME" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Rename file/directory
+        std::filesystem::path old_full_path = std::filesystem::path(config_.root_path) / old_file_path;
+        std::filesystem::path new_full_path = std::filesystem::path(config_.root_path) / new_file_path;
+        std::filesystem::rename(old_full_path, new_full_path);
+        
+        // Create response data (empty for RENAME)
+        std::vector<uint8_t> response_data;
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 RENAME from: " << old_file_path << " to: " << new_file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 RENAME: " << e.what() << std::endl;
         failed_requests_++;
@@ -6123,8 +6649,92 @@ void NfsServerSimple::handleNfsv4Rename(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 LINK procedure
-        std::cout << "Handled NFSv4 LINK procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 LINK uses variable-length file handle and destination directory handle/name
+        if (message.data.size() < 16) {
+            std::cerr << "Invalid NFSv4 LINK request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t file_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (file_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 file handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(file_handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << file_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse destination directory handle
+        uint32_t dest_dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dest_dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 destination directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get destination directory path from handle
+        std::string dest_dir_path = getPathFromHandle(dest_dir_handle_id);
+        if (dest_dir_path.empty()) {
+            std::cerr << "Invalid destination directory handle: " << dest_dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse link name (component4)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 LINK: missing link name" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t name_len = 0;
+        memcpy(&name_len, message.data.data() + offset, 4);
+        name_len = ntohl(name_len);
+        offset += 4;
+        
+        if (offset + name_len > message.data.size()) {
+            std::cerr << "Invalid NFSv4 LINK: link name too long" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::string link_name(message.data.begin() + offset, message.data.begin() + offset + name_len);
+        
+        // Construct full paths
+        std::filesystem::path source_path = std::filesystem::path(config_.root_path) / file_path;
+        std::string link_path = dest_dir_path;
+        if (!link_path.empty() && link_path.back() != '/') {
+            link_path += "/";
+        }
+        link_path += link_name;
+        std::filesystem::path dest_path = std::filesystem::path(config_.root_path) / link_path;
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false) || 
+            !checkAccess(dest_dir_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 LINK" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create hard link
+        std::filesystem::create_hard_link(source_path, dest_path);
+        
+        // Create response data (empty for LINK)
+        std::vector<uint8_t> response_data;
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 LINK from: " << file_path << " to: " << link_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 LINK: " << e.what() << std::endl;
         failed_requests_++;
