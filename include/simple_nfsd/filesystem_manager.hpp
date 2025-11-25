@@ -139,7 +139,7 @@ private:
     std::chrono::steady_clock::time_point export_cache_time_;
 
     // Helper methods
-    std::string sanitizePath(const std::string& path);
+    std::string sanitizePath(const std::string& path) const;
     bool isPathWithinExport(const std::string& path);
     uint32_t generateFileId(const std::string& path);
     void updateFileHandleAccess(uint32_t handle_id);

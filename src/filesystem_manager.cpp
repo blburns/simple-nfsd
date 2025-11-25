@@ -416,7 +416,7 @@ bool FilesystemManager::getFileSystemStats(const std::string& path, uint64_t& to
     }
 }
 
-std::string FilesystemManager::sanitizePath(const std::string& path) {
+std::string FilesystemManager::sanitizePath(const std::string& path) const {
     // Remove any ".." components and normalize the path
     try {
         std::filesystem::path normalized_path = std::filesystem::canonical(path);
@@ -459,6 +459,250 @@ void FilesystemManager::updateFileHandleAccess(uint32_t handle_id) {
     if (it != file_handles_.end()) {
         it->second.last_accessed = std::chrono::steady_clock::now();
     }
+}
+
+// Extended attributes (xattrs) implementation
+bool FilesystemManager::getExtendedAttribute(const std::string& path, const std::string& name, std::vector<uint8_t>& value) {
+    std::string sanitized_path = sanitizePath(path);
+    
+    #ifdef __APPLE__
+    // macOS uses getxattr
+    ssize_t size = getxattr(sanitized_path.c_str(), name.c_str(), nullptr, 0, 0, 0);
+    if (size < 0) {
+        return false;
+    }
+    
+    value.resize(size);
+    ssize_t result = getxattr(sanitized_path.c_str(), name.c_str(), value.data(), size, 0, 0);
+    return result == size;
+    #elif __linux__
+    // Linux uses getxattr
+    ssize_t size = getxattr(sanitized_path.c_str(), name.c_str(), nullptr, 0);
+    if (size < 0) {
+        return false;
+    }
+    
+    value.resize(size);
+    ssize_t result = getxattr(sanitized_path.c_str(), name.c_str(), value.data(), size);
+    return result == size;
+    #else
+    // Windows/other platforms - not supported
+    (void)path; (void)name; (void)value;
+    return false;
+    #endif
+}
+
+bool FilesystemManager::setExtendedAttribute(const std::string& path, const std::string& name, const std::vector<uint8_t>& value) {
+    std::string sanitized_path = sanitizePath(path);
+    
+    #ifdef __APPLE__
+    int result = setxattr(sanitized_path.c_str(), name.c_str(), value.data(), value.size(), 0, 0);
+    return result == 0;
+    #elif __linux__
+    int result = setxattr(sanitized_path.c_str(), name.c_str(), value.data(), value.size(), 0);
+    return result == 0;
+    #else
+    (void)path; (void)name; (void)value;
+    return false;
+    #endif
+}
+
+bool FilesystemManager::removeExtendedAttribute(const std::string& path, const std::string& name) {
+    std::string sanitized_path = sanitizePath(path);
+    
+    #ifdef __APPLE__
+    int result = removexattr(sanitized_path.c_str(), name.c_str(), 0);
+    return result == 0;
+    #elif __linux__
+    int result = removexattr(sanitized_path.c_str(), name.c_str());
+    return result == 0;
+    #else
+    (void)path; (void)name;
+    return false;
+    #endif
+}
+
+bool FilesystemManager::listExtendedAttributes(const std::string& path, std::vector<std::string>& names) {
+    std::string sanitized_path = sanitizePath(path);
+    names.clear();
+    
+    #ifdef __APPLE__
+    ssize_t size = listxattr(sanitized_path.c_str(), nullptr, 0, 0);
+    if (size < 0) {
+        return false;
+    }
+    
+    std::vector<char> buffer(size);
+    ssize_t result = listxattr(sanitized_path.c_str(), buffer.data(), size, 0);
+    if (result < 0) {
+        return false;
+    }
+    
+    // Parse null-separated string list
+    const char* ptr = buffer.data();
+    const char* end = buffer.data() + result;
+    while (ptr < end) {
+        names.push_back(std::string(ptr));
+        ptr += names.back().length() + 1;
+    }
+    return true;
+    #elif __linux__
+    ssize_t size = listxattr(sanitized_path.c_str(), nullptr, 0);
+    if (size < 0) {
+        return false;
+    }
+    
+    std::vector<char> buffer(size);
+    ssize_t result = listxattr(sanitized_path.c_str(), buffer.data(), size);
+    if (result < 0) {
+        return false;
+    }
+    
+    // Parse null-separated string list
+    const char* ptr = buffer.data();
+    const char* end = buffer.data() + result;
+    while (ptr < end) {
+        names.push_back(std::string(ptr));
+        ptr += names.back().length() + 1;
+    }
+    return true;
+    #else
+    (void)path; (void)names;
+    return false;
+    #endif
+}
+
+// Attribute caching implementation
+bool FilesystemManager::getCachedFileAttributes(const std::string& path, FileAttributes& attrs) {
+    std::lock_guard<std::mutex> lock(attribute_cache_mutex_);
+    
+    auto it = attribute_cache_.find(path);
+    if (it != attribute_cache_.end() && isCacheValid(it->second)) {
+        attrs = it->second.attrs;
+        return true;
+    }
+    
+    // Cache miss or expired - fetch from filesystem
+    if (getFileAttributes(path, attrs)) {
+        CachedAttributes cached;
+        cached.attrs = attrs;
+        cached.cached_at = std::chrono::steady_clock::now();
+        attribute_cache_[path] = cached;
+        return true;
+    }
+    
+    return false;
+}
+
+void FilesystemManager::invalidateAttributeCache(const std::string& path) {
+    std::lock_guard<std::mutex> lock(attribute_cache_mutex_);
+    attribute_cache_.erase(path);
+}
+
+void FilesystemManager::clearAttributeCache() {
+    std::lock_guard<std::mutex> lock(attribute_cache_mutex_);
+    attribute_cache_.clear();
+}
+
+bool FilesystemManager::isCacheValid(const CachedAttributes& cached) const {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - cached.cached_at);
+    return elapsed < CachedAttributes::CACHE_TTL;
+}
+
+// Subtree checking implementation
+bool FilesystemManager::isSubtreeCheckEnabled(const std::string& path) {
+    // Check if subtree_check is enabled for the export containing this path
+    for (const auto& export_config : config_.exports) {
+        std::string export_path = sanitizePath(export_config.path);
+        std::string sanitized_path = sanitizePath(path);
+        
+        if (sanitized_path.find(export_path) == 0) {
+            // Check if subtree_check is in options
+            std::string options = export_config.options;
+            return options.find("subtree_check") != std::string::npos;
+        }
+    }
+    return false;
+}
+
+bool FilesystemManager::validateSubtreeAccess(const std::string& path, const std::string& client_ip) {
+    if (!isSubtreeCheckEnabled(path)) {
+        return true; // Subtree checking disabled
+    }
+    
+    // With subtree_check, verify the client has access to the exact path
+    // and all parent directories
+    std::string sanitized_path = sanitizePath(path);
+    std::filesystem::path current_path(sanitized_path);
+    
+    while (!current_path.empty() && current_path != current_path.root_path()) {
+        std::string check_path = current_path.string();
+        
+        // Check if this path is exported and client has access
+        bool found_export = false;
+        for (const auto& export_config : config_.exports) {
+            std::string export_path = sanitizePath(export_config.path);
+            if (check_path == export_path || check_path.find(export_path) == 0) {
+                // Check client access
+                std::string clients_str = export_config.clients;
+                if (clients_str.empty()) {
+                    found_export = true;
+                    break; // No client restrictions
+                }
+                
+                // Check if client IP matches (clients is a comma-separated string)
+                if (clients_str.find(client_ip) != std::string::npos) {
+                    found_export = true;
+                    break;
+                }
+                if (found_export) break;
+            }
+        }
+        
+        if (!found_export) {
+            return false; // Path not accessible
+        }
+        
+        current_path = current_path.parent_path();
+    }
+    
+    return true;
+}
+
+// Export enumeration implementation
+std::vector<NfsServerConfig::Export> FilesystemManager::getExports() const {
+    return config_.exports;
+}
+
+bool FilesystemManager::getExportInfo(const std::string& path, NfsServerConfig::Export& export_info) const {
+    std::string sanitized_path = sanitizePath(path);
+    
+    for (const auto& export_config : config_.exports) {
+        std::string export_path = sanitizePath(export_config.path);
+        if (sanitized_path.find(export_path) == 0) {
+            export_info = export_config;
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+std::vector<std::string> FilesystemManager::listExportedPaths() const {
+    std::vector<std::string> paths;
+    
+    if (config_.exports.empty()) {
+        // If no exports configured, return root_path
+        paths.push_back(config_.root_path);
+        return paths;
+    }
+    
+    for (const auto& export_config : config_.exports) {
+        paths.push_back(export_config.path);
+    }
+    
+    return paths;
 }
 
 } // namespace SimpleNfsd
