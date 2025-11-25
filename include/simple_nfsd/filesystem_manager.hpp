@@ -4,6 +4,7 @@
 #include "simple_nfsd/rpc_protocol.hpp"
 #include "simple_nfsd/config_manager.hpp"
 #include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple_nfsd/lock_manager.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -11,6 +12,7 @@
 #include <filesystem>
 #include <fstream>
 #include <chrono>
+#include <memory>
 
 namespace SimpleNfsd {
 
@@ -144,6 +146,10 @@ public:
     bool reloadExports();
     bool reloadExportConfig(const std::string& config_file);
 
+    // File locking
+    LockManager& getLockManager();
+    const LockManager& getLockManager() const;
+
 private:
     NfsServerConfig config_;
     std::map<uint32_t, FileHandle> file_handles_;
@@ -190,6 +196,9 @@ private:
     };
     std::map<std::pair<std::string, uint32_t>, QuotaEntry> quota_map_;
     std::mutex quota_mutex_;
+
+    // Lock manager
+    std::unique_ptr<LockManager> lock_manager_;
 
     // Helper methods
     std::string sanitizePath(const std::string& path) const;

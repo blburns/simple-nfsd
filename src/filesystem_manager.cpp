@@ -30,7 +30,9 @@
 namespace SimpleNfsd {
 
 FilesystemManager::FilesystemManager() 
-    : next_handle_id_(1), initialized_(false), monitoring_enabled_(false), stop_monitoring_(false) {}
+    : next_handle_id_(1), initialized_(false), monitoring_enabled_(false), stop_monitoring_(false) {
+    lock_manager_ = std::make_unique<LockManager>();
+}
 
 FilesystemManager::~FilesystemManager() {
     shutdown();
@@ -925,6 +927,15 @@ bool FilesystemManager::reloadExportConfig(const std::string& config_file) {
     clearAttributeCache();
     clearContentCache();
     return true;
+}
+
+// File locking implementation
+LockManager& FilesystemManager::getLockManager() {
+    return *lock_manager_;
+}
+
+const LockManager& FilesystemManager::getLockManager() const {
+    return *lock_manager_;
 }
 
 } // namespace SimpleNfsd

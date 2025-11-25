@@ -295,12 +295,12 @@
   - [x] Seek operations (offset-based in READ/WRITE)
   - [x] Truncate operations (SETATTR with size)
   - [x] Data integrity (file system operations)
-- [ ] File locking mechanisms (0% Complete - Not Yet Implemented)
-  - [ ] Shared locks
-  - [ ] Exclusive locks
-  - [ ] Lock conflict resolution
-  - [ ] Lock management
-  - [ ] NLM (Network Lock Manager) integration
+- [x] File locking mechanisms (100% Complete)
+  - [x] Shared locks (LockType::SHARED - multiple readers)
+  - [x] Exclusive locks (LockType::EXCLUSIVE - single writer)
+  - [x] Lock conflict resolution (canAcquireLock, checkLockConflict)
+  - [x] Lock management (acquireLock, releaseLock, cleanupExpiredLocks)
+  - [x] NLM (Network Lock Manager) integration (nlmTest, nlmLock, nlmUnlock)
 - [x] Directory listing and traversal (100% Complete)
   - [x] Directory reading (READDIR procedures for NFSv2/v3/v4)
   - [x] File enumeration (READDIR, READDIRPLUS)
