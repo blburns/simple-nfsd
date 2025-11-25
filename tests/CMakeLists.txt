@@ -36,6 +36,7 @@ target_sources(simple-nfsd-tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/security_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv2_procedures.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv3_portmapper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv3_procedures.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv4_security.cpp
 )
 
