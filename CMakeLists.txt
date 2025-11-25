@@ -1,9 +1,9 @@
 # CMakeLists.txt template for SimpleDaemons projects
 # Simple NFS Daemon - A lightweight and secure NFS server
-# Copyright  SimpleDaemons
+# Copyright 2024 SimpleDaemons
 
 cmake_minimum_required(VERSION 3.16)
-project(simple-nfsd VERSION 0.2.2 LANGUAGES CXX)
+project(simple-nfsd VERSION 0.3.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -24,7 +24,6 @@ option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_PACKAGING "Enable package generation" ON)
 option(ENABLE_SSL "Enable SSL/TLS support" ON)
 option(ENABLE_JSON "Enable JSON support" ON)
-option(ENABLE_YAML "Enable YAML support" ON)
 option(ENABLE_STATIC_LINKING "Enable static linking for self-contained binaries" OFF)
 
 # Find required packages
@@ -39,34 +38,12 @@ if(ENABLE_JSON)
     pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 endif()
 
-if(ENABLE_YAML)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(YAMLCPP yaml-cpp)
-    if(NOT YAMLCPP_FOUND)
-        message(WARNING "yaml-cpp not found, YAML support disabled")
-        set(ENABLE_YAML OFF)
-    endif()
-endif()
-
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Source files
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
 file(GLOB_RECURSE HEADERS "include/*.hpp" "include/*.h")
-
-# Explicitly list source files for better control
-set(SOURCES
-    src/main.cpp
-    src/nfsd_app.cpp
-    src/config_manager.cpp
-    src/nfs_server_simple.cpp
-    src/rpc_protocol.cpp
-    src/auth_manager.cpp
-    src/portmapper.cpp
-    src/security_manager.cpp
-    src/filesystem_manager.cpp
-)
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
@@ -93,23 +70,6 @@ if(ENABLE_JSON)
     target_include_directories(${PROJECT_NAME} PRIVATE ${JSONCPP_INCLUDE_DIRS})
     target_compile_options(${PROJECT_NAME} PRIVATE ${JSONCPP_CFLAGS_OTHER})
     target_link_directories(${PROJECT_NAME} PRIVATE ${JSONCPP_LIBRARY_DIRS})
-endif()
-
-if(ENABLE_YAML AND YAMLCPP_FOUND)
-    if(ENABLE_STATIC_LINKING)
-        # For static linking, find the static library directly
-        find_library(YAMLCPP_STATIC_LIB yaml-cpp PATHS /opt/local/lib /usr/local/lib /usr/lib)
-        if(YAMLCPP_STATIC_LIB)
-            target_link_libraries(${PROJECT_NAME} ${YAMLCPP_STATIC_LIB})
-        else()
-            target_link_libraries(${PROJECT_NAME} ${YAMLCPP_LIBRARIES})
-        endif()
-    else()
-        target_link_libraries(${PROJECT_NAME} ${YAMLCPP_LIBRARIES})
-    endif()
-    target_include_directories(${PROJECT_NAME} PRIVATE ${YAMLCPP_INCLUDE_DIRS})
-    target_compile_options(${PROJECT_NAME} PRIVATE ${YAMLCPP_CFLAGS_OTHER})
-    target_link_directories(${PROJECT_NAME} PRIVATE ${YAMLCPP_LIBRARY_DIRS})
 endif()
 
 # Compiler-specific options
@@ -167,7 +127,7 @@ if(UNIX AND NOT APPLE)
     )
 elseif(APPLE)
     install(FILES deployment/launchd/com.${PROJECT_NAME}.${PROJECT_NAME}.plist
-        DESTINATION lib/launchd
+        DESTINATION /Library/LaunchDaemons
     )
 endif()
 
@@ -318,10 +278,8 @@ if(ENABLE_PACKAGING)
         "*.lib"
     )
     
-    # Include version file in source package
-    set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-src")
-    
-    # CPack already included above
+    # Include CPack configuration
+    include(CPack)
 endif()
 
 # Print configuration summary

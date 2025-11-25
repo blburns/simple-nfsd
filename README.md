@@ -1,12 +1,12 @@
 # Simple NFS Daemon
 
-[![Version](https://img.shields.io/badge/version-0.2.3-blue.svg)](https://github.com/blburns/simple-nfsd)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/blburns/simple-nfsd)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/blburns/simple-nfsd)
 
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
 
-**Current Version**: 0.2.3 (NFSv2 Complete - Production Ready)
+**Current Version**: 0.3.0 (NFSv2 & NFSv3 Complete - Production Ready)
 
 ## Features
 
@@ -18,13 +18,18 @@ A lightweight, high-performance NFS server implementation designed for modern sy
 - **File Attributes**: Full attribute management and retrieval
 - **File System Statistics**: Complete STATFS implementation
 
-### 🔄 **NFSv3 Protocol (In Progress)**
-- **22 NFSv3 Procedures**: Framework complete, implementation in progress
-- **Enhanced Features**: ACCESS, READLINK, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT
+### ✅ **NFSv3 Protocol (Complete - Production Ready)**
+- **All 22 NFSv3 Procedures**: NULL, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK, READ, WRITE, CREATE, MKDIR, SYMLINK, MKNOD, REMOVE, RMDIR, RENAME, LINK, READDIR, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT
+- **Enhanced Features**: 64-bit file handles, 64-bit offsets, WCC (Weak Cache Consistency) data
+- **File Attributes**: Enhanced fattr3 structures with full attribute support
+- **Directory Operations**: READDIRPLUS with full attributes
+- **File System Information**: FSSTAT, FSINFO, and PATHCONF procedures
+- **Comprehensive Testing**: Full test suite for all NFSv3 procedures
 
-### 🔄 **NFSv4 Protocol (In Progress)**
-- **38 NFSv4 Procedures**: Framework complete, implementation in progress
-- **Advanced Features**: COMPOUND operations, ACL support, session management
+### 🔄 **NFSv4 Protocol (In Progress - 7/38 procedures)**
+- **Core Procedures**: NULL, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK, READ, WRITE
+- **Variable-Length Handles**: NFSv4 uses opaque variable-length file handles
+- **Advanced Features**: COMPOUND operations (framework), ACL support (planned), session management (planned)
 
 ### **Core Infrastructure (Complete)**
 - **RPC Portmapper Integration**: Full RPC service registration and discovery

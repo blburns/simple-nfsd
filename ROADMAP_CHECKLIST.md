@@ -1,9 +1,9 @@
 # Simple NFS Daemon - Development Checklist
 
 ## Project Status: 🔄 In Development
-**Last Updated**: October 2024
-**Current Version**: 0.2.3
-**Next Milestone**: NFSv3 Implementation
+**Last Updated**: December 2024
+**Current Version**: 0.3.0
+**Next Milestone**: NFSv4 Implementation
 
 ---
 
@@ -93,9 +93,9 @@
 
 ---
 
-## Phase 2: Core NFS Protocol Implementation ✅ COMPLETED
+## Phase 2: Core NFS Protocol Implementation 🔄 IN PROGRESS
 **Timeline**: 4-6 weeks
-**Status**: 100% Complete (NFSv2, NFSv3 & NFSv4)
+**Status**: NFSv2 Complete, NFSv3 Complete, NFSv4 In Progress (7/38 procedures)
 **Target**: Q2 2024
 
 ### NFS Protocol Stack
@@ -113,20 +113,61 @@
   - [x] NFSv2 comprehensive testing (123/131 tests passing)
   - [x] NFSv2 hard link support (LINK procedure)
   - [x] NFSv2 symbolic link support (SYMLINK procedure)
-- [x] NFSv3 protocol support (100% Complete)
+- [x] NFSv3 protocol support (100% Complete - v0.3.0)
   - [x] NFSv3 operations (all 22 procedures)
-  - [x] NFSv3 file attributes
+    - [x] NULL, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK
+    - [x] READ, WRITE, CREATE, MKDIR, SYMLINK, MKNOD
+    - [x] REMOVE, RMDIR, RENAME, LINK
+    - [x] READDIR, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT
+  - [x] NFSv3 file attributes (64-bit handles, fattr3 structures)
   - [x] NFSv3 error handling
-  - [x] NFSv3 enhancements
+  - [x] NFSv3 enhancements (64-bit offsets, WCC data)
   - [x] NFSv3 procedure routing
-        - [x] NFSv3 comprehensive testing
-        - [x] NFSv4 protocol support (100% Complete)
-          - [x] NFSv4 operations (all 38 procedures)
-          - [x] NFSv4 compound operations
-          - [x] NFSv4 file attributes
-          - [x] NFSv4 error handling
-          - [x] NFSv4 procedure routing
-          - [x] NFSv4 comprehensive testing
+  - [x] NFSv3 comprehensive testing (test_nfsv3_procedures.cpp)
+- [ ] NFSv4 protocol support (In Progress - 7/38 procedures)
+  - [x] NULL procedure
+  - [x] GETATTR procedure (variable-length handles)
+  - [x] SETATTR procedure
+  - [x] LOOKUP procedure
+  - [x] ACCESS procedure
+  - [x] READLINK procedure
+  - [x] READ procedure
+  - [x] WRITE procedure
+  - [ ] COMPOUND procedure (framework)
+  - [ ] CREATE procedure
+  - [ ] MKDIR procedure
+  - [ ] SYMLINK procedure
+  - [ ] MKNOD procedure
+  - [ ] REMOVE procedure
+  - [ ] RMDIR procedure
+  - [ ] RENAME procedure
+  - [ ] LINK procedure
+  - [ ] READDIR procedure
+  - [ ] READDIRPLUS procedure
+  - [ ] FSSTAT procedure
+  - [ ] FSINFO procedure
+  - [ ] PATHCONF procedure
+  - [ ] COMMIT procedure
+  - [ ] DELEGRETURN procedure
+  - [ ] GETACL procedure
+  - [ ] SETACL procedure
+  - [ ] FS_LOCATIONS procedure
+  - [ ] RELEASE_LOCKOWNER procedure
+  - [ ] SECINFO procedure
+  - [ ] FSID_PRESENT procedure
+  - [ ] EXCHANGE_ID procedure
+  - [ ] CREATE_SESSION procedure
+  - [ ] DESTROY_SESSION procedure
+  - [ ] SEQUENCE procedure
+  - [ ] GET_DEVICE_INFO procedure
+  - [ ] BIND_CONN_TO_SESSION procedure
+  - [ ] DESTROY_CLIENTID procedure
+  - [ ] RECLAIM_COMPLETE procedure
+  - [ ] NFSv4 compound operations (framework)
+  - [ ] NFSv4 file attributes
+  - [ ] NFSv4 error handling
+  - [ ] NFSv4 procedure routing
+  - [ ] NFSv4 comprehensive testing
 - [x] Protocol negotiation and version selection
   - [x] Version detection
   - [x] Version negotiation
@@ -143,22 +184,22 @@
   - [x] Portmapper procedure support (NULL, SET, UNSET, GETPORT, DUMP, CALLIT)
   - [x] Service mapping management
   - [x] Portmapper statistics and monitoring
-        - [x] Integration with NFS server
-        - [x] Authentication and Security (100% Complete)
-          - [x] AUTH_SYS authentication
-          - [x] AUTH_DH authentication (Framework)
-          - [x] Kerberos authentication (RPCSEC_GSS) (Framework)
-          - [x] User/group mapping
-          - [x] Access control
-          - [x] Root squash support
-          - [x] Anonymous access support
-          - [x] Access Control Lists (ACL) support
-          - [x] Session management
-          - [x] Audit logging
-          - [x] Security context management
-          - [x] File permission validation
-          - [x] Path access control
-          - [x] Security statistics and monitoring
+    - [x] Integration with NFS server
+    - [x] Authentication and Security (100% Complete)
+      - [x] AUTH_SYS authentication
+      - [x] AUTH_DH authentication (Framework)
+      - [x] Kerberos authentication (RPCSEC_GSS) (Framework)
+      - [x] User/group mapping
+      - [x] Access control
+      - [x] Root squash support
+      - [x] Anonymous access support
+      - [x] Access Control Lists (ACL) support
+      - [x] Session management
+      - [x] Audit logging
+      - [x] Security context management
+      - [x] File permission validation
+      - [x] Path access control
+      - [x] Security statistics and monitoring
 
 ### Network Layer
 - [x] TCP connection handling
@@ -171,16 +212,16 @@
   - [x] UDP data transmission
   - [x] UDP data reception
   - [x] UDP error handling
-- [ ] Portmapper integration
-  - [ ] Portmapper registration
-  - [ ] Portmapper discovery
-  - [ ] Portmapper unregistration
-  - [ ] Portmapper error handling
-- [ ] RPC registration and discovery
-  - [ ] RPC service registration
-  - [ ] RPC service discovery
-  - [ ] RPC service management
-  - [ ] RPC service monitoring
+- [x] Portmapper integration
+  - [x] Portmapper registration
+  - [x] Portmapper discovery
+  - [x] Portmapper unregistration
+  - [x] Portmapper error handling
+- [x] RPC registration and discovery
+  - [x] RPC service registration
+  - [x] RPC service discovery
+  - [x] RPC service management
+  - [x] RPC service monitoring
 - [x] Connection pooling and management
   - [x] Connection pool implementation
   - [x] Connection lifecycle management
@@ -229,7 +270,7 @@
 ## Phase 3: File System Operations 📋 PLANNED
 **Timeline**: 6-8 weeks
 **Status**: 0% Complete
-**Target**: Q3 2024
+**Target**: Q3 2025
 
 ### File Operations
 - [ ] File open/close operations

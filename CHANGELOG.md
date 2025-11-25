@@ -8,9 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
+- Complete NFSv4 protocol implementation (31/38 procedures remaining)
 - Phase 3: File System Operations
 - Phase 4: Advanced Features
 - Phase 5: Enterprise Features
+
+## [0.3.0] - 2024-12-20
+
+### Added
+- Complete NFSv3 protocol implementation (100% Complete):
+  - All 22 NFSv3 procedures fully implemented
+  - NULL, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK procedures
+  - READ, WRITE, CREATE, MKDIR, SYMLINK, MKNOD procedures
+  - REMOVE, RMDIR, RENAME, LINK procedures
+  - READDIR, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT procedures
+  - 64-bit file handles and offsets support
+  - Enhanced fattr3 file attribute structures
+  - WCC (Weak Cache Consistency) data support
+  - Comprehensive test suite (test_nfsv3_procedures.cpp)
+- NFSv4 protocol implementation (In Progress - 7/38 procedures):
+  - NULL, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK, READ, WRITE procedures
+  - Variable-length file handle support
+  - Helper functions for NFSv4 handle encoding/decoding
+- Network byte order conversion helpers:
+  - htonll_custom() and ntohll_custom() for 64-bit values
+
+### Changed
+- NFSv3 implementation now production-ready
+- All NFSv3 procedures have real functionality (no more stubs)
+- Improved 64-bit value handling across NFSv3 procedures
+- Enhanced error handling and validation for NFSv3
+- Version bumped to 0.3.0 to reflect NFSv3 completion milestone
+
+### Technical Details
+- Implemented all 22 NFSv3 procedures with proper 64-bit support
+- Added comprehensive NFSv3 test suite with proper data structure packing
+- Started NFSv4 implementation with variable-length handle support
+- All NFSv3 procedures include proper access control and error handling
 
 ## [0.2.3] - 2024-10-01
 
@@ -43,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.2] - 2024-12-19
 
 ### Added
-- Complete NFSv4 protocol implementation (100% Complete):
+- NFSv4 protocol framework (Note: Implementation was incomplete, corrected in v0.3.0):
   - NULL procedure
   - COMPOUND procedure (main NFSv4 operation)
   - GETATTR procedure

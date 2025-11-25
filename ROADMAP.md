@@ -34,9 +34,9 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [x] Package generation (DEB, RPM, DMG, MSI)
 
 ### Phase 2: Core NFS Protocol Implementation 🔄 IN PROGRESS
-**Status**: 🔄 In Progress (NFSv2 Complete, NFSv3 & NFSv4 In Progress)
+**Status**: 🔄 In Progress (NFSv2 Complete, NFSv3 Complete, NFSv4 In Progress - 7/38 procedures)
 **Timeline**: 4-6 weeks
-**Updated**: October 2024
+**Updated**: December 2024
 
 #### NFS Protocol Stack
 - [x] RPC (Remote Procedure Call) implementation
@@ -57,32 +57,8 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
   - [x] RENAME procedure
   - [x] READDIR procedure
   - [x] STATFS procedure
-        - [x] NFSv3 protocol support (100% Complete - v0.2.1)
+        - [x] NFSv3 protocol support (100% Complete - v0.3.0)
           - [x] NULL procedure
-          - [x] GETATTR procedure
-          - [x] SETATTR procedure
-          - [x] LOOKUP procedure
-          - [x] ACCESS procedure
-          - [x] READLINK procedure
-          - [x] READ procedure
-          - [x] WRITE procedure
-          - [x] CREATE procedure
-          - [x] MKDIR procedure
-          - [x] SYMLINK procedure
-          - [x] MKNOD procedure
-          - [x] REMOVE procedure
-          - [x] RMDIR procedure
-          - [x] RENAME procedure
-          - [x] LINK procedure
-          - [x] READDIR procedure
-          - [x] READDIRPLUS procedure
-          - [x] FSSTAT procedure
-          - [x] FSINFO procedure
-          - [x] PATHCONF procedure
-        - [x] COMMIT procedure
-        - [x] NFSv4 protocol support (100% Complete - v0.2.2)
-          - [x] NULL procedure
-          - [x] COMPOUND procedure
           - [x] GETATTR procedure
           - [x] SETATTR procedure
           - [x] LOOKUP procedure
@@ -104,21 +80,45 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
           - [x] FSINFO procedure
           - [x] PATHCONF procedure
           - [x] COMMIT procedure
-          - [x] DELEGRETURN procedure
-          - [x] GETACL procedure
-          - [x] SETACL procedure
-          - [x] FS_LOCATIONS procedure
-          - [x] RELEASE_LOCKOWNER procedure
-          - [x] SECINFO procedure
-          - [x] FSID_PRESENT procedure
-          - [x] EXCHANGE_ID procedure
-          - [x] CREATE_SESSION procedure
-          - [x] DESTROY_SESSION procedure
-          - [x] SEQUENCE procedure
-          - [x] GET_DEVICE_INFO procedure
-          - [x] BIND_CONN_TO_SESSION procedure
-          - [x] DESTROY_CLIENTID procedure
-          - [x] RECLAIM_COMPLETE procedure
+        - [ ] NFSv4 protocol support (In Progress - 7/38 procedures - v0.3.0)
+          - [x] NULL procedure
+          - [ ] COMPOUND procedure (framework)
+          - [x] GETATTR procedure
+          - [x] SETATTR procedure
+          - [x] LOOKUP procedure
+          - [x] ACCESS procedure
+          - [x] READLINK procedure
+          - [x] READ procedure
+          - [x] WRITE procedure
+          - [ ] CREATE procedure
+          - [ ] MKDIR procedure
+          - [ ] SYMLINK procedure
+          - [ ] MKNOD procedure
+          - [ ] REMOVE procedure
+          - [ ] RMDIR procedure
+          - [ ] RENAME procedure
+          - [ ] LINK procedure
+          - [ ] READDIR procedure
+          - [ ] READDIRPLUS procedure
+          - [ ] FSSTAT procedure
+          - [ ] FSINFO procedure
+          - [ ] PATHCONF procedure
+          - [ ] COMMIT procedure
+          - [ ] DELEGRETURN procedure
+          - [ ] GETACL procedure
+          - [ ] SETACL procedure
+          - [ ] FS_LOCATIONS procedure
+          - [ ] RELEASE_LOCKOWNER procedure
+          - [ ] SECINFO procedure
+          - [ ] FSID_PRESENT procedure
+          - [ ] EXCHANGE_ID procedure
+          - [ ] CREATE_SESSION procedure
+          - [ ] DESTROY_SESSION procedure
+          - [ ] SEQUENCE procedure
+          - [ ] GET_DEVICE_INFO procedure
+          - [ ] BIND_CONN_TO_SESSION procedure
+          - [ ] DESTROY_CLIENTID procedure
+          - [ ] RECLAIM_COMPLETE procedure
         - [x] Protocol negotiation and version selection
 
 #### RPC Portmapper Integration
