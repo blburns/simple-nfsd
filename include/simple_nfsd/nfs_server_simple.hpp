@@ -13,6 +13,8 @@
 #include "simple_nfsd/rpc_protocol.hpp"
 #include "simple_nfsd/auth_manager.hpp"
 #include "simple_nfsd/portmapper.hpp"
+#include "simple_nfsd/file_access_tracker.hpp"
+#include "simple_nfsd/security_manager.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -112,6 +114,12 @@ private:
     
     // Authentication
     std::unique_ptr<AuthManager> auth_manager_;
+    
+    // Security manager (for ACLs)
+    std::unique_ptr<SecurityManager> security_manager_;
+    
+    // File access tracker (for stateful tracking)
+    std::unique_ptr<FileAccessTracker> file_access_tracker_;
     
     // Portmapper service
     std::unique_ptr<Portmapper> portmapper_;

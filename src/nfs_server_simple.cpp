@@ -9,6 +9,8 @@
 #include "simple_nfsd/nfs_server_simple.hpp"
 #include "simple_nfsd/rpc_protocol.hpp"
 #include "simple_nfsd/auth_manager.hpp"
+#include "simple_nfsd/security_manager.hpp"
+#include "simple_nfsd/file_access_tracker.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -45,6 +47,8 @@ namespace SimpleNfsd {
 NfsServerSimple::NfsServerSimple() 
     : running_(false), initialized_(false), next_handle_id_(1) {
     auth_manager_ = std::make_unique<AuthManager>();
+    security_manager_ = std::make_unique<SecurityManager>();
+    file_access_tracker_ = std::make_unique<FileAccessTracker>();
     portmapper_ = std::make_unique<Portmapper>();
 }
 
@@ -62,6 +66,14 @@ bool NfsServerSimple::initialize(const NfsServerConfig& config) {
     // Initialize authentication
     if (!initializeAuthentication()) {
         std::cerr << "Failed to initialize authentication" << std::endl;
+        return false;
+    }
+    
+    // Initialize security manager
+    SecurityConfig sec_config;
+    sec_config.enable_acl = true;
+    if (!security_manager_->initialize(sec_config)) {
+        std::cerr << "Failed to initialize security manager" << std::endl;
         return false;
     }
     
@@ -5506,6 +5518,45 @@ static uint32_t decodeNfsv4Handle(const std::vector<uint8_t>& data, size_t& offs
     return handle_id;
 }
 
+// Helper function to pack a string (component4 format)
+static void packString(const std::string& str, std::vector<uint8_t>& data) {
+    uint32_t length = static_cast<uint32_t>(str.length());
+    uint32_t length_net = htonl(length);
+    data.insert(data.end(), (uint8_t*)&length_net, (uint8_t*)&length_net + 4);
+    if (length > 0) {
+        data.insert(data.end(), str.begin(), str.end());
+    }
+    // Pad to 4-byte boundary
+    while (data.size() % 4 != 0) {
+        data.push_back(0);
+    }
+}
+
+// Helper function to unpack a string (component4 format)
+static std::string unpackString(const std::vector<uint8_t>& data, size_t& offset) {
+    if (offset + 4 > data.size()) {
+        return "";
+    }
+    uint32_t length = 0;
+    memcpy(&length, data.data() + offset, 4);
+    length = ntohl(length);
+    offset += 4;
+    
+    if (offset + length > data.size()) {
+        return "";
+    }
+    
+    std::string result(data.begin() + offset, data.begin() + offset + length);
+    offset += length;
+    
+    // Align to 4-byte boundary
+    while (offset % 4 != 0) {
+        offset++;
+    }
+    
+    return result;
+}
+
 // NFSv4 procedure implementations
 void NfsServerSimple::handleNfsv4Null(const RpcMessage& message, const AuthContext& auth_context, const ClientConnection& client_conn) {
     // NULL procedure always succeeds
@@ -7338,16 +7389,56 @@ void NfsServerSimple::handleNfsv4GetAcl(const RpcMessage& message, const AuthCon
             return;
         }
         
-        // Return empty ACL for now
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for GETACL on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get ACL from security manager
+        FileAcl acl = security_manager_->getFileAcl(file_path);
+        
+        // Build NFSv4 ACL response
         std::vector<uint8_t> response_data;
-        uint32_t acl_count = 0;
-        acl_count = htonl(acl_count);
-        response_data.insert(response_data.end(), (uint8_t*)&acl_count, (uint8_t*)&acl_count + 4);
+        
+        // ACL count (32-bit)
+        uint32_t acl_count = static_cast<uint32_t>(acl.entries.size());
+        uint32_t acl_count_net = htonl(acl_count);
+        response_data.insert(response_data.end(), (uint8_t*)&acl_count_net, (uint8_t*)&acl_count_net + 4);
+        
+        // Pack each ACL entry
+        for (const auto& entry : acl.entries) {
+            // Entry type (32-bit)
+            uint32_t entry_type = htonl(entry.type);
+            response_data.insert(response_data.end(), (uint8_t*)&entry_type, (uint8_t*)&entry_type + 4);
+            
+            // Entry flags (32-bit) - simplified
+            uint32_t entry_flags = 0;
+            entry_flags = htonl(entry_flags);
+            response_data.insert(response_data.end(), (uint8_t*)&entry_flags, (uint8_t*)&entry_flags + 4);
+            
+            // Entry mask (32-bit) - permissions
+            uint32_t entry_mask = htonl(entry.permissions);
+            response_data.insert(response_data.end(), (uint8_t*)&entry_mask, (uint8_t*)&entry_mask + 4);
+            
+            // Entry who (string) - user/group name or ID
+            std::string who_str = entry.name.empty() ? std::to_string(entry.id) : entry.name;
+            packString(who_str, response_data);
+        }
         
         RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
         sendReply(reply, client_conn);
         successful_requests_++;
-        std::cout << "Handled NFSv4 GETACL procedure (user: " << auth_context.uid << ")" << std::endl;
+        std::cout << "Handled NFSv4 GETACL procedure for: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 GETACL: " << e.what() << std::endl;
         failed_requests_++;
@@ -7371,12 +7462,89 @@ void NfsServerSimple::handleNfsv4SetAcl(const RpcMessage& message, const AuthCon
             return;
         }
         
-        // Return success (ACL setting stubbed)
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions (need write permission to set ACL)
+        if (!checkAccess(file_path, auth_context, false, true)) {
+            std::cerr << "Access denied for SETACL on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse ACL count
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 SETACL: missing ACL count" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t acl_count = 0;
+        memcpy(&acl_count, message.data.data() + offset, 4);
+        acl_count = ntohl(acl_count);
+        offset += 4;
+        
+        // Parse ACL entries
+        FileAcl acl;
+        for (uint32_t i = 0; i < acl_count; i++) {
+            if (offset + 12 > message.data.size()) {
+                std::cerr << "Invalid NFSv4 SETACL: incomplete ACL entry" << std::endl;
+                failed_requests_++;
+                return;
+            }
+            
+            // Entry type (32-bit)
+            uint32_t entry_type = 0;
+            memcpy(&entry_type, message.data.data() + offset, 4);
+            entry_type = ntohl(entry_type);
+            offset += 4;
+            
+            // Entry flags (32-bit) - skip for now
+            offset += 4;
+            
+            // Entry mask (32-bit) - permissions
+            uint32_t entry_mask = 0;
+            memcpy(&entry_mask, message.data.data() + offset, 4);
+            entry_mask = ntohl(entry_mask);
+            offset += 4;
+            
+            // Entry who (string)
+            std::string who_str = unpackString(message.data, offset);
+            
+            // Parse who string to get ID
+            uint32_t entry_id = 0;
+            try {
+                entry_id = std::stoul(who_str);
+            } catch (...) {
+                // If not a number, treat as name (would need name-to-ID lookup)
+                entry_id = 0; // Default
+            }
+            
+            // Create ACL entry
+            AclEntry entry(entry_type, entry_id, entry_mask, who_str);
+            acl.addEntry(entry);
+        }
+        
+        // Set ACL via security manager
+        bool success = security_manager_->setFileAcl(file_path, acl);
+        
+        // Build response
         std::vector<uint8_t> response_data;
-        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, 
+                                                success ? RpcAcceptState::SUCCESS : RpcAcceptState::PROC_UNAVAIL, 
+                                                response_data);
         sendReply(reply, client_conn);
-        successful_requests_++;
-        std::cout << "Handled NFSv4 SETACL procedure (user: " << auth_context.uid << ")" << std::endl;
+        if (success) {
+            successful_requests_++;
+            std::cout << "Handled NFSv4 SETACL procedure for: " << file_path << " (user: " << auth_context.uid << ")" << std::endl;
+        } else {
+            failed_requests_++;
+        }
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 SETACL: " << e.what() << std::endl;
         failed_requests_++;

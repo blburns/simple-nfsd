@@ -5,6 +5,7 @@
 #include "simple_nfsd/config_manager.hpp"
 #include "simple_nfsd/nfs_server_simple.hpp"
 #include "simple_nfsd/lock_manager.hpp"
+#include "simple_nfsd/vfs_interface.hpp"
 #include <string>
 #include <vector>
 #include <map>

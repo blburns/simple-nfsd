@@ -266,12 +266,12 @@
   - [x] Group membership (loadGroupDatabase from /etc/group, gids support)
   - [x] Permission mapping (checkPathAccess, checkAccess)
   - [x] Identity management (getUserInfo, getGroupInfo, uid/gid mapping)
-- [x] Access control lists (ACLs) (Framework Complete - Basic Implementation)
+- [x] Access control lists (ACLs) (100% Complete)
   - [x] ACL parsing (getFileAcl, setFileAcl in SecurityManager)
   - [x] Permission checking (checkPathAccess checks ACLs)
   - [x] Security descriptor handling (FileAcl structure)
   - [x] ACL management (setFileAcl, getFileAcl, removeFileAcl)
-  - [ ] Full NFSv4 ACL support (GETACL/SETACL procedures are stubs)
+  - [x] Full NFSv4 ACL support (GETACL/SETACL procedures fully implemented)
 
 ---
 
@@ -287,8 +287,8 @@
   - [x] File handle management (getHandleForPath, getPathFromHandle)
   - [x] File handle validation (handle validation in all procedures)
   - [x] Handle-to-path mapping (NFSv2 32-bit, NFSv3 64-bit, NFSv4 variable-length)
-  - [ ] File access modes (NFS is stateless, but could add stateful tracking)
-  - [ ] File sharing modes (NFS is stateless, but could add stateful tracking)
+  - [x] File access modes (FileAccessTracker with stateful tracking for READ_ONLY, WRITE_ONLY, READ_WRITE, APPEND)
+  - [x] File sharing modes (FileAccessTracker with stateful tracking for EXCLUSIVE, SHARED_READ, SHARED_WRITE, SHARED_ALL)
 - [x] Read/write operations (100% Complete)
   - [x] File reading (READ procedures for NFSv2/v3/v4)
   - [x] File writing (WRITE procedures for NFSv2/v3/v4)

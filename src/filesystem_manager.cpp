@@ -1,4 +1,5 @@
 #include "simple_nfsd/filesystem_manager.hpp"
+#include "simple_nfsd/vfs_interface.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -32,6 +33,7 @@ namespace SimpleNfsd {
 FilesystemManager::FilesystemManager() 
     : next_handle_id_(1), initialized_(false), monitoring_enabled_(false), stop_monitoring_(false) {
     lock_manager_ = std::make_unique<LockManager>();
+    // VFS will be initialized in initialize() with the root path
 }
 
 FilesystemManager::~FilesystemManager() {

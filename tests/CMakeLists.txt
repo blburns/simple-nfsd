@@ -34,6 +34,10 @@ target_sources(simple-nfsd-tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/portmapper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/security_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/file_access_tracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/filesystem_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/lock_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/vfs_interface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv2_procedures.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv3_portmapper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nfsv3_procedures.cpp
