@@ -4638,8 +4638,103 @@ void NfsServerSimple::handleNfsv3Link(const RpcMessage& message, const AuthConte
 
 void NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv3 READDIR procedure
-        std::cout << "Handled NFSv3 READDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv3 READDIR uses 64-bit directory handle and cookie
+        if (message.data.size() < 20) {
+            std::cerr << "Invalid NFSv3 READDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (8 bytes)
+        uint64_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 8);
+        dir_handle = ntohll_custom(dir_handle);
+        uint32_t dir_handle_id = static_cast<uint32_t>(dir_handle);
+        
+        // Extract cookie (8 bytes, 64-bit)
+        uint64_t cookie = 0;
+        memcpy(&cookie, message.data.data() + 8, 8);
+        cookie = ntohll_custom(cookie);
+        
+        // Extract count (4 bytes) - max bytes to return
+        uint32_t count = 0;
+        memcpy(&count, message.data.data() + 16, 4);
+        count = ntohl(count);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv3 READDIR on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / dir_path;
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_directory(full_path)) {
+            std::cerr << "Directory not found: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Read directory entries
+        std::vector<std::string> entries = readDirectory(dir_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Directory entries
+        size_t start_idx = static_cast<size_t>(cookie);
+        size_t max_entries = 100; // Limit entries per response
+        bool eof = false;
+        
+        for (size_t i = start_idx; i < entries.size() && i < start_idx + max_entries; ++i) {
+            const std::string& entry_name = entries[i];
+            
+            // File ID (64-bit)
+            uint64_t file_id = i + 1;
+            file_id = htonll_custom(file_id);
+            response_data.insert(response_data.end(), (uint8_t*)&file_id, (uint8_t*)&file_id + 8);
+            
+            // Filename length
+            uint32_t name_len = static_cast<uint32_t>(entry_name.length());
+            name_len = htonl(name_len);
+            response_data.insert(response_data.end(), (uint8_t*)&name_len, (uint8_t*)&name_len + 4);
+            
+            // Filename
+            response_data.insert(response_data.end(), entry_name.begin(), entry_name.end());
+            
+            // Padding to 4-byte boundary
+            while (response_data.size() % 4 != 0) {
+                response_data.push_back(0);
+            }
+            
+            // Cookie for next entry (64-bit)
+            uint64_t next_cookie = i + 1;
+            next_cookie = htonll_custom(next_cookie);
+            response_data.insert(response_data.end(), (uint8_t*)&next_cookie, (uint8_t*)&next_cookie + 8);
+            
+            if (response_data.size() > count) {
+                break;
+            }
+        }
+        
+        // EOF flag
+        eof = (start_idx + max_entries >= entries.size());
+        uint32_t eof_flag = eof ? 1 : 0;
+        eof_flag = htonl(eof_flag);
+        response_data.insert(response_data.end(), (uint8_t*)&eof_flag, (uint8_t*)&eof_flag + 8);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv3 READDIR for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 READDIR: " << e.what() << std::endl;
         failed_requests_++;
@@ -4648,8 +4743,177 @@ void NfsServerSimple::handleNfsv3ReadDir(const RpcMessage& message, const AuthCo
 
 void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv3 READDIRPLUS procedure
-        std::cout << "Handled NFSv3 READDIRPLUS procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv3 READDIRPLUS uses 64-bit directory handle and cookie, returns attributes
+        if (message.data.size() < 20) {
+            std::cerr << "Invalid NFSv3 READDIRPLUS request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract directory handle (8 bytes)
+        uint64_t dir_handle = 0;
+        memcpy(&dir_handle, message.data.data(), 8);
+        dir_handle = ntohll_custom(dir_handle);
+        uint32_t dir_handle_id = static_cast<uint32_t>(dir_handle);
+        
+        // Extract cookie (8 bytes, 64-bit)
+        uint64_t cookie = 0;
+        memcpy(&cookie, message.data.data() + 8, 8);
+        cookie = ntohll_custom(cookie);
+        
+        // Extract dircount (4 bytes) - max directory entries
+        uint32_t dircount = 0;
+        memcpy(&dircount, message.data.data() + 16, 4);
+        dircount = ntohl(dircount);
+        
+        // Extract maxcount (4 bytes) - max bytes
+        uint32_t maxcount = 0;
+        memcpy(&maxcount, message.data.data() + 20, 4);
+        maxcount = ntohl(maxcount);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv3 READDIRPLUS on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / dir_path;
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_directory(full_path)) {
+            std::cerr << "Directory not found: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Read directory entries
+        std::vector<std::string> entries = readDirectory(dir_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Directory entries with attributes
+        size_t start_idx = static_cast<size_t>(cookie);
+        size_t max_entries = (dircount > 0) ? dircount : 100;
+        bool eof = false;
+        
+        for (size_t i = start_idx; i < entries.size() && i < start_idx + max_entries; ++i) {
+            const std::string& entry_name = entries[i];
+            std::string entry_path = dir_path;
+            if (!entry_path.empty() && entry_path.back() != '/') {
+                entry_path += "/";
+            }
+            entry_path += entry_name;
+            
+            std::filesystem::path entry_fs_path = std::filesystem::path(config_.root_path) / entry_path;
+            
+            // File ID (64-bit)
+            uint32_t entry_handle_id = getHandleForPath(entry_path);
+            uint64_t file_id = entry_handle_id;
+            file_id = htonll_custom(file_id);
+            response_data.insert(response_data.end(), (uint8_t*)&file_id, (uint8_t*)&file_id + 8);
+            
+            // Filename length
+            uint32_t name_len = static_cast<uint32_t>(entry_name.length());
+            name_len = htonl(name_len);
+            response_data.insert(response_data.end(), (uint8_t*)&name_len, (uint8_t*)&name_len + 4);
+            
+            // Filename
+            response_data.insert(response_data.end(), entry_name.begin(), entry_name.end());
+            
+            // Padding to 4-byte boundary
+            while (response_data.size() % 4 != 0) {
+                response_data.push_back(0);
+            }
+            
+            // Cookie for next entry (64-bit)
+            uint64_t next_cookie = i + 1;
+            next_cookie = htonll_custom(next_cookie);
+            response_data.insert(response_data.end(), (uint8_t*)&next_cookie, (uint8_t*)&next_cookie + 8);
+            
+            // Post-op attributes (fattr3) - similar to GETATTR
+            if (std::filesystem::exists(entry_fs_path)) {
+                auto status = std::filesystem::status(entry_fs_path);
+                auto perms = status.permissions();
+                auto file_size = std::filesystem::is_regular_file(entry_fs_path) ? std::filesystem::file_size(entry_fs_path) : 0;
+                
+                uint32_t file_type = 1;
+                if (std::filesystem::is_directory(entry_fs_path)) file_type = 2;
+                else if (std::filesystem::is_symlink(entry_fs_path)) file_type = 5;
+                file_type = htonl(file_type);
+                response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+                
+                uint32_t file_mode = static_cast<uint32_t>(perms) & 0x1FF;
+                file_mode = htonl(file_mode);
+                response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+                
+                uint32_t nlink = 1;
+                nlink = htonl(nlink);
+                response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+                
+                uint32_t uid = 0, gid = 0;
+                uid = htonl(uid);
+                gid = htonl(gid);
+                response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+                response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+                
+                uint64_t size_64 = file_size;
+                size_64 = htonll_custom(size_64);
+                response_data.insert(response_data.end(), (uint8_t*)&size_64, (uint8_t*)&size_64 + 8);
+                
+                uint64_t used_64 = file_size;
+                used_64 = htonll_custom(used_64);
+                response_data.insert(response_data.end(), (uint8_t*)&used_64, (uint8_t*)&used_64 + 8);
+                
+                uint64_t rdev = 0;
+                rdev = htonll_custom(rdev);
+                response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 8);
+                
+                uint64_t fsid = 1;
+                fsid = htonll_custom(fsid);
+                response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 8);
+                
+                uint64_t fileid_attr = entry_handle_id;
+                fileid_attr = htonll_custom(fileid_attr);
+                response_data.insert(response_data.end(), (uint8_t*)&fileid_attr, (uint8_t*)&fileid_attr + 8);
+                
+                uint64_t atime_sec = 0, atime_nsec = 0, mtime_sec = 0, mtime_nsec = 0, ctime_sec = 0, ctime_nsec = 0;
+                atime_sec = htonll_custom(atime_sec);
+                atime_nsec = htonll_custom(atime_nsec);
+                mtime_sec = htonll_custom(mtime_sec);
+                mtime_nsec = htonll_custom(mtime_nsec);
+                ctime_sec = htonll_custom(ctime_sec);
+                ctime_nsec = htonll_custom(ctime_nsec);
+                response_data.insert(response_data.end(), (uint8_t*)&atime_sec, (uint8_t*)&atime_sec + 8);
+                response_data.insert(response_data.end(), (uint8_t*)&atime_nsec, (uint8_t*)&atime_nsec + 8);
+                response_data.insert(response_data.end(), (uint8_t*)&mtime_sec, (uint8_t*)&mtime_sec + 8);
+                response_data.insert(response_data.end(), (uint8_t*)&mtime_nsec, (uint8_t*)&mtime_nsec + 8);
+                response_data.insert(response_data.end(), (uint8_t*)&ctime_sec, (uint8_t*)&ctime_sec + 8);
+                response_data.insert(response_data.end(), (uint8_t*)&ctime_nsec, (uint8_t*)&ctime_nsec + 8);
+            }
+            
+            if (response_data.size() > maxcount) {
+                break;
+            }
+        }
+        
+        // EOF flag
+        eof = (start_idx + max_entries >= entries.size());
+        uint32_t eof_flag = eof ? 1 : 0;
+        eof_flag = htonl(eof_flag);
+        response_data.insert(response_data.end(), (uint8_t*)&eof_flag, (uint8_t*)&eof_flag + 8);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv3 READDIRPLUS for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 READDIRPLUS: " << e.what() << std::endl;
         failed_requests_++;
@@ -4658,8 +4922,128 @@ void NfsServerSimple::handleNfsv3ReadDirPlus(const RpcMessage& message, const Au
 
 void NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv3 FSSTAT procedure
-        std::cout << "Handled NFSv3 FSSTAT procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv3 FSSTAT uses 64-bit file handle
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv3 FSSTAT request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (8 bytes)
+        uint64_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 8);
+        file_handle = ntohll_custom(file_handle);
+        uint32_t handle_id = static_cast<uint32_t>(file_handle);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv3 FSSTAT on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        std::filesystem::space_info space = std::filesystem::space(full_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Post-op attributes (fattr3)
+        auto status = std::filesystem::status(full_path);
+        auto perms = status.permissions();
+        auto file_size = std::filesystem::is_regular_file(full_path) ? std::filesystem::file_size(full_path) : 0;
+        
+        uint32_t file_type = 1;
+        if (std::filesystem::is_directory(full_path)) file_type = 2;
+        else if (std::filesystem::is_symlink(full_path)) file_type = 5;
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        uint32_t file_mode = static_cast<uint32_t>(perms) & 0x1FF;
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        uint32_t uid = 0, gid = 0;
+        uid = htonl(uid);
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        uint64_t size_64 = file_size;
+        size_64 = htonll_custom(size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&size_64, (uint8_t*)&size_64 + 8);
+        
+        uint64_t used_64 = file_size;
+        used_64 = htonll_custom(used_64);
+        response_data.insert(response_data.end(), (uint8_t*)&used_64, (uint8_t*)&used_64 + 8);
+        
+        uint64_t rdev = 0;
+        rdev = htonll_custom(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 8);
+        
+        uint64_t fsid = 1;
+        fsid = htonll_custom(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 8);
+        
+        uint64_t fileid = handle_id;
+        fileid = htonll_custom(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 8);
+        
+        uint64_t atime_sec = 0, atime_nsec = 0, mtime_sec = 0, mtime_nsec = 0, ctime_sec = 0, ctime_nsec = 0;
+        atime_sec = htonll_custom(atime_sec);
+        atime_nsec = htonll_custom(atime_nsec);
+        mtime_sec = htonll_custom(mtime_sec);
+        mtime_nsec = htonll_custom(mtime_nsec);
+        ctime_sec = htonll_custom(ctime_sec);
+        ctime_nsec = htonll_custom(ctime_nsec);
+        response_data.insert(response_data.end(), (uint8_t*)&atime_sec, (uint8_t*)&atime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&atime_nsec, (uint8_t*)&atime_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime_sec, (uint8_t*)&mtime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime_nsec, (uint8_t*)&mtime_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime_sec, (uint8_t*)&ctime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime_nsec, (uint8_t*)&ctime_nsec + 8);
+        
+        // FSSTAT data (statvfs structure)
+        uint64_t tbytes = space.capacity;
+        uint64_t fbytes = space.free;
+        uint64_t abytes = space.available;
+        uint64_t tfiles = 1000; // Simplified
+        uint64_t ffiles = 500;  // Simplified
+        uint64_t afiles = 500;  // Simplified
+        uint32_t invarsec = 1;  // Invariant seconds
+        
+        tbytes = htonll_custom(tbytes);
+        fbytes = htonll_custom(fbytes);
+        abytes = htonll_custom(abytes);
+        tfiles = htonll_custom(tfiles);
+        ffiles = htonll_custom(ffiles);
+        afiles = htonll_custom(afiles);
+        invarsec = htonl(invarsec);
+        
+        response_data.insert(response_data.end(), (uint8_t*)&tbytes, (uint8_t*)&tbytes + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&fbytes, (uint8_t*)&fbytes + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&abytes, (uint8_t*)&abytes + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&tfiles, (uint8_t*)&tfiles + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ffiles, (uint8_t*)&ffiles + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&afiles, (uint8_t*)&afiles + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&invarsec, (uint8_t*)&invarsec + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv3 FSSTAT for: " << file_path << " (total: " << space.capacity << ", free: " << space.available << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 FSSTAT: " << e.what() << std::endl;
         failed_requests_++;
@@ -4668,8 +5052,138 @@ void NfsServerSimple::handleNfsv3FSStat(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv3 FSINFO procedure
-        std::cout << "Handled NFSv3 FSINFO procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv3 FSINFO uses 64-bit file handle
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv3 FSINFO request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (8 bytes)
+        uint64_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 8);
+        file_handle = ntohll_custom(file_handle);
+        uint32_t handle_id = static_cast<uint32_t>(file_handle);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv3 FSINFO on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Post-op attributes (fattr3) - similar to GETATTR
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        auto status = std::filesystem::status(full_path);
+        auto perms = status.permissions();
+        auto file_size = std::filesystem::is_regular_file(full_path) ? std::filesystem::file_size(full_path) : 0;
+        
+        uint32_t file_type = 1;
+        if (std::filesystem::is_directory(full_path)) file_type = 2;
+        else if (std::filesystem::is_symlink(full_path)) file_type = 5;
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        uint32_t file_mode = static_cast<uint32_t>(perms) & 0x1FF;
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        uint32_t uid = 0, gid = 0;
+        uid = htonl(uid);
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        uint64_t size_64 = file_size;
+        size_64 = htonll_custom(size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&size_64, (uint8_t*)&size_64 + 8);
+        
+        uint64_t used_64 = file_size;
+        used_64 = htonll_custom(used_64);
+        response_data.insert(response_data.end(), (uint8_t*)&used_64, (uint8_t*)&used_64 + 8);
+        
+        uint64_t rdev = 0;
+        rdev = htonll_custom(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 8);
+        
+        uint64_t fsid = 1;
+        fsid = htonll_custom(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 8);
+        
+        uint64_t fileid = handle_id;
+        fileid = htonll_custom(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 8);
+        
+        uint64_t atime_sec = 0, atime_nsec = 0, mtime_sec = 0, mtime_nsec = 0, ctime_sec = 0, ctime_nsec = 0;
+        atime_sec = htonll_custom(atime_sec);
+        atime_nsec = htonll_custom(atime_nsec);
+        mtime_sec = htonll_custom(mtime_sec);
+        mtime_nsec = htonll_custom(mtime_nsec);
+        ctime_sec = htonll_custom(ctime_sec);
+        ctime_nsec = htonll_custom(ctime_nsec);
+        response_data.insert(response_data.end(), (uint8_t*)&atime_sec, (uint8_t*)&atime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&atime_nsec, (uint8_t*)&atime_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime_sec, (uint8_t*)&mtime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime_nsec, (uint8_t*)&mtime_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime_sec, (uint8_t*)&ctime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime_nsec, (uint8_t*)&ctime_nsec + 8);
+        
+        // FSINFO data
+        uint32_t rtmax = 1048576;  // Max read transfer size
+        uint32_t rtpref = 1048576; // Preferred read transfer size
+        uint32_t rtmult = 512;     // Read transfer size multiple
+        uint32_t wtmax = 1048576;  // Max write transfer size
+        uint32_t wtpref = 1048576; // Preferred write transfer size
+        uint32_t wtmult = 512;     // Write transfer size multiple
+        uint32_t dtpref = 1048576; // Preferred directory transfer size
+        uint64_t maxfilesize = 0x7FFFFFFFFFFFFFFFULL; // Max file size
+        uint64_t time_delta_sec = 0;   // Time delta seconds
+        uint64_t time_delta_nsec = 1;  // Time delta nanoseconds
+        uint32_t properties = 0x00000001; // FSF3_LINK, FSF3_SYMLINK, FSF3_HOMOGENEOUS, FSF3_CANSETTIME
+        
+        rtmax = htonl(rtmax);
+        rtpref = htonl(rtpref);
+        rtmult = htonl(rtmult);
+        wtmax = htonl(wtmax);
+        wtpref = htonl(wtpref);
+        wtmult = htonl(wtmult);
+        dtpref = htonl(dtpref);
+        maxfilesize = htonll_custom(maxfilesize);
+        time_delta_sec = htonll_custom(time_delta_sec);
+        time_delta_nsec = htonll_custom(time_delta_nsec);
+        properties = htonl(properties);
+        
+        response_data.insert(response_data.end(), (uint8_t*)&rtmax, (uint8_t*)&rtmax + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&rtpref, (uint8_t*)&rtpref + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&rtmult, (uint8_t*)&rtmult + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&wtmax, (uint8_t*)&wtmax + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&wtpref, (uint8_t*)&wtpref + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&wtmult, (uint8_t*)&wtmult + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&dtpref, (uint8_t*)&dtpref + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&maxfilesize, (uint8_t*)&maxfilesize + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&time_delta_sec, (uint8_t*)&time_delta_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&time_delta_nsec, (uint8_t*)&time_delta_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&properties, (uint8_t*)&properties + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv3 FSINFO for: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 FSINFO: " << e.what() << std::endl;
         failed_requests_++;
@@ -4678,8 +5192,124 @@ void NfsServerSimple::handleNfsv3FSInfo(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv3 PATHCONF procedure
-        std::cout << "Handled NFSv3 PATHCONF procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv3 PATHCONF uses 64-bit file handle
+        if (message.data.size() < 8) {
+            std::cerr << "Invalid NFSv3 PATHCONF request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (8 bytes)
+        uint64_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 8);
+        file_handle = ntohll_custom(file_handle);
+        uint32_t handle_id = static_cast<uint32_t>(file_handle);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv3 PATHCONF on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Post-op attributes (fattr3) - similar to GETATTR
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        auto status = std::filesystem::status(full_path);
+        auto perms = status.permissions();
+        auto file_size = std::filesystem::is_regular_file(full_path) ? std::filesystem::file_size(full_path) : 0;
+        
+        uint32_t file_type = 1;
+        if (std::filesystem::is_directory(full_path)) file_type = 2;
+        else if (std::filesystem::is_symlink(full_path)) file_type = 5;
+        file_type = htonl(file_type);
+        response_data.insert(response_data.end(), (uint8_t*)&file_type, (uint8_t*)&file_type + 4);
+        
+        uint32_t file_mode = static_cast<uint32_t>(perms) & 0x1FF;
+        file_mode = htonl(file_mode);
+        response_data.insert(response_data.end(), (uint8_t*)&file_mode, (uint8_t*)&file_mode + 4);
+        
+        uint32_t nlink = 1;
+        nlink = htonl(nlink);
+        response_data.insert(response_data.end(), (uint8_t*)&nlink, (uint8_t*)&nlink + 4);
+        
+        uint32_t uid = 0, gid = 0;
+        uid = htonl(uid);
+        gid = htonl(gid);
+        response_data.insert(response_data.end(), (uint8_t*)&uid, (uint8_t*)&uid + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&gid, (uint8_t*)&gid + 4);
+        
+        uint64_t size_64 = file_size;
+        size_64 = htonll_custom(size_64);
+        response_data.insert(response_data.end(), (uint8_t*)&size_64, (uint8_t*)&size_64 + 8);
+        
+        uint64_t used_64 = file_size;
+        used_64 = htonll_custom(used_64);
+        response_data.insert(response_data.end(), (uint8_t*)&used_64, (uint8_t*)&used_64 + 8);
+        
+        uint64_t rdev = 0;
+        rdev = htonll_custom(rdev);
+        response_data.insert(response_data.end(), (uint8_t*)&rdev, (uint8_t*)&rdev + 8);
+        
+        uint64_t fsid = 1;
+        fsid = htonll_custom(fsid);
+        response_data.insert(response_data.end(), (uint8_t*)&fsid, (uint8_t*)&fsid + 8);
+        
+        uint64_t fileid = handle_id;
+        fileid = htonll_custom(fileid);
+        response_data.insert(response_data.end(), (uint8_t*)&fileid, (uint8_t*)&fileid + 8);
+        
+        uint64_t atime_sec = 0, atime_nsec = 0, mtime_sec = 0, mtime_nsec = 0, ctime_sec = 0, ctime_nsec = 0;
+        atime_sec = htonll_custom(atime_sec);
+        atime_nsec = htonll_custom(atime_nsec);
+        mtime_sec = htonll_custom(mtime_sec);
+        mtime_nsec = htonll_custom(mtime_nsec);
+        ctime_sec = htonll_custom(ctime_sec);
+        ctime_nsec = htonll_custom(ctime_nsec);
+        response_data.insert(response_data.end(), (uint8_t*)&atime_sec, (uint8_t*)&atime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&atime_nsec, (uint8_t*)&atime_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime_sec, (uint8_t*)&mtime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&mtime_nsec, (uint8_t*)&mtime_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime_sec, (uint8_t*)&ctime_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ctime_nsec, (uint8_t*)&ctime_nsec + 8);
+        
+        // PATHCONF data
+        uint32_t linkmax = 32767;     // Max links
+        uint32_t name_max = 255;      // Max filename length
+        uint32_t no_trunc = 1;        // No truncation
+        uint32_t chown_restricted = 0; // Chown not restricted
+        uint32_t case_insensitive = 0; // Case sensitive
+        uint32_t case_preserving = 1;  // Case preserving
+        
+        linkmax = htonl(linkmax);
+        name_max = htonl(name_max);
+        no_trunc = htonl(no_trunc);
+        chown_restricted = htonl(chown_restricted);
+        case_insensitive = htonl(case_insensitive);
+        case_preserving = htonl(case_preserving);
+        
+        response_data.insert(response_data.end(), (uint8_t*)&linkmax, (uint8_t*)&linkmax + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&name_max, (uint8_t*)&name_max + 4);
+        no_trunc = htonl(no_trunc);
+        response_data.insert(response_data.end(), (uint8_t*)&no_trunc, (uint8_t*)&no_trunc + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&chown_restricted, (uint8_t*)&chown_restricted + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&case_insensitive, (uint8_t*)&case_insensitive + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&case_preserving, (uint8_t*)&case_preserving + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv3 PATHCONF for: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 PATHCONF: " << e.what() << std::endl;
         failed_requests_++;
@@ -4688,8 +5318,64 @@ void NfsServerSimple::handleNfsv3PathConf(const RpcMessage& message, const AuthC
 
 void NfsServerSimple::handleNfsv3Commit(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv3 COMMIT procedure
-        std::cout << "Handled NFSv3 COMMIT procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv3 COMMIT uses 64-bit file handle and offset
+        if (message.data.size() < 24) {
+            std::cerr << "Invalid NFSv3 COMMIT request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Extract file handle (8 bytes)
+        uint64_t file_handle = 0;
+        memcpy(&file_handle, message.data.data(), 8);
+        file_handle = ntohll_custom(file_handle);
+        uint32_t handle_id = static_cast<uint32_t>(file_handle);
+        
+        // Extract offset (8 bytes, 64-bit)
+        uint64_t offset = 0;
+        memcpy(&offset, message.data.data() + 8, 8);
+        offset = ntohll_custom(offset);
+        
+        // Extract count (4 bytes)
+        uint32_t count = 0;
+        memcpy(&count, message.data.data() + 16, 4);
+        count = ntohl(count);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv3 COMMIT on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // COMMIT ensures data is written to stable storage
+        // For now, we just sync the file (simplified)
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
+            // In a real implementation, we would fsync the file here
+            // For now, we just acknowledge the commit
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Write verifier (8 bytes)
+        uint64_t verifier = 0;
+        verifier = htonll_custom(verifier);
+        response_data.insert(response_data.end(), (uint8_t*)&verifier, (uint8_t*)&verifier + 8);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv3 COMMIT for: " << file_path << " (offset: " << offset << ", count: " << count << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv3 COMMIT: " << e.what() << std::endl;
         failed_requests_++;
