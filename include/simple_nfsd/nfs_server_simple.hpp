@@ -20,6 +20,10 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <cstring>
 
 namespace SimpleNfsd {
 
@@ -31,6 +35,16 @@ struct NfsServerConfig {
     uint32_t max_connections;
     bool enable_tcp;
     bool enable_udp;
+    
+    // Export configuration (from NfsdConfig)
+    struct Export {
+        std::string name;
+        std::string path;
+        std::string clients;
+        std::string options;
+        std::string comment;
+    };
+    std::vector<Export> exports;
     
     NfsServerConfig() 
         : bind_address("0.0.0.0"), port(2049), root_path("/var/lib/simple-nfsd/shares"),
@@ -71,6 +85,10 @@ public:
     // Health checks
     bool isHealthy() const;
     std::string getHealthStatus() const;
+    
+    // File handle management (public for testing)
+    uint32_t getHandleForPath(const std::string& path);
+    std::string getPathFromHandle(uint32_t handle) const;
     
 private:
     // Server state
@@ -222,9 +240,7 @@ private:
     std::vector<uint8_t> readFile(const std::string& path, uint32_t offset, uint32_t count) const;
     bool writeFile(const std::string& path, uint32_t offset, const std::vector<uint8_t>& data) const;
     
-    // File handle management
-    uint32_t getHandleForPath(const std::string& path);
-    std::string getPathFromHandle(uint32_t handle) const;
+    // File system operations (private)
     std::vector<std::string> readDirectory(const std::string& path) const;
     bool validatePath(const std::string& path) const;
     

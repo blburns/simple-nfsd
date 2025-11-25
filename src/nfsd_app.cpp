@@ -150,7 +150,7 @@ void NfsdApp::loadConfiguration() {
             const auto& config = config_manager.getConfig();
             std::cout << "Configuration loaded successfully" << std::endl;
             std::cout << "  Server name: " << config.server_name << std::endl;
-            std::cout << "  Root path: " << config.root_path << std::endl;
+            std::cout << "  Listen address: " << config.listen_address << ":" << config.listen_port << std::endl;
             std::cout << "  Exports: " << config.exports.size() << std::endl;
         } else {
             std::cerr << "Warning: Failed to load configuration from: " << config_file_ << std::endl;
