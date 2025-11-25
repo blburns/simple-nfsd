@@ -6743,8 +6743,118 @@ void NfsServerSimple::handleNfsv4Link(const RpcMessage& message, const AuthConte
 
 void NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 READDIR procedure
-        std::cout << "Handled NFSv4 READDIR procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 READDIR uses variable-length directory handle, cookie, and count
+        if (message.data.size() < 20) {
+            std::cerr << "Invalid NFSv4 READDIR request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t dir_handle_id = decodeNfsv4Handle(message.data, offset);
+        if (dir_handle_id == 0) {
+            std::cerr << "Invalid NFSv4 directory handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse cookie (64-bit)
+        if (offset + 8 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 READDIR: missing cookie" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint64_t cookie = 0;
+        memcpy(&cookie, message.data.data() + offset, 8);
+        cookie = ntohll_custom(cookie);
+        offset += 8;
+        
+        // Parse count (32-bit)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 READDIR: missing count" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t count = 0;
+        memcpy(&count, message.data.data() + offset, 4);
+        count = ntohl(count);
+        
+        // Get directory path from handle
+        std::string dir_path = getPathFromHandle(dir_handle_id);
+        if (dir_path.empty()) {
+            std::cerr << "Invalid directory handle: " << dir_handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(dir_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv4 READDIR on: " << dir_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / dir_path;
+        if (!std::filesystem::exists(full_path) || !std::filesystem::is_directory(full_path)) {
+            std::cerr << "Directory not found: " << full_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Read directory entries
+        std::vector<std::string> entries = readDirectory(dir_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Directory entries
+        size_t start_idx = static_cast<size_t>(cookie);
+        size_t max_entries = 100;
+        bool eof = false;
+        
+        for (size_t i = start_idx; i < entries.size() && i < start_idx + max_entries; ++i) {
+            const std::string& entry_name = entries[i];
+            
+            // File ID (64-bit)
+            uint64_t file_id = i + 1;
+            file_id = htonll_custom(file_id);
+            response_data.insert(response_data.end(), (uint8_t*)&file_id, (uint8_t*)&file_id + 8);
+            
+            // Filename length
+            uint32_t name_len = static_cast<uint32_t>(entry_name.length());
+            name_len = htonl(name_len);
+            response_data.insert(response_data.end(), (uint8_t*)&name_len, (uint8_t*)&name_len + 4);
+            
+            // Filename
+            response_data.insert(response_data.end(), entry_name.begin(), entry_name.end());
+            
+            // Padding to 4-byte boundary
+            while (response_data.size() % 4 != 0) {
+                response_data.push_back(0);
+            }
+            
+            // Cookie for next entry (64-bit)
+            uint64_t next_cookie = i + 1;
+            next_cookie = htonll_custom(next_cookie);
+            response_data.insert(response_data.end(), (uint8_t*)&next_cookie, (uint8_t*)&next_cookie + 8);
+            
+            if (response_data.size() > count) {
+                break;
+            }
+        }
+        
+        // EOF flag
+        eof = (start_idx + max_entries >= entries.size());
+        uint32_t eof_flag = eof ? 1 : 0;
+        eof_flag = htonl(eof_flag);
+        response_data.insert(response_data.end(), (uint8_t*)&eof_flag, (uint8_t*)&eof_flag + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 READDIR for: " << dir_path << " (cookie: " << cookie << ", entries: " << entries.size() << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 READDIR: " << e.what() << std::endl;
         failed_requests_++;
@@ -6753,8 +6863,10 @@ void NfsServerSimple::handleNfsv4ReadDir(const RpcMessage& message, const AuthCo
 
 void NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 READDIRPLUS procedure
-        std::cout << "Handled NFSv4 READDIRPLUS procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 READDIRPLUS is similar to READDIR but returns attributes
+        // For now, implement as READDIR (attributes can be added later)
+        handleNfsv4ReadDir(message, auth_context);
+        std::cout << "Handled NFSv4 READDIRPLUS (using READDIR implementation)" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 READDIRPLUS: " << e.what() << std::endl;
         failed_requests_++;
@@ -6763,8 +6875,71 @@ void NfsServerSimple::handleNfsv4ReadDirPlus(const RpcMessage& message, const Au
 
 void NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 FSSTAT procedure
-        std::cout << "Handled NFSv4 FSSTAT procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 FSSTAT uses variable-length file handle
+        if (message.data.size() < 4) {
+            std::cerr << "Invalid NFSv4 FSSTAT request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t handle_id = decodeNfsv4Handle(message.data, offset);
+        if (handle_id == 0) {
+            std::cerr << "Invalid NFSv4 file handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv4 FSSTAT on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        std::filesystem::space_info space = std::filesystem::space(full_path);
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // FSSTAT data (simplified)
+        uint64_t tbytes = space.capacity;
+        uint64_t fbytes = space.free;
+        uint64_t abytes = space.available;
+        uint64_t tfiles = 1000;
+        uint64_t ffiles = 500;
+        uint64_t afiles = 500;
+        uint32_t invarsec = 1;
+        
+        tbytes = htonll_custom(tbytes);
+        fbytes = htonll_custom(fbytes);
+        abytes = htonll_custom(abytes);
+        tfiles = htonll_custom(tfiles);
+        ffiles = htonll_custom(ffiles);
+        afiles = htonll_custom(afiles);
+        invarsec = htonl(invarsec);
+        
+        response_data.insert(response_data.end(), (uint8_t*)&tbytes, (uint8_t*)&tbytes + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&fbytes, (uint8_t*)&fbytes + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&abytes, (uint8_t*)&abytes + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&tfiles, (uint8_t*)&tfiles + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&ffiles, (uint8_t*)&ffiles + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&afiles, (uint8_t*)&afiles + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&invarsec, (uint8_t*)&invarsec + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 FSSTAT for: " << file_path << " (total: " << space.capacity << ", free: " << space.available << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 FSSTAT: " << e.what() << std::endl;
         failed_requests_++;
@@ -6773,8 +6948,80 @@ void NfsServerSimple::handleNfsv4FSStat(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 FSINFO procedure
-        std::cout << "Handled NFSv4 FSINFO procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 FSINFO uses variable-length file handle
+        if (message.data.size() < 4) {
+            std::cerr << "Invalid NFSv4 FSINFO request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t handle_id = decodeNfsv4Handle(message.data, offset);
+        if (handle_id == 0) {
+            std::cerr << "Invalid NFSv4 file handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv4 FSINFO on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // FSINFO data (simplified)
+        uint32_t rtmax = 1048576;
+        uint32_t rtpref = 1048576;
+        uint32_t rtmult = 512;
+        uint32_t wtmax = 1048576;
+        uint32_t wtpref = 1048576;
+        uint32_t wtmult = 512;
+        uint32_t dtpref = 1048576;
+        uint64_t maxfilesize = 0x7FFFFFFFFFFFFFFFULL;
+        uint64_t time_delta_sec = 0;
+        uint64_t time_delta_nsec = 1;
+        uint32_t properties = 0x00000001;
+        
+        rtmax = htonl(rtmax);
+        rtpref = htonl(rtpref);
+        rtmult = htonl(rtmult);
+        wtmax = htonl(wtmax);
+        wtpref = htonl(wtpref);
+        wtmult = htonl(wtmult);
+        dtpref = htonl(dtpref);
+        maxfilesize = htonll_custom(maxfilesize);
+        time_delta_sec = htonll_custom(time_delta_sec);
+        time_delta_nsec = htonll_custom(time_delta_nsec);
+        properties = htonl(properties);
+        
+        response_data.insert(response_data.end(), (uint8_t*)&rtmax, (uint8_t*)&rtmax + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&rtpref, (uint8_t*)&rtpref + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&rtmult, (uint8_t*)&rtmult + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&wtmax, (uint8_t*)&wtmax + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&wtpref, (uint8_t*)&wtpref + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&wtmult, (uint8_t*)&wtmult + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&dtpref, (uint8_t*)&dtpref + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&maxfilesize, (uint8_t*)&maxfilesize + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&time_delta_sec, (uint8_t*)&time_delta_sec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&time_delta_nsec, (uint8_t*)&time_delta_nsec + 8);
+        response_data.insert(response_data.end(), (uint8_t*)&properties, (uint8_t*)&properties + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 FSINFO for: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 FSINFO: " << e.what() << std::endl;
         failed_requests_++;
@@ -6783,8 +7030,65 @@ void NfsServerSimple::handleNfsv4FSInfo(const RpcMessage& message, const AuthCon
 
 void NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 PATHCONF procedure
-        std::cout << "Handled NFSv4 PATHCONF procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 PATHCONF uses variable-length file handle
+        if (message.data.size() < 4) {
+            std::cerr << "Invalid NFSv4 PATHCONF request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t handle_id = decodeNfsv4Handle(message.data, offset);
+        if (handle_id == 0) {
+            std::cerr << "Invalid NFSv4 file handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, true, false)) {
+            std::cerr << "Access denied for NFSv4 PATHCONF on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // PATHCONF data (simplified)
+        uint32_t linkmax = 32767;
+        uint32_t name_max = 255;
+        uint32_t no_trunc = 1;
+        uint32_t chown_restricted = 0;
+        uint32_t case_insensitive = 0;
+        uint32_t case_preserving = 1;
+        
+        linkmax = htonl(linkmax);
+        name_max = htonl(name_max);
+        no_trunc = htonl(no_trunc);
+        chown_restricted = htonl(chown_restricted);
+        case_insensitive = htonl(case_insensitive);
+        case_preserving = htonl(case_preserving);
+        
+        response_data.insert(response_data.end(), (uint8_t*)&linkmax, (uint8_t*)&linkmax + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&name_max, (uint8_t*)&name_max + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&no_trunc, (uint8_t*)&no_trunc + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&chown_restricted, (uint8_t*)&chown_restricted + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&case_insensitive, (uint8_t*)&case_insensitive + 4);
+        response_data.insert(response_data.end(), (uint8_t*)&case_preserving, (uint8_t*)&case_preserving + 4);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 PATHCONF for: " << file_path << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 PATHCONF: " << e.what() << std::endl;
         failed_requests_++;
@@ -6793,8 +7097,78 @@ void NfsServerSimple::handleNfsv4PathConf(const RpcMessage& message, const AuthC
 
 void NfsServerSimple::handleNfsv4Commit(const RpcMessage& message, const AuthContext& auth_context) {
     try {
-        // TODO: Implement NFSv4 COMMIT procedure
-        std::cout << "Handled NFSv4 COMMIT procedure (user: " << auth_context.uid << ")" << std::endl;
+        // NFSv4 COMMIT uses variable-length file handle, 64-bit offset, and count
+        if (message.data.size() < 20) {
+            std::cerr << "Invalid NFSv4 COMMIT request: insufficient data" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        size_t offset = 0;
+        uint32_t handle_id = decodeNfsv4Handle(message.data, offset);
+        if (handle_id == 0) {
+            std::cerr << "Invalid NFSv4 file handle" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Parse offset (64-bit)
+        if (offset + 8 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 COMMIT: missing offset" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint64_t commit_offset = 0;
+        memcpy(&commit_offset, message.data.data() + offset, 8);
+        commit_offset = ntohll_custom(commit_offset);
+        offset += 8;
+        
+        // Parse count (32-bit)
+        if (offset + 4 > message.data.size()) {
+            std::cerr << "Invalid NFSv4 COMMIT: missing count" << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        uint32_t count = 0;
+        memcpy(&count, message.data.data() + offset, 4);
+        count = ntohl(count);
+        
+        // Get file path from handle
+        std::string file_path = getPathFromHandle(handle_id);
+        if (file_path.empty()) {
+            std::cerr << "Invalid file handle: " << handle_id << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // Check access permissions
+        if (!checkAccess(file_path, auth_context, false, true)) {
+            std::cerr << "Access denied for NFSv4 COMMIT on: " << file_path << std::endl;
+            failed_requests_++;
+            return;
+        }
+        
+        // COMMIT ensures data is written to stable storage
+        // For now, we just acknowledge the commit
+        std::filesystem::path full_path = std::filesystem::path(config_.root_path) / file_path;
+        if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
+            // In a real implementation, we would fsync the file here
+        }
+        
+        // Create response data
+        std::vector<uint8_t> response_data;
+        
+        // Write verifier (8 bytes)
+        uint64_t verifier = 0;
+        verifier = htonll_custom(verifier);
+        response_data.insert(response_data.end(), (uint8_t*)&verifier, (uint8_t*)&verifier + 8);
+        
+        RpcMessage reply = RpcUtils::createReply(message.header.xid, RpcAcceptState::SUCCESS, response_data);
+        successful_requests_++;
+        std::cout << "Handled NFSv4 COMMIT for: " << file_path << " (offset: " << commit_offset << ", count: " << count << ")" << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error in NFSv4 COMMIT: " << e.what() << std::endl;
         failed_requests_++;
