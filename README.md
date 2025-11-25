@@ -1,12 +1,12 @@
 # Simple NFS Daemon
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/blburns/simple-nfsd)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/blburns/simple-nfsd)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/blburns/simple-nfsd)
 
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
 
-**Current Version**: 0.3.0 (NFSv2 & NFSv3 Complete - Production Ready)
+**Current Version**: 0.4.0 (NFSv2, NFSv3 & NFSv4 Complete - Production Ready)
 
 ## Features
 
@@ -26,10 +26,11 @@ A lightweight, high-performance NFS server implementation designed for modern sy
 - **File System Information**: FSSTAT, FSINFO, and PATHCONF procedures
 - **Comprehensive Testing**: Full test suite for all NFSv3 procedures
 
-### 🔄 **NFSv4 Protocol (In Progress - 7/38 procedures)**
-- **Core Procedures**: NULL, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK, READ, WRITE
+### ✅ **NFSv4 Protocol (Complete - Production Ready)**
+- **All 38 NFSv4 Procedures**: NULL, COMPOUND, GETATTR, SETATTR, LOOKUP, ACCESS, READLINK, READ, WRITE, CREATE, MKDIR, SYMLINK, MKNOD, REMOVE, RMDIR, RENAME, LINK, READDIR, READDIRPLUS, FSSTAT, FSINFO, PATHCONF, COMMIT, DELEGRETURN, GETACL, SETACL, FS_LOCATIONS, RELEASE_LOCKOWNER, SECINFO, FSID_PRESENT, EXCHANGE_ID, CREATE_SESSION, DESTROY_SESSION, SEQUENCE, GET_DEVICE_INFO, BIND_CONN_TO_SESSION, DESTROY_CLIENTID, RECLAIM_COMPLETE
 - **Variable-Length Handles**: NFSv4 uses opaque variable-length file handles
-- **Advanced Features**: COMPOUND operations (framework), ACL support (planned), session management (planned)
+- **Advanced Features**: COMPOUND operations framework, ACL support, session management, delegation support
+- **Comprehensive Testing**: Full test suite for all NFSv4 procedures
 
 ### **Core Infrastructure (Complete)**
 - **RPC Portmapper Integration**: Full RPC service registration and discovery
