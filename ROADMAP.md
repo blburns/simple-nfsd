@@ -157,36 +157,36 @@ The Simple NFS Daemon (simple-nfsd) is a lightweight, high-performance NFS serve
 - [ ] User and group mapping
 - [ ] Access control lists (ACLs)
 
-### Phase 3: File System Operations 🔄 CURRENT
-**Status**: 🔄 In Progress
+### Phase 3: File System Operations 🔄 IN PROGRESS
+**Status**: 🔄 ~60% Complete
 **Timeline**: 6-8 weeks
 **Started**: December 2024
 
 #### File Operations
-- [ ] File open/close operations
-- [ ] Read/write operations
-- [ ] File locking mechanisms
-- [ ] Directory listing and traversal
-- [ ] File attribute management
-- [ ] Symbolic link support
-- [ ] Hard link support
-- [ ] File system operations (create, delete, rename)
+- [x] File handle management (100% Complete)
+- [x] Read/write operations (100% Complete - via NFS procedures)
+- [ ] File locking mechanisms (NLM integration - In Progress)
+- [x] Directory listing and traversal (100% Complete)
+- [x] File attribute management (90% Complete - xattrs pending)
+- [x] Symbolic link support (100% Complete)
+- [x] Hard link support (100% Complete)
+- [x] File system operations (create, delete, rename) (100% Complete)
 
 #### Export Management
-- [ ] Export configuration and management
-- [ ] Export permissions and access control
-- [ ] Export enumeration
-- [ ] Export security options
-- [ ] Root squash support
-- [ ] Subtree checking
-- [ ] Export caching
+- [x] Export configuration and management (80% Complete)
+- [x] Export permissions and access control (90% Complete)
+- [ ] Export enumeration (In Progress)
+- [x] Export security options (80% Complete)
+- [x] Root squash support (100% Complete)
+- [ ] Subtree checking (In Progress)
+- [ ] Export caching (In Progress)
 
 #### File System Integration
-- [ ] POSIX file system integration
-- [ ] File system monitoring
-- [ ] Quota management
-- [ ] File system caching
-- [ ] VFS (Virtual File System) integration
+- [x] POSIX file system integration (90% Complete)
+- [ ] File system monitoring (In Progress)
+- [ ] Quota management (In Progress)
+- [ ] File system caching (In Progress)
+- [ ] VFS (Virtual File System) integration (Planned)
 
 ### Phase 4: Advanced Features
 **Status**: 📋 Planned

@@ -6,7 +6,8 @@
 
 A lightweight, high-performance NFS server implementation designed for modern systems with support for NFSv2, NFSv3, and NFSv4 protocols.
 
-**Current Version**: 0.4.0 (NFSv2, NFSv3 & NFSv4 Complete - Production Ready)
+**Current Version**: 0.4.0 (NFSv2, NFSv3 & NFSv4 Complete - Production Ready)  
+**Phase 3 Status**: ~60% Complete (File System Operations in Progress)
 
 ## Features
 
@@ -355,9 +356,15 @@ Current development focuses on:
 - Phase 1: Foundation (✅ Complete)
 - Phase 2: Core NFS Protocol Implementation (✅ Complete)
   - NFSv2 Protocol (✅ 100% Complete - v0.2.0)
-  - NFSv3 Protocol (✅ 100% Complete - v0.2.1)
-  - NFSv4 Protocol (✅ 100% Complete - v0.2.2)
-  - Authentication & Security (✅ 100% Complete - v0.2.2)
-- Phase 3: File System Operations (📋 Planned)
-- Phase 4: Advanced Features (Planned)
-- Phase 5: Enterprise Features (Planned)
+  - NFSv3 Protocol (✅ 100% Complete - v0.3.0)
+  - NFSv4 Protocol (✅ 100% Complete - v0.4.0)
+  - Authentication & Security (✅ 100% Complete - v0.4.0)
+- Phase 3: File System Operations (🔄 ~60% Complete - In Progress)
+  - ✅ File operations (read/write, create/delete/rename)
+  - ✅ Directory operations (MKDIR, RMDIR, READDIR)
+  - ✅ Symbolic/hard links
+  - ✅ File attributes and handle management
+  - ✅ Root squash and export configuration
+  - 🔄 File locking, extended attributes, caching (in progress)
+- Phase 4: Advanced Features (📋 Planned)
+- Phase 5: Enterprise Features (📋 Planned)

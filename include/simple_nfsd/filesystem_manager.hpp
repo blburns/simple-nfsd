@@ -97,6 +97,26 @@ public:
     // File system statistics
     bool getFileSystemStats(const std::string& path, uint64_t& total_blocks, uint64_t& free_blocks, uint64_t& available_blocks);
 
+    // Extended attributes (xattrs)
+    bool getExtendedAttribute(const std::string& path, const std::string& name, std::vector<uint8_t>& value);
+    bool setExtendedAttribute(const std::string& path, const std::string& name, const std::vector<uint8_t>& value);
+    bool removeExtendedAttribute(const std::string& path, const std::string& name);
+    bool listExtendedAttributes(const std::string& path, std::vector<std::string>& names);
+
+    // Attribute caching
+    bool getCachedFileAttributes(const std::string& path, FileAttributes& attrs);
+    void invalidateAttributeCache(const std::string& path);
+    void clearAttributeCache();
+
+    // Subtree checking
+    bool isSubtreeCheckEnabled(const std::string& path);
+    bool validateSubtreeAccess(const std::string& path, const std::string& client_ip);
+
+    // Export enumeration
+    std::vector<NfsServerConfig::Export> getExports() const;
+    bool getExportInfo(const std::string& path, NfsServerConfig::Export& export_info) const;
+    std::vector<std::string> listExportedPaths() const;
+
 private:
     NfsServerConfig config_;
     std::map<uint32_t, FileHandle> file_handles_;
@@ -104,11 +124,26 @@ private:
     uint32_t next_handle_id_;
     bool initialized_;
 
+    // Attribute cache
+    struct CachedAttributes {
+        FileAttributes attrs;
+        std::chrono::steady_clock::time_point cached_at;
+        static constexpr std::chrono::seconds CACHE_TTL{30}; // 30 second TTL
+    };
+    std::map<std::string, CachedAttributes> attribute_cache_;
+    std::mutex attribute_cache_mutex_;
+
+    // Export cache
+    mutable std::map<std::string, bool> export_cache_;
+    mutable std::mutex export_cache_mutex_;
+    std::chrono::steady_clock::time_point export_cache_time_;
+
     // Helper methods
     std::string sanitizePath(const std::string& path);
     bool isPathWithinExport(const std::string& path);
     uint32_t generateFileId(const std::string& path);
     void updateFileHandleAccess(uint32_t handle_id);
+    bool isCacheValid(const CachedAttributes& cached) const;
 };
 
 } // namespace SimpleNfsd

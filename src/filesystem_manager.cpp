@@ -7,6 +7,9 @@
 #include <ctime>
 #include <functional>
 #include <fcntl.h>
+#include <sys/xattr.h>
+#include <algorithm>
+#include <sstream>
 
 namespace SimpleNfsd {
 
