@@ -6,7 +6,7 @@
  * @license Apache-2.0
  */
 
-#include "simple_nfsd/security_manager.hpp"
+#include "simple-nfsd/security/security.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>

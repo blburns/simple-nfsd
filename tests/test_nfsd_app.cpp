@@ -7,7 +7,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "simple_nfsd/nfsd_app.hpp"
+#include "simple-nfsd/core/app.hpp"
 
 class NfsdAppTest : public ::testing::Test {
 protected:

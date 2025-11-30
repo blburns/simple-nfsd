@@ -14,7 +14,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include "simple_nfsd/rpc_protocol.hpp"
+#include "simple-nfsd/core/rpc_protocol.hpp"
 
 namespace SimpleNfsd {
 

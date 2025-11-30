@@ -1,4 +1,4 @@
-#include "simple_nfsd/lock_manager.hpp"
+#include "simple-nfsd/core/lock.hpp"
 #include <iostream>
 #include <algorithm>
 

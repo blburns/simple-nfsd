@@ -7,7 +7,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "simple_nfsd/config_manager.hpp"
+#include "simple-nfsd/config/config.hpp"
 #include <fstream>
 #include <sstream>
 

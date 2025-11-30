@@ -7,7 +7,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "simple_nfsd/auth_manager.hpp"
+#include "simple-nfsd/security/auth.hpp"
 #include <vector>
 #include <cstring>
 

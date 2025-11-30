@@ -1,5 +1,5 @@
-#include "simple_nfsd/filesystem_manager.hpp"
-#include "simple_nfsd/vfs_interface.hpp"
+#include "simple-nfsd/core/filesystem.hpp"
+#include "simple-nfsd/core/vfs_interface.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>

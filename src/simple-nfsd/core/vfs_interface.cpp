@@ -1,4 +1,4 @@
-#include "simple_nfsd/vfs_interface.hpp"
+#include "simple-nfsd/core/vfs_interface.hpp"
 #include <filesystem>
 #include <fstream>
 #include <sys/stat.h>

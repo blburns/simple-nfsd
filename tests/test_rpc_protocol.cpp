@@ -7,7 +7,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "simple_nfsd/rpc_protocol.hpp"
+#include "simple-nfsd/core/rpc_protocol.hpp"
 #include <vector>
 #include <cstring>
 

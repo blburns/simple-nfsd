@@ -7,10 +7,10 @@
  */
 
 #include "simple_nfsd/nfs_server_simple.hpp"
-#include "simple_nfsd/rpc_protocol.hpp"
-#include "simple_nfsd/auth_manager.hpp"
-#include "simple_nfsd/security_manager.hpp"
-#include "simple_nfsd/file_access_tracker.hpp"
+#include "simple-nfsd/core/rpc_protocol.hpp"
+#include "simple-nfsd/security/auth.hpp"
+#include "simple-nfsd/security/security.hpp"
+#include "simple-nfsd/utils/access_tracker.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

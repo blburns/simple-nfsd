@@ -6,7 +6,7 @@
  * @license Apache-2.0
  */
 
-#include "simple_nfsd/nfsd_app.hpp"
+#include "simple-nfsd/core/app.hpp"
 #include <iostream>
 #include <csignal>
 #include <memory>

@@ -6,7 +6,7 @@
  * @license Apache-2.0
  */
 
-#include "simple_nfsd/config_manager.hpp"
+#include "simple-nfsd/config/config.hpp"
 #include <fstream>
 #include <sstream>
 #include <iostream>

@@ -11,7 +11,7 @@
 
 #include "simple_nfsd/nfs_protocol.hpp"
 #include "simple_nfsd/network_server.hpp"
-#include "simple_nfsd/config_manager.hpp"
+#include "simple-nfsd/config/config.hpp"
 #include <memory>
 #include <map>
 #include <mutex>

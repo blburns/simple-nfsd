@@ -7,11 +7,11 @@
  */
 
 #include <gtest/gtest.h>
-#include "simple_nfsd/nfsd_app.hpp"
-#include "simple_nfsd/config_manager.hpp"
+#include "simple-nfsd/core/app.hpp"
+#include "simple-nfsd/config/config.hpp"
 #include "simple_nfsd/nfs_server_simple.hpp"
-#include "simple_nfsd/rpc_protocol.hpp"
-#include "simple_nfsd/auth_manager.hpp"
+#include "simple-nfsd/core/rpc_protocol.hpp"
+#include "simple-nfsd/security/auth.hpp"
 
 class MinimalTest : public ::testing::Test {
 protected:
