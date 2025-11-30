@@ -3,7 +3,7 @@
 
 #include "simple-nfsd/core/rpc_protocol.hpp"
 #include "simple-nfsd/config/config.hpp"
-#include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple-nfsd/core/server_simple.hpp"
 #include "simple-nfsd/core/lock.hpp"
 #include "simple-nfsd/core/vfs_interface.hpp"
 #include <string>

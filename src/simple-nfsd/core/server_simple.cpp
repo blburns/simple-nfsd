@@ -6,7 +6,7 @@
  * @license Apache-2.0
  */
 
-#include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple-nfsd/core/server_simple.hpp"
 #include "simple-nfsd/core/rpc_protocol.hpp"
 #include "simple-nfsd/security/auth.hpp"
 #include "simple-nfsd/security/security.hpp"

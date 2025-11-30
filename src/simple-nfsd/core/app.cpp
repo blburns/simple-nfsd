@@ -7,7 +7,7 @@
  */
 
 #include "simple-nfsd/core/app.hpp"
-#include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple-nfsd/core/server_simple.hpp"
 #include "simple-nfsd/config/config.hpp"
 #include <iostream>
 #include <fstream>

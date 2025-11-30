@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 #include "simple-nfsd/core/app.hpp"
 #include "simple-nfsd/config/config.hpp"
-#include "simple_nfsd/nfs_server_simple.hpp"
+#include "simple-nfsd/core/server.hpp"
 #include "simple-nfsd/core/rpc_protocol.hpp"
 #include "simple-nfsd/security/auth.hpp"
 #include <filesystem>
