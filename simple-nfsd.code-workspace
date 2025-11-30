@@ -1,0 +1,95 @@
+{
+	"folders": [
+		{
+			"name": "simple-nfsd",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.encoding": "utf8",
+		"files.trimTrailingWhitespace": true,
+		"files.insertFinalNewline": true,
+		"files.trimFinalNewlines": true,
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/.bzr": true,
+			"**/.DS_Store": true,
+			"**/*.log": true,
+			"**/*.log.*": true,
+			"**/*.log.*.*": true,
+			"**/build": true,
+			"**/CMakeFiles": true,
+			"**/CMakeCache.txt": true,
+			"**/*.o": true,
+			"**/*.so": true,
+			"**/*.a": true
+		},
+		"files.watcherExclude": {
+			"**/.git/objects/**": true,
+			"**/.git/subtree-cache/**": true,
+			"**/.git/info/exclude/**": true,
+			"**/build/**": true,
+			"**/node_modules/**": true
+		},
+		"files.associations": {
+			"*.json": "jsonc",
+			"*.jsonc": "jsonc",
+			"*.jsonl": "jsonc",
+			"*.jsonl.gz": "jsonc",
+			"*.jsonl.bz2": "jsonc",
+			"*.jsonl.lzma": "jsonc",
+			"*.jsonl.xz": "jsonc",
+			"*.jsonl.tar": "jsonc",
+			"*.jsonl.tar.gz": "jsonc",
+			"*.jsonl.tar.bz2": "jsonc",
+			"*.jsonl.tar.lzma": "jsonc",
+			"*.jsonl.tar.xz": "jsonc",
+			"*.jsonl.tar.7z": "jsonc",
+			"*.jsonl.tar.gz.bz2": "jsonc",
+			"*.jsonl.tar.gz.lzma": "jsonc",
+			"*.jsonl.tar.gz.xz": "jsonc",
+			"*.jsonl.tar.gz.7z": "jsonc",
+			"*.jsonl.tar.bz2.lzma": "jsonc",
+			"*.jsonl.tar.bz2.xz": "jsonc",
+			"*.jsonl.tar.bz2.7z": "jsonc",
+			"*.jsonl.tar.lzma.xz": "jsonc",
+			"*.jsonl.tar.lzma.7z": "jsonc",
+			"*.jsonl.tar.xz.7z": "jsonc",
+			"*.jsonl.tar.7z.xz": "jsonc",
+			"*.jsonl.tar.7z.lzma": "jsonc",
+			"*.jsonl.tar.7z.bz2": "jsonc",
+			"*.jsonl.tar.7z.gz": "jsonc",
+			"*.jsonl.tar.7z.tar": "jsonc",
+			"*.jsonl.tar.7z.tar.gz": "jsonc"
+		},
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false,
+		"[cpp]": {
+			"editor.tabSize": 4,
+			"editor.insertSpaces": false
+		},
+		"[c]": {
+			"editor.tabSize": 4,
+			"editor.insertSpaces": false
+		},
+		"[javascript]": {
+			"editor.tabSize": 4
+		},
+		"[json]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true
+		},
+		"[yaml]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true
+		},
+		"[markdown]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true
+		}
+	}
+}
+
