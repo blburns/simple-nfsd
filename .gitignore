@@ -68,6 +68,8 @@ Makefile.cmake
 *.sublime-*
 *.vcxproj.user
 *.vcxproj.filters
+# Allow standardized workspace files (they should be tracked)
+!simple-nfsd.code-workspace
 *.code-workspace
 
 # OS generated files
