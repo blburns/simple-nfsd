@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Post-install script for simple-nfsd
+# This script runs after the package is installed
+
+set -e
+
+PROJECT_NAME="simple-nfsd"
+INSTALL_DIR="/usr/local/bin"
+CONFIG_DIR="/etc/$simple-nfsd"
+LOG_DIR="/var/log/$simple-nfsd"
+SERVICE_USER="$nfsddev"
+
+# Create configuration directory
+if [ ! -d "$CONFIG_DIR" ]; then
+    mkdir -p "$CONFIG_DIR"
+    chmod 755 "$CONFIG_DIR"
+fi
+
+# Create log directory
+if [ ! -d "$LOG_DIR" ]; then
+    mkdir -p "$LOG_DIR"
+    chmod 755 "$LOG_DIR"
+fi
+
+# Create service user if it doesn't exist
+if ! id "$SERVICE_USER" &>/dev/null; then
+    dscl . -create "/Users/$SERVICE_USER"
+    dscl . -create "/Users/$SERVICE_USER" UserShell /usr/bin/false
+    dscl . -create "/Users/$SERVICE_USER" RealName "simple-nfsd Service User"
+    dscl . -create "/Users/$SERVICE_USER" UniqueID 200
+    dscl . -create "/Users/$SERVICE_USER" PrimaryGroupID 20
+fi
+
+# Set ownership
+chown -R "$SERVICE_USER:staff" "$CONFIG_DIR"
+chown -R "$SERVICE_USER:staff" "$LOG_DIR"
+
+# Load launchd service if it exists
+if [ -f "/Library/LaunchDaemons/com.simpledaemons.$simple-nfsd.plist" ]; then
+    launchctl load -w "/Library/LaunchDaemons/com.simpledaemons.$simple-nfsd.plist" 2>/dev/null || true
+fi
+
+exit 0
+

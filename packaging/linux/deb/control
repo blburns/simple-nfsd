@@ -1,0 +1,17 @@
+Package: simple-nfsd
+Version: ${VERSION}
+Section: net
+Priority: optional
+Architecture: amd64
+Depends: libssl3 (>= 3.0.0), libc6 (>= 2.31)
+Maintainer: SimpleDaemons <support@simpledaemons.com>
+Description: simple-nfsd - A lightweight and secure daemon
+ simple-nfsd is a modern, secure implementation of the NFS protocol.
+ .
+ Features:
+  * High performance
+  * Secure by default
+  * Easy configuration
+  * Systemd integration
+Homepage: https://github.com/simpledaemons/simple-nfsd
+

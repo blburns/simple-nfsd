@@ -1,0 +1,15 @@
+#!/bin/bash
+# Pre-removal script for simple-nfsd
+
+set -e
+
+PROJECT_NAME="simple-nfsd"
+
+if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
+    # Stop service before removal
+    systemctl stop "$simple-nfsd" 2>/dev/null || true
+    systemctl disable "$simple-nfsd" 2>/dev/null || true
+fi
+
+exit 0
+

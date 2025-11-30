@@ -1,0 +1,106 @@
+# CPack configuration for simple-nfsd
+# This file should be included in the main CMakeLists.txt
+
+include(CPack)
+include(InstallRequiredSystemLibraries)
+
+# CPack General Settings
+set(CPACK_PACKAGE_NAME "simple-nfsd")
+set(CPACK_PACKAGE_VENDOR "SimpleDaemons")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "simple-nfsd - A lightweight and secure daemon")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/packaging/assets/welcome.html")
+set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "SimpleDaemons\\\\simple-nfsd")
+set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/packaging/assets/icons/simple-nfsd.ico")
+
+# macOS PackageMaker (PKG)
+set(CPACK_GENERATOR "PackageMaker")
+set(CPACK_PACKAGEMAKER_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/packaging/assets/icons/background.png")
+set(CPACK_PACKAGEMAKER_PACKAGE_NAME "simple-nfsd")
+set(CPACK_PACKAGEMAKER_DISTRIBUTION_FILE "${CMAKE_SOURCE_DIR}/packaging/macos/pkg/Distribution.xml")
+set(CPACK_PACKAGEMAKER_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/packaging/macos/pkg")
+
+# macOS DragNDrop (DMG)
+set(CPACK_DMG_VOLUME_NAME "simple-nfsd")
+set(CPACK_DMG_FORMAT "UDZO")
+set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/packaging/assets/icons/dmg-background.png")
+set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/packaging/macos/dmg/setup-dsstore.sh")
+
+# Windows NSIS
+set(CPACK_NSIS_PACKAGE_NAME "simple-nfsd")
+set(CPACK_NSIS_DISPLAY_NAME "simple-nfsd")
+set(CPACK_NSIS_HELP_LINK "https://github.com/simpledaemons/simple-nfsd")
+set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/simpledaemons/simple-nfsd")
+set(CPACK_NSIS_CONTACT "support@simpledaemons.com")
+set(CPACK_NSIS_MODIFY_PATH ON)
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/packaging/assets/icons/simple-nfsd.ico")
+set(CPACK_NSIS_MUI_UNICON "${CMAKE_SOURCE_DIR}/packaging/assets/icons/simple-nfsd.ico")
+set(CPACK_NSIS_MUI_HEADERIMAGE "${CMAKE_SOURCE_DIR}/packaging/assets/icons/header.bmp")
+set(CPACK_NSIS_MUI_WELCOMEFINISHPAGE_BITMAP "${CMAKE_SOURCE_DIR}/packaging/assets/icons/wizard.bmp")
+set(CPACK_NSIS_LICENSE_FILE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "simple-nfsd.exe")
+set(CPACK_NSIS_CREATE_ICONS_EXTRA
+    "CreateShortCut '$SMPROGRAMS\\\\$START_MENU_FOLDER\\\\simple-nfsd.lnk' '$INSTDIR\\\\simple-nfsd.exe'"
+)
+set(CPACK_NSIS_DELETE_ICONS_EXTRA
+    "Delete '$SMPROGRAMS\\\\$START_MENU_FOLDER\\\\simple-nfsd.lnk'"
+)
+
+# Windows WIX (MSI)
+set(CPACK_WIX_PRODUCT_GUID "PUT-GUID-HERE")
+set(CPACK_WIX_UPGRADE_GUID "PUT-GUID-HERE")
+set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://github.com/simpledaemons/simple-nfsd")
+set(CPACK_WIX_PROPERTY_ARPHELPLINK "https://github.com/simpledaemons/simple-nfsd")
+set(CPACK_WIX_PROPERTY_ARPURLUPDATEINFO "https://github.com/simpledaemons/simple-nfsd/releases")
+set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/packaging/assets/icons/wix-banner.bmp")
+set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/packaging/assets/icons/wix-dialog.bmp")
+set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/packaging/licenses/LICENSE.rtf")
+
+# Debian Package
+set(CPACK_DEBIAN_PACKAGE_NAME "simple-nfsd")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libssl3 (>= 3.0.0), libc6 (>= 2.31)")
+set(CPACK_DEBIAN_PACKAGE_SECTION "net")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+    "${CMAKE_SOURCE_DIR}/packaging/linux/deb/postinst"
+    "${CMAKE_SOURCE_DIR}/packaging/linux/deb/prerm"
+    "${CMAKE_SOURCE_DIR}/packaging/linux/deb/postrm"
+)
+
+# RPM Package
+set(CPACK_RPM_PACKAGE_NAME "simple-nfsd")
+set(CPACK_RPM_PACKAGE_GROUP "Applications/System")
+set(CPACK_RPM_PACKAGE_LICENSE "Apache-2.0")
+set(CPACK_RPM_PACKAGE_REQUIRES "openssl-libs, jsoncpp")
+set(CPACK_RPM_PRE_INSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/linux/rpm/preinstall.sh")
+set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/linux/rpm/postinstall.sh")
+set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/linux/rpm/preuninstall.sh")
+set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/linux/rpm/postuninstall.sh")
+
+# Component installation
+install(TARGETS simple-nfsd
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+
+install(FILES config/simple-nfsd.conf
+    DESTINATION etc/simple-nfsd
+    RENAME simple-nfsd.conf.example
+)
+
+install(FILES deployment/systemd/simple-nfsd.service
+    DESTINATION lib/systemd/system
+)
+
+install(FILES LICENSE README.md
+    DESTINATION share/doc/simple-nfsd
+)
+

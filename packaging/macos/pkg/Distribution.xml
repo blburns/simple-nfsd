@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>simple-nfsd</title>
+    <organization>com.simpledaemons</organization>
+    <domains enable_localSystem="true"/>
+    <options customize="never" require-scripts="false" rootVolumeOnly="true"/>
+    
+    <!-- Application Information -->
+    <pkg-ref id="com.simpledaemons.simple-nfsd"/>
+    <options customize="never" require-scripts="false"/>
+    
+    <!-- License Agreement -->
+    <license file="../licenses/LICENSE.txt" mime-type="text/plain"/>
+    
+    <!-- Welcome, Read Me, and Conclusion -->
+    <welcome file="../assets/welcome.html" mime-type="text/html"/>
+    <readme file="../assets/readme.html" mime-type="text/html"/>
+    <conclusion file="../assets/conclusion.html" mime-type="text/html"/>
+    
+    <!-- Package Contents -->
+    <pkg-ref id="com.simpledaemons.simple-nfsd">
+        <bundle-version>
+            <bundle id="com.simpledaemons.simple-nfsd" CFBundleIdentifier="com.simpledaemons.simple-nfsd" path="simple-nfsd.app"/>
+        </bundle-version>
+    </pkg-ref>
+    
+    <!-- Installation Requirements -->
+    <installation-check script="pm_install_check()"/>
+    <script>
+        <![CDATA[
+        function pm_install_check() {
+            if(!(system.version.ProductVersion >= '10.13')) {
+                my.result.title = 'Unable to install';
+                my.result.message = 'This software requires macOS 10.13 or later.';
+                my.result.type = 'Fatal';
+                return false;
+            }
+            return true;
+        }
+        ]]>
+    </script>
+    
+    <!-- Choices -->
+    <choices-outline>
+        <line choice="com.simpledaemons.simple-nfsd"/>
+    </choices-outline>
+    
+    <choice id="com.simpledaemons.simple-nfsd" visible="false">
+        <pkg-ref id="com.simpledaemons.simple-nfsd"/>
+    </choice>
+    
+    <pkg-ref id="com.simpledaemons.simple-nfsd" version="${VERSION}" onConclusion="none">simple-nfsd.pkg</pkg-ref>
+</installer-gui-script>
+

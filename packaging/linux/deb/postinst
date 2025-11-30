@@ -1,0 +1,53 @@
+#!/bin/bash
+# Post-installation script for simple-nfsd
+# Requires license acceptance
+
+set -e
+
+PROJECT_NAME="simple-nfsd"
+CONFIG_DIR="/etc/$simple-nfsd"
+LOG_DIR="/var/log/$simple-nfsd"
+SERVICE_USER="nfsddev"
+
+# Display license and require acceptance
+if [ "$1" = "configure" ]; then
+    echo "=========================================="
+    echo "simple-nfsd License Agreement"
+    echo "=========================================="
+    echo ""
+    cat /usr/share/doc/$simple-nfsd/copyright 2>/dev/null || \
+        cat /usr/share/$simple-nfsd/LICENSE.txt 2>/dev/null || \
+        echo "Please review the license at: https://github.com/simpledaemons/$simple-nfsd/blob/main/LICENSE"
+    echo ""
+    echo "By continuing, you agree to the terms of the license."
+    echo ""
+    read -p "Do you accept the license? [y/N]: " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "License not accepted. Installation cancelled."
+        exit 1
+    fi
+    
+    # Create service user
+    if ! id "$SERVICE_USER" &>/dev/null; then
+        useradd -r -s /usr/sbin/nologin -d /var/lib/$simple-nfsd -c "$simple-nfsd service user" "$SERVICE_USER"
+    fi
+    
+    # Create directories
+    mkdir -p "$CONFIG_DIR"
+    mkdir -p "$LOG_DIR"
+    mkdir -p "/var/lib/$simple-nfsd"
+    
+    # Set permissions
+    chown -R "$SERVICE_USER:$SERVICE_USER" "$CONFIG_DIR"
+    chown -R "$SERVICE_USER:$SERVICE_USER" "$LOG_DIR"
+    chown -R "$SERVICE_USER:$SERVICE_USER" "/var/lib/$simple-nfsd"
+    
+    # Enable and start service
+    systemctl daemon-reload
+    systemctl enable "$simple-nfsd" 2>/dev/null || true
+    systemctl start "$simple-nfsd" 2>/dev/null || true
+fi
+
+exit 0
+
