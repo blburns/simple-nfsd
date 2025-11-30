@@ -1,39 +1,235 @@
-# Build artifacts
+# Build directories
 build/
 dist/
+out/
+cmake-build-*/
+cmake-build/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+*.cmake
+!cmake/*.cmake.in
+!cmake/*.cmake
+CMakeFiles/Makefile
+Makefile.cmake
+
+# Keep custom Makefile, ignore CMake-generated ones
+!Makefile
+
+# Compiled Object files
+*.slo
+*.lo
 *.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
 *.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
 *.a
+*.lib
+
+# Executables
 *.exe
+*.out
+*.app
 
 # Debug files
-debug/
-*.debug
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+*.exp
 
 # IDE files
 .vscode/
 .idea/
+.vs/
 *.swp
 *.swo
 *~
+*.sublime-*
+*.vcxproj.user
+*.vcxproj.filters
+*.code-workspace
 
-# OS files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Log files
+*.log
+logs/
+log/
+*.pid
 
 # Temporary files
 *.tmp
 *.temp
-*.log
+*.bak
+*.backup
+*.orig
+*.rej
+temp/
+tmp/
 
-# CMake
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
-CTestTestfile.cmake
+# Package files
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.deb
+*.rpm
+*.dmg
+*.pkg
+*.msi
+*.7z
+*.rar
 
-# Test artifacts
-Testing/
-test-results/
-.vagrant/
+# Test coverage
+*.gcov
+*.gcda
+*.gcno
+coverage/
+lcov.info
+
+# Valgrind output
+valgrind-out.txt
+*.valgrind
+*.vglog
+*.massif
+
+# Configuration files (keep examples and templates)
+config/*.conf
+!config/*.conf.example
+!config/*.example
+!config/*.template
+!config/*.sample
+local.conf
+local.ini
+local.json
+
+# SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+config/ssl/
+config/certs/
+
+# User data and uploads (if applicable)
+uploads/
+user_data/
+public/
+
+# Documentation build
+docs/_build/
+docs/html/
+docs/latex/
+docs/pdf/
+docs/.doctrees/
+
+# Dependencies
+vendor/
+third_party/
+external/
+vcpkg_installed/
+conan/
+vcpkg/
+packages/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache files
+.cache/
+*.cache
+
+# Profiling
+*.prof
+gmon.out
+callgrind.out.*
+
+# Core dumps
+core
+core.*
+*.core
+*.dump
+
+# Network captures
+*.pcap
+*.cap
+
+# Backup and swap
+.#*
+#*#
+
+# Windows specific
+*.user
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# macOS specific
+*.dmg
+*.pkg
+
+# Clang/LLVM
+.clangd/
+.clang-format
+
+# Python cache (if any)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+*.lock
+
