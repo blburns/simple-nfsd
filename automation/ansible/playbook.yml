@@ -4,8 +4,9 @@
   become: yes
   vars:
     project_dir: /opt/simple-nfsd
-    build_user: nfsdev
-    build_group: nfsdev
+    build_user: nfsddev
+    build_group: nfsddev
+    project_name: simple-nfsd
     
   tasks:
     - name: Update package cache
@@ -25,8 +26,6 @@
           - libyaml-cpp-dev
           - libgtest-dev
           - libgmock-dev
-          - nfs-common
-          - nfs-kernel-server
           - python3
           - python3-pip
         state: present
@@ -44,7 +43,6 @@
           - yaml-cpp-devel
           - gtest-devel
           - gmock-devel
-          - nfs-utils
           - python3
           - python3-pip
         state: present
@@ -68,7 +66,7 @@
         
     - name: Clone repository
       git:
-        repo: "{{ git_repo_url | default('https://github.com/blburns/simple-nfsd.git') }}"
+        repo: "{{ git_repo_url | default('https://github.com/simpledaemons/' + project_name + '.git') }}"
         dest: "{{ project_dir }}"
         version: "{{ git_branch | default('main') }}"
         force: yes
@@ -106,53 +104,8 @@
       debug:
         var: test_result.stdout_lines
         
-    - name: Create systemd service file
-      template:
-        src: simple-nfsd.service.j2
-        dest: /etc/systemd/system/simple-nfsd.service
-        mode: '0644'
-      notify: reload systemd
-      
-    - name: Enable NFS services
-      systemd:
-        name: "{{ item }}"
-        enabled: yes
-        state: started
-      loop:
-        - rpcbind
-        - nfs-server
-        
-    - name: Create NFS export directory
-      file:
-        path: /srv/nfs
-        state: directory
-        mode: '0755'
-        
-    - name: Configure NFS exports
-      lineinfile:
-        path: /etc/exports
-        line: "/srv/nfs *(rw,sync,no_subtree_check,no_root_squash)"
-        create: yes
-      notify: restart nfs
-      
-    - name: Create simple-nfsd configuration
-      template:
-        src: simple-nfsd.conf.j2
-        dest: /etc/simple-nfsd/simple-nfsd.conf
-        mode: '0644'
-      notify: restart simple-nfsd
-      
   handlers:
     - name: reload systemd
       systemd:
         daemon_reload: yes
-        
-    - name: restart nfs
-      systemd:
-        name: nfs-server
-        state: restarted
-        
-    - name: restart simple-nfsd
-      systemd:
-        name: simple-nfsd
-        state: restarted
+

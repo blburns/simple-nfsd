@@ -6,7 +6,7 @@ set -e
 
 # Get VM name from first argument or default to ubuntu_dev
 VM_NAME="${1:-ubuntu_dev}"
-VM_DIR="virtuals/$VM_NAME"
+VM_DIR="automation/vagrant/virtuals/$VM_NAME"
 
 # Check if VM directory exists
 if [ ! -d "$VM_DIR" ]; then
@@ -32,11 +32,11 @@ vagrant rsync
 case "${2:-build}" in
     "clean")
         echo "Cleaning build directory..."
-        vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsdev rm -rf build && mkdir -p build"
+        vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsddev rm -rf build && mkdir -p build"
         ;;
     "test")
         echo "Running tests..."
-        vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsdev make test"
+        vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsddev make test"
         ;;
     "install")
         echo "Installing service..."
@@ -52,7 +52,7 @@ case "${2:-build}" in
         ;;
     *)
         echo "Building project..."
-        vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsdev ./build.sh"
+        vagrant ssh -c "cd /opt/simple-nfsd && sudo -u nfsddev ./build.sh"
         ;;
 esac
 

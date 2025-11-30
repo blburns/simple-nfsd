@@ -4,10 +4,10 @@ This document describes the simplified VM setup focused on Ubuntu and CentOS dev
 
 ## VM Directory Structure
 
-VMs are now organized in the `virtuals/` directory following best practices:
+VMs are now organized in the `automation/vagrant/virtuals/` directory following best practices:
 
 ```
-virtuals/
+automation/vagrant/virtuals/
 ├── ubuntu_dev/          # Ubuntu 22.04 LTS development VM
 │   └── Vagrantfile
 ├── centos_dev/          # CentOS 8 development VM
@@ -28,16 +28,16 @@ The automation tooling focuses on two primary development VMs:
 ### Method 1: Using VM Manager (Recommended)
 ```bash
 # Start Ubuntu VM
-./virtuals/vm-manager up ubuntu_dev
+./automation/vagrant/virtuals/vm-manager up ubuntu_dev
 
 # Start CentOS VM
-./virtuals/vm-manager up centos_dev
+./automation/vagrant/virtuals/vm-manager up centos_dev
 
 # SSH into Ubuntu VM
-./virtuals/vm-manager ssh ubuntu_dev
+./automation/vagrant/virtuals/vm-manager ssh ubuntu_dev
 
 # Run tests on both VMs
-./virtuals/vm-manager matrix
+./automation/vagrant/virtuals/vm-manager matrix
 ```
 
 ### Method 2: Using Environment Variables
@@ -52,15 +52,15 @@ VAGRANT_BOX=centos_dev vagrant up
 ### Method 3: Direct VM Directory Access
 ```bash
 # Start Ubuntu VM
-cd virtuals/ubuntu_dev && vagrant up
+cd automation/vagrant/virtuals/ubuntu_dev && vagrant up
 
 # Start CentOS VM
-cd virtuals/centos_dev && vagrant up
+cd automation/vagrant/virtuals/centos_dev && vagrant up
 ```
 
 ## Available Scripts
 
-### VM Manager Script (`./virtuals/vm-manager`)
+### VM Manager Script (`./automation/vagrant/virtuals/vm-manager`)
 - `up [vm_name]`: Start a VM
 - `down [vm_name]`: Stop a VM
 - `destroy [vm_name]`: Destroy a VM
@@ -99,7 +99,7 @@ cd virtuals/centos_dev && vagrant up
 If you need to test additional distributions, you can:
 
 1. Uncomment the desired boxes in `automation/vagrant-boxes.yml`
-2. Create a new VM directory in `virtuals/`
+2. Create a new VM directory in `automation/vagrant/virtuals/`
 3. Copy and customize a Vagrantfile template
 4. Use the full box names with vm-test-matrix:
    ```bash
@@ -112,11 +112,11 @@ If you need to test additional distributions, you can:
 - `automation/inventory.ini`: Ansible inventory (simplified)
 - `automation/playbook.yml`: Ansible playbook for VM setup
 - `Vagrantfile`: Main Vagrant configuration (project root)
-- `virtuals/*/Vagrantfile`: VM-specific configurations
+- `automation/vagrant/virtuals/*/Vagrantfile`: VM-specific configurations
 
 ## Benefits of New Structure
 
-1. **Clean Project Root**: VM files are isolated in `virtuals/` directory
+1. **Clean Project Root**: VM files are isolated in `automation/vagrant/virtuals/` directory
 2. **Better Organization**: Each VM has its own directory and configuration
 3. **Easier Management**: VM manager script provides unified interface
 4. **Version Control Friendly**: VM-specific files are properly ignored
@@ -183,7 +183,7 @@ Development files are automatically synchronized between host and VMs:
 
 ### 1. Start Development VM
 ```bash
-./virtuals/vm-manager up ubuntu_dev
+./automation/vagrant/virtuals/vm-manager up ubuntu_dev
 ```
 
 ### 2. Develop on Host
@@ -193,7 +193,7 @@ Development files are automatically synchronized between host and VMs:
 ### 3. Build and Test in VM
 ```bash
 # SSH into VM
-./virtuals/vm-manager ssh ubuntu_dev
+./automation/vagrant/virtuals/vm-manager ssh ubuntu_dev
 
 # Build the application
 cd /opt/simple-nfsd

@@ -1,12 +1,12 @@
 #!/bin/bash
-# SSH wrapper for Vagrant VM
-# Usage: ./vm-ssh [vm_name] "command to run"
+# Test script for Vagrant VM
+# Usage: ./vm-test [vm_name] [test-pattern]
 
 set -e
 
 # Get VM name from first argument or default to ubuntu_dev
 VM_NAME="${1:-ubuntu_dev}"
-VM_DIR="virtuals/$VM_NAME"
+VM_DIR="automation/vagrant/virtuals/$VM_NAME"
 
 # Check if VM directory exists
 if [ ! -d "$VM_DIR" ]; then
@@ -24,14 +24,17 @@ if ! vagrant status | grep -q "running"; then
     vagrant up
 fi
 
-# Run command on VM
-if [ $# -eq 1 ]; then
-    # No command provided, just SSH in
-    vagrant ssh
+# Sync files to VM
+echo "Syncing files to VM..."
+vagrant rsync
+
+# Run tests on VM
+if [ -n "$2" ]; then
+    echo "Running specific test: $2"
+    vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsddev ./tests/simple-nfsd-tests --gtest_filter='$2'"
 else
-    # Command provided, run it
-    shift  # Remove VM name from arguments
-    vagrant ssh -c "$@"
+    echo "Running all tests..."
+    vagrant ssh -c "cd /opt/simple-nfsd/build && sudo -u nfsddev make test"
 fi
 
 # Return to original directory

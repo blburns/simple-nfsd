@@ -1,4 +1,4 @@
-# Simple NFS Daemon - Automation
+# simple-nfsd - Automation
 
 This directory contains all automation scripts and configuration files for setting up and managing the simple-nfsd development environment.
 
@@ -6,221 +6,108 @@ This directory contains all automation scripts and configuration files for setti
 
 ```
 automation/
-├── playbook.yml              # Ansible playbook for VM setup
-├── inventory.ini             # Ansible inventory file
-├── requirements.yml          # Ansible Galaxy requirements
-├── Makefile.vm               # Makefile for VM operations
-├── scripts/                  # Shell scripts for VM operations
-│   ├── vm-ssh               # SSH wrapper for VM
-│   ├── vm-build             # Build script for VM
-│   ├── vm-test              # Test script for VM
-│   ├── vm-nfs-test          # NFS testing script
-│   ├── setup-remote.sh      # Remote setup script
-│   └── build.sh             # Build script
-└── templates/               # Configuration templates
-    ├── simple-nfsd.service.j2
-    └── simple-nfsd.conf.j2
+├── ansible/                  # Ansible automation
+│   ├── playbook.yml         # Ansible playbook for VM setup
+│   ├── inventory.ini        # Ansible inventory file
+│   ├── requirements.yml     # Ansible Galaxy requirements
+│   ├── Makefile.vm          # Makefile for VM operations
+│   ├── vagrant-boxes.yml   # Vagrant box configurations
+│   ├── scripts/             # Shell scripts for VM operations
+│   │   ├── vm-ssh          # SSH wrapper for VM
+│   │   ├── vm-build        # Build script for VM
+│   │   ├── vm-test         # Test script for VM
+│   │   ├── setup-remote.sh # Remote setup script
+│   │   └── build.sh        # Build script
+│   └── templates/          # Configuration templates
+├── ci/                      # CI/CD configuration
+│   ├── Jenkinsfile         # Jenkins pipeline
+│   └── .travis.yml         # Travis CI configuration
+├── docker/                  # Docker configuration
+│   ├── Dockerfile          # Docker image definition
+│   ├── docker-compose.yml  # Docker Compose configuration
+│   └── examples/           # Docker examples
+└── vagrant/                 # Vagrant configuration
+    ├── Vagrantfile         # Main Vagrantfile
+    └── virtuals/           # Multi-VM configurations
+        ├── ubuntu_dev/
+        └── centos_dev/
 ```
 
 ## Quick Start
 
-### Using Makefile (Recommended)
+### Using Docker
 
 ```bash
-# From project root
-make -f automation/Makefile.vm vm-setup
+# Build and run with Docker Compose
+cd automation/docker
+docker-compose up -d
 
-# Test specific box
-make -f automation/Makefile.vm vm-test-box BOX=ubuntu/jammy64
-
-# Test multiple distributions
-make -f automation/Makefile.vm vm-test-ubuntu
-make -f automation/Makefile.vm vm-test-debian
-make -f automation/Makefile.vm vm-test-centos
-make -f automation/Makefile.vm vm-test-all
+# Or from project root
+docker-compose -f automation/docker/docker-compose.yml up -d
 ```
 
-### Using Scripts Directly
+### Using Vagrant
 
-   ```bash
+```bash
 # Start VM
-   vagrant up
+cd automation/vagrant
+vagrant up
 
-# Build project
-./automation/scripts/vm-build
-
-# Run tests
-./automation/scripts/vm-test
-
-# Test NFS functionality
-./automation/scripts/vm-nfs-test
-```
-
-## Available Commands
-
-### Makefile Targets
-
-- `vm-up` - Start Vagrant VM
-- `vm-down` - Stop Vagrant VM
-- `vm-ssh` - SSH into VM
-- `vm-build` - Build project on VM
-- `vm-clean` - Clean build on VM
-- `vm-test` - Run tests on VM
-- `vm-test-filter FILTER="pattern"` - Run specific tests
-- `vm-nfs-test` - Test NFS functionality
-- `vm-status` - Check service status
-- `vm-logs` - View service logs
-- `vm-install` - Install and start service
-- `vm-setup` - Full setup (up, build, test, install)
-- `vm-dev` - Development workflow (build, test, install)
-
-### Script Usage
-
-#### vm-ssh
-   ```bash
-./automation/scripts/vm-ssh "command to run"
-   ```
-
-#### vm-build
-   ```bash
-./automation/scripts/vm-build [clean|test|install|status|logs]
-   ```
-
-#### vm-test
-   ```bash
-./automation/scripts/vm-test [test-pattern]
-   ```
-
-#### vm-nfs-test
-```bash
-./automation/scripts/vm-nfs-test
-```
-
-## Development Workflow
-
-1. **Make changes** to your code locally
-2. **Run build and test**:
-   ```bash
-   make -f automation/Makefile.vm vm-dev
-   ```
-3. **Test NFS functionality**:
-   ```bash
-   make -f automation/Makefile.vm vm-nfs-test
-   ```
-
-## VM Configuration
-
-The Vagrant VM is configured with:
-- **OS**: Ubuntu 22.04 LTS
-- **Memory**: 2GB RAM
-- **CPUs**: 2 cores
-- **Network**: Private network (192.168.1.100)
-- **Ports**: 2049 (NFS), 111 (RPC)
-
-## Troubleshooting
-
-### Common Issues
-
-1. **VM won't start**: Check VirtualBox is installed and running
-2. **Port conflicts**: Ensure ports 2049 and 111 are free
-3. **Permission issues**: Scripts handle this automatically
-4. **Build failures**: Check VM logs with `vagrant ssh` then `journalctl`
-
-### Debug Commands
-
-```bash
-# Check VM status
-vagrant status
-
-# SSH into VM for debugging
+# SSH into VM
 vagrant ssh
 
-# View VM logs
-vagrant ssh -c "sudo journalctl -u simple-nfsd -f"
-
-# Rebuild VM
-vagrant destroy && vagrant up
+# Build project
+./automation/ansible/scripts/vm-build
 ```
 
-## File Synchronization
+### Using Ansible
 
-The VM automatically syncs:
-- **Source code** from project root to `/opt/simple-nfsd/`
-- **Build directory** from `./build/` to `/opt/simple-nfsd/build/`
-
-Changes are synced automatically when you run the scripts.
-
-## Service Management
-
-The simple-nfsd service runs as:
-- **User**: nfsdev
-- **Group**: nfsdev
-- **Config**: /etc/simple-nfsd/simple-nfsd.conf
-- **Logs**: /var/log/simple-nfsd/
-- **Export**: /srv/nfs/
-
-## Testing
-
-### Unit Tests
 ```bash
-make -f automation/Makefile.vm vm-test
+# Run playbook
+ansible-playbook -i automation/ansible/inventory.ini automation/ansible/playbook.yml
 ```
 
-### NFS Integration Tests
-   ```bash
-make -f automation/Makefile.vm vm-nfs-test
-   ```
+## CI/CD
 
-### Specific Test Patterns
-   ```bash
-make -f automation/Makefile.vm vm-test-filter FILTER="Nfsv2ProceduresTest.*"
-```
+### Jenkins
 
-## Multi-Box Testing
+The Jenkins pipeline is located at `automation/ci/Jenkinsfile`. It supports:
+- Multi-platform builds (Linux, macOS, Windows)
+- Automated testing
+- Static analysis
+- Package generation
+- Docker image building
 
-Test your NFS daemon across different Linux distributions using pre-built Vagrant boxes from [HashiCorp Vagrant Cloud](https://portal.cloud.hashicorp.com/vagrant/discover/blburns/).
+### Travis CI
 
-### Quick Testing
-   ```bash
-# Test Ubuntu distributions
-make -f automation/Makefile.vm vm-test-ubuntu
+The Travis CI configuration is located at `automation/ci/.travis.yml`. It provides:
+- Automated builds on push
+- Multi-platform testing
+- Code coverage reporting
 
-# Test Debian distributions  
-make -f automation/Makefile.vm vm-test-debian
+## Docker
 
-# Test CentOS/RHEL distributions
-make -f automation/Makefile.vm vm-test-centos
+Docker files are located in `automation/docker/`:
+- `Dockerfile` - Multi-stage build for different distributions
+- `docker-compose.yml` - Development and production configurations
+- `examples/` - Example Docker configurations
 
-# Test all common distributions
-make -f automation/Makefile.vm vm-test-all
-```
+## Vagrant
 
-### Custom Box Testing
-```bash
-# Test specific box
-make -f automation/Makefile.vm vm-test-box BOX=ubuntu/jammy64
+Vagrant configuration is in `automation/vagrant/`:
+- `Vagrantfile` - Main Vagrant configuration
+- `virtuals/` - Multi-VM configurations for different distributions
 
-# Test custom list of boxes
-make -f automation/Makefile.vm vm-test-matrix BOXES="ubuntu/jammy64,debian/bullseye64,centos/8"
+## Ansible
 
-# Test with specific test pattern
-make -f automation/Makefile.vm vm-test-matrix BOXES="ubuntu/jammy64" FILTER="*Nfsv2*"
-```
+Ansible automation is in `automation/ansible/`:
+- `playbook.yml` - Main playbook for environment setup
+- `inventory.ini` - Host inventory
+- `requirements.yml` - Ansible Galaxy dependencies
+- `scripts/` - Helper scripts for VM operations
+- `templates/` - Configuration templates
 
-### Available Boxes
-See `automation/vagrant-boxes.yml` for a complete list of supported distributions including:
-- **Ubuntu**: 18.04, 20.04, 22.04 LTS
-- **Debian**: 11 (Bullseye), 12 (Bookworm)  
-- **CentOS**: 8, 9 Stream
-- **Rocky Linux**: 8, 9
-- **AlmaLinux**: 8, 9
-- **Fedora**: 38, 39
-- **openSUSE**: Leap 15.4
-- **Arch Linux**: Rolling release
-- **Alpine**: 3.13 (minimal)
+---
 
-### Box Selection Tips
-- **Ubuntu/Debian**: Best for development and testing
-- **CentOS/RHEL**: Enterprise environments and production testing
-- **Fedora**: Latest features and bleeding-edge testing
-- **Alpine**: Minimal footprint and performance testing
+*For detailed documentation, see the individual README files in each subdirectory.*
+
