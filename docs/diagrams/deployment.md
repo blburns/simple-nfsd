@@ -12,15 +12,15 @@ graph TB
 
     subgraph "NFS Server"
         Server[simple-nfsd<br/>Main Process]
-        Config[/etc/simple-nfsd/<br/>Configuration]
-        Exports[/etc/exports<br/>Export Definitions]
-        Logs[/var/log/simple-nfsd/<br/>NFS Logs]
+        Config[Configuration<br/>/etc/simple-nfsd/]
+        Exports[Export Definitions<br/>/etc/exports]
+        Logs[NFS Logs<br/>/var/log/simple-nfsd/]
     end
 
     subgraph "Exported Filesystems"
-        Export1[/export/share1<br/>Export 1]
-        Export2[/export/share2<br/>Export 2]
-        ExportN[/export/shareN<br/>Export N]
+        Export1[Export 1<br/>/export/share1]
+        Export2[Export 2<br/>/export/share2]
+        ExportN[Export N<br/>/export/shareN]
     end
 
     subgraph "System Services"
