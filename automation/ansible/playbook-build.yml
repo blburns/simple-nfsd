@@ -1,0 +1,467 @@
+---
+- name: Build simple-nfsd on remote VMs
+  hosts: build-vms
+  # Package installation tasks need sudo, but build tasks don't
+  # Individual tasks will set become: yes when needed
+  vars:
+    project_dir: /opt/simple-nfsd
+    build_user: "{{ ansible_user }}"
+    build_group: "{{ ansible_user }}"
+    project_name: simple-nfsd
+    git_repo_url: "https://github.com/simpledaemons/simple-nfsd.git"
+    git_branch: "{{ git_branch | default('main') }}"
+    build_type: "{{ build_type | default('Release') }}"
+    clean_build: "{{ clean_build | default(false) }}"
+    run_tests: "{{ run_tests | default(true) }}"
+    create_packages: "{{ create_packages | default(false) }}"
+    
+  tasks:
+    - name: Display build information
+      debug:
+        msg:
+          - "Building {{ project_name }} on {{ inventory_hostname }}"
+          - "Repository: {{ git_repo_url }}"
+          - "Branch: {{ git_branch }}"
+          - "Build type: {{ build_type }}"
+          - "Clean build: {{ clean_build }}"
+          - "Run tests: {{ run_tests }}"
+          - "Create packages: {{ create_packages }}"
+          - "OS family: {{ ansible_facts['os_family'] | default('not set') }}"
+
+    - name: Gather OS facts
+      setup:
+        gather_subset:
+          - '!all'
+          - '!any'
+          - os_family
+          - env
+          - architecture
+      register: os_facts
+
+    - name: Update package cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+      when: ansible_facts['os_family'] == "Debian"
+      ignore_errors: yes
+
+    - name: Update package cache (RedHat/CentOS)
+      yum:
+        update_cache: yes
+      become: yes
+      when: ansible_facts['os_family'] == "RedHat"
+      ignore_errors: yes
+
+    - name: Update Homebrew (macOS)
+      homebrew:
+        update_homebrew: yes
+      become: false
+      when: ansible_facts['os_family'] == "Darwin"
+      ignore_errors: yes
+
+    - name: Install build dependencies (Ubuntu/Debian)
+      apt:
+        name:
+          - build-essential
+          - cmake
+          - git
+          - pkg-config
+          - libssl-dev
+          - libjsoncpp-dev
+          - libyaml-cpp-dev
+          - libgtest-dev
+          - libgmock-dev
+          - python3
+          - python3-pip
+          - zip
+          - dpkg-dev
+          - debhelper
+        state: present
+      become: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install build dependencies (CentOS/RHEL/Fedora)
+      yum:
+        name:
+          - gcc-c++
+          - cmake
+          - git
+          - pkgconfig
+          - openssl-devel
+          - jsoncpp-devel
+          - yaml-cpp-devel
+          - gtest-devel
+          - gmock-devel
+          - python3
+          - python3-pip
+          - zip
+        state: present
+      become: yes
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install build dependencies (macOS)
+      homebrew:
+        name:
+          - cmake
+          - openssl@3
+          - pkg-config
+          - git
+          - jsoncpp
+          - yaml-cpp
+        state: present
+      become: false
+      when: ansible_facts['os_family'] == "Darwin"
+      ignore_errors: yes
+
+    - name: Set up Homebrew PATH for macOS (Apple Silicon)
+      lineinfile:
+        path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
+        line: 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+        create: yes
+        state: present
+      become: false
+      when: ansible_facts['os_family'] == "Darwin" and ansible_facts['architecture'] == "arm64"
+      ignore_errors: yes
+
+    - name: Set up Homebrew PATH for macOS (Intel)
+      lineinfile:
+        path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
+        line: 'eval "$(/usr/local/bin/brew shellenv)"'
+        create: yes
+        state: present
+      become: false
+      when: ansible_facts['os_family'] == "Darwin" and ansible_facts['architecture'] != "arm64"
+      ignore_errors: yes
+
+    - name: Install Xcode Command Line Tools (macOS)
+      command: xcode-select --install
+      args:
+        creates: /Library/Developer/CommandLineTools/usr/bin/clang
+      when: ansible_facts['os_family'] == "Darwin"
+      ignore_errors: yes
+
+    - name: Install Python requests package (Ubuntu/Debian via apt)
+      apt:
+        name: python3-requests
+        state: present
+      become: yes
+      when: ansible_facts['os_family'] == "Debian"
+      ignore_errors: yes
+
+    - name: Install Python requests package (CentOS/RHEL via pip with --break-system-packages)
+      pip:
+        name: requests
+        state: present
+        extra_args: --break-system-packages
+      become: yes
+      when: ansible_facts['os_family'] == "RedHat"
+      ignore_errors: yes
+
+    - name: Install Python requests package (Ubuntu/Debian fallback - user install)
+      pip:
+        name: requests
+        state: present
+        executable: pip3
+      become: false
+      when: ansible_facts['os_family'] == "Debian"
+      ignore_errors: yes
+
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: "{{ build_user }}"
+        group: "{{ build_group }}"
+        mode: '0755'
+      become: "{{ ansible_become | default(false) }}"
+      # On macOS, ensure staff group exists
+      when: ansible_facts['os_family'] != "Darwin" or (ansible_facts['os_family'] == "Darwin" and build_group == "staff")
+
+    - name: Clean build directory if requested
+      file:
+        path: "{{ project_dir }}/build"
+        state: absent
+      when: clean_build | bool
+
+    - name: Clone or update repository
+      git:
+        repo: "{{ git_repo_url }}"
+        dest: "{{ project_dir }}"
+        version: "{{ git_branch }}"
+        force: yes
+        update: yes
+      register: git_result
+
+    - name: Display git update status
+      debug:
+        msg: "Repository {{ 'updated' if git_result.changed else 'already up to date' }}"
+
+    - name: Display current git commit
+      command: git rev-parse HEAD
+      args:
+        chdir: "{{ project_dir }}"
+      register: git_commit
+      changed_when: false
+
+    - name: Show git commit info
+      debug:
+        msg: "Current commit: {{ git_commit.stdout }}"
+
+    - name: Create build directory (Linux)
+      file:
+        path: "{{ project_dir }}/build"
+        state: directory
+        owner: "{{ build_user }}"
+        group: "{{ build_group }}"
+        mode: '0755'
+      become: "{{ ansible_become | default(false) }}"
+      when: ansible_facts['os_family'] != "Darwin"
+
+    - name: Create build directory (macOS)
+      file:
+        path: "{{ project_dir }}/build"
+        state: directory
+        owner: "{{ build_user }}"
+        group: "staff"
+        mode: '0755'
+      become: "{{ ansible_become | default(false) }}"
+      when: ansible_facts['os_family'] == "Darwin"
+
+    - name: Configure CMake
+      shell: >
+        cmake ..
+        -DCMAKE_BUILD_TYPE={{ build_type }}
+        -DENABLE_TESTS={{ 'ON' if run_tests | bool else 'OFF' }}
+        -DENABLE_PACKAGING={{ 'ON' if create_packages | bool else 'OFF' }}
+        -DENABLE_SSL=ON
+        -DENABLE_JSON=ON
+      args:
+        chdir: "{{ project_dir }}/build"
+      environment:
+        PATH: "{{ ansible_facts['env']['PATH'] | default('/usr/bin:/bin:/usr/sbin:/sbin') }}:/opt/homebrew/bin:/usr/local/bin"
+      register: cmake_result
+
+    - name: Display CMake configuration
+      debug:
+        var: cmake_result.stdout_lines
+
+    - name: Build project (macOS)
+      make:
+        chdir: "{{ project_dir }}/build"
+        target: all
+      environment:
+        PATH: "{{ ansible_facts['env']['PATH'] | default('/usr/bin:/bin:/usr/sbin:/sbin') }}:/opt/homebrew/bin:/usr/local/bin"
+      register: build_result
+      when: ansible_facts['os_family'] == "Darwin"
+      
+    - name: Build project (Linux)
+      make:
+        chdir: "{{ project_dir }}/build"
+        target: all
+      register: build_result
+      when: ansible_facts['os_family'] != "Darwin"
+
+    - name: Display build output
+      debug:
+        var: build_result.stdout_lines
+      when: build_result.stdout_lines is defined
+
+    - name: Run tests (macOS)
+      shell: make test
+      args:
+        chdir: "{{ project_dir }}/build"
+      environment:
+        PATH: "{{ ansible_facts['env']['PATH'] | default('/usr/bin:/bin:/usr/sbin:/sbin') }}:/opt/homebrew/bin:/usr/local/bin"
+      register: test_result
+      failed_when: false
+      when: run_tests | bool and ansible_facts['os_family'] == "Darwin"
+      
+    - name: Run tests (Linux)
+      command: make test
+      args:
+        chdir: "{{ project_dir }}/build"
+      register: test_result
+      failed_when: false
+      when: run_tests | bool and ansible_facts['os_family'] != "Darwin"
+
+    - name: Display test results
+      debug:
+        var: test_result.stdout_lines
+      when: run_tests | bool and test_result.stdout_lines is defined
+
+    - name: Create DEB package (Ubuntu/Debian)
+      shell: make package-deb
+      args:
+        chdir: "{{ project_dir }}"
+      register: deb_package_result
+      failed_when: false
+      when: create_packages | bool and ansible_facts['os_family'] == "Debian"
+
+    - name: Create RPM package (CentOS/RHEL/Fedora)
+      make:
+        chdir: "{{ project_dir }}"
+        target: package-rpm
+      register: rpm_package_result
+      failed_when: false
+      when: create_packages | bool and ansible_facts['os_family'] == "RedHat"
+
+    - name: Create DMG package (macOS)
+      shell: make package-dmg
+      args:
+        chdir: "{{ project_dir }}"
+      environment:
+        PATH: "{{ ansible_facts['env']['PATH'] | default('/usr/bin:/bin:/usr/sbin:/sbin') }}:/opt/homebrew/bin:/usr/local/bin"
+      register: dmg_package_result
+      failed_when: dmg_package_result.rc != 0
+      when: create_packages | bool and ansible_facts['os_family'] == "Darwin"
+
+    - name: Display DMG package creation output
+      debug:
+        msg: "{{ dmg_package_result.stdout_lines | default([]) }}"
+      when: create_packages | bool and ansible_facts['os_family'] == "Darwin" and dmg_package_result.stdout_lines is defined
+
+    - name: Display DMG package creation errors
+      debug:
+        msg: "{{ dmg_package_result.stderr_lines | default([]) }}"
+      when: create_packages | bool and ansible_facts['os_family'] == "Darwin" and dmg_package_result.stderr_lines is defined
+
+    - name: Create PKG package (macOS)
+      shell: make package-pkg
+      args:
+        chdir: "{{ project_dir }}"
+      environment:
+        PATH: "{{ ansible_facts['env']['PATH'] | default('/usr/bin:/bin:/usr/sbin:/sbin') }}:/opt/homebrew/bin:/usr/local/bin"
+      register: pkg_package_result
+      failed_when: pkg_package_result.rc != 0
+      when: create_packages | bool and ansible_facts['os_family'] == "Darwin"
+
+    - name: Display PKG package creation output
+      debug:
+        msg: "{{ pkg_package_result.stdout_lines | default([]) }}"
+      when: create_packages | bool and ansible_facts['os_family'] == "Darwin" and pkg_package_result.stdout_lines is defined
+
+    - name: Display PKG package creation errors
+      debug:
+        msg: "{{ pkg_package_result.stderr_lines | default([]) }}"
+      when: create_packages | bool and ansible_facts['os_family'] == "Darwin" and pkg_package_result.stderr_lines is defined
+
+    - name: Create source packages (TGZ and ZIP)
+      shell: make package-source
+      args:
+        chdir: "{{ project_dir }}"
+      register: source_package_result
+      failed_when: false
+      when: create_packages | bool
+
+    - name: Display source package creation results
+      debug:
+        var: source_package_result.stdout_lines
+      when: create_packages | bool and source_package_result.stdout_lines is defined
+
+    - name: Display source package creation errors
+      debug:
+        var: source_package_result.stderr_lines
+      when: create_packages | bool and source_package_result.stderr_lines is defined
+
+    - name: Display DEB package creation results
+      debug:
+        var: deb_package_result.stdout_lines
+      when: create_packages | bool and ansible_facts['os_family'] == "Debian" and deb_package_result.stdout_lines is defined
+
+    - name: Display DEB package creation errors
+      debug:
+        var: deb_package_result.stderr_lines
+      when: create_packages | bool and ansible_facts['os_family'] == "Debian" and deb_package_result.stderr_lines is defined
+
+    - name: Display RPM package creation results
+      debug:
+        var: rpm_package_result.stdout_lines
+      when: create_packages | bool and ansible_facts['os_family'] == "RedHat" and rpm_package_result.stdout_lines is defined
+
+    - name: List created packages
+      find:
+        paths: "{{ item }}"
+        patterns:
+          - "*.deb"
+          - "*.rpm"
+          - "*.dmg"
+          - "*.pkg"
+          - "*.tar.gz"
+          - "*.zip"
+          - "*-src.tar.gz"
+          - "*-src.zip"
+        excludes: "*.tar.Z"
+      loop:
+        - "{{ project_dir }}/build"
+        - "{{ project_dir }}/dist"
+      register: created_packages
+      when: create_packages | bool
+
+    - name: List created source packages
+      find:
+        paths: "{{ item }}"
+        patterns:
+          - "*-src.tar.gz"
+          - "*-src.zip"
+      loop:
+        - "{{ project_dir }}/build"
+        - "{{ project_dir }}/dist"
+      register: created_source_packages
+      when: create_packages | bool
+      
+    - name: Flatten binary package list
+      set_fact:
+        all_packages: "{{ created_packages.results | map(attribute='files') | flatten | list }}"
+      when: create_packages | bool
+
+    - name: Flatten source package list
+      set_fact:
+        all_source_packages: "{{ created_source_packages.results | map(attribute='files') | flatten | list }}"
+      when: create_packages | bool
+
+    - name: Display created binary packages
+      debug:
+        msg: "Binary Package: {{ item.path }} ({{ item.size | default('N/A') }} bytes)"
+      loop: "{{ all_packages | default([]) }}"
+      when: create_packages | bool
+
+    - name: Display created source packages
+      debug:
+        msg: "Source Package: {{ item.path }} ({{ item.size | default('N/A') }} bytes)"
+      loop: "{{ all_source_packages | default([]) }}"
+      when: create_packages | bool
+
+    - name: Organize packages into centralized directory
+      shell: "{{ project_dir }}/automation/ansible/scripts/organize-packages.sh"
+      args:
+        chdir: "{{ project_dir }}"
+      register: organize_result
+      failed_when: false
+      when: create_packages | bool
+
+    - name: Display package organization results
+      debug:
+        msg: "{{ organize_result.stdout_lines | default([]) }}"
+      when: create_packages | bool and organize_result.stdout_lines is defined
+
+    - name: Get build artifacts info
+      stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ project_dir }}/build/simple-nfsd"
+      register: artifacts
+
+    - name: Display build artifacts
+      debug:
+        msg: "{{ item.stat.path }} - Size: {{ item.stat.size | default('N/A') }} bytes, Exists: {{ item.stat.exists }}"
+      loop: "{{ artifacts.results }}"
+
+    - name: Build summary
+      debug:
+        msg:
+          - "=== Build Summary for {{ inventory_hostname }} ==="
+          - "Build completed successfully"
+          - "Binary location: {{ project_dir }}/build/simple-nfsd"
+          - "Build type: {{ build_type }}"
+          - "Tests: {{ 'Passed' if (run_tests | bool and test_result.rc == 0) else 'Skipped or Failed' }}"
