@@ -163,6 +163,135 @@ move_packages() {
     return 0
 }
 
+
+# Rename packages to standardized format: {project}-{version}-{platform}-{distro}-{arch}.{ext}
+rename_packages() {
+    print_step "Renaming packages to standardized format..."
+    
+    if [[ ! -d "$VERSION_DIR" ]]; then
+        print_warning "Version directory not found: $VERSION_DIR"
+        return 1
+    fi
+    
+    local renamed=0
+    
+    # Process each package file
+    while IFS= read -r -d '' file; do
+        if [[ ! -f "$file" ]]; then
+            continue
+        fi
+        
+        local filename=$(basename "$file")
+        local dirname=$(dirname "$file")
+        local new_name=""
+        
+        # Extract version from directory name (v0.2.1 -> 0.2.1)
+        local version="${VERSION#v}"
+        
+        # Determine new name based on file type and current name
+        if [[ "$filename" =~ \.deb$ ]]; then
+            # DEB: simple-tftpd-0.2.1-linux-debian-amd64.deb
+            # CPack might create: simple-tftpd-0.2.1-linux-debian-amd64_amd64.deb
+            # Remove duplicate architecture suffix if present
+            if [[ "$filename" =~ _amd64\.deb$ ]] || [[ "$filename" =~ _arm64\.deb$ ]] || [[ "$filename" =~ _armhf\.deb$ ]]; then
+                new_name="${filename/_amd64.deb/-amd64.deb}"
+                new_name="${new_name/_arm64.deb/-arm64.deb}"
+                new_name="${new_name/_armhf.deb/-armhf.deb}"
+            elif [[ "$filename" =~ -amd64\.deb$ ]] || [[ "$filename" =~ -arm64\.deb$ ]] || [[ "$filename" =~ -armhf\.deb$ ]]; then
+                # Already in correct format
+                continue
+            else
+                # Try to extract architecture and rebuild name
+                if [[ "$filename" =~ ${PROJECT_NAME}-${version}-(.*)\.deb ]]; then
+                    local rest="${BASH_REMATCH[1]}"
+                    # If architecture is missing, try to detect from system
+                    local arch="amd64"
+                    if command -v dpkg-architecture &> /dev/null; then
+                        arch=$(dpkg-architecture -qDEB_BUILD_ARCH 2>/dev/null || echo "amd64")
+                    fi
+                    new_name="${PROJECT_NAME}-${version}-linux-debian-${arch}.deb"
+                fi
+            fi
+        elif [[ "$filename" =~ \.rpm$ ]]; then
+            # RPM: simple-tftpd-0.2.1-linux-generic-amd64.rpm
+            # CPack might create: simple-tftpd-0.2.1-linux-generic-amd64.x86_64.rpm
+            if [[ "$filename" =~ \.x86_64\.rpm$ ]]; then
+                new_name="${filename/.x86_64.rpm/-amd64.rpm}"
+            elif [[ "$filename" =~ \.aarch64\.rpm$ ]]; then
+                new_name="${filename/.aarch64.rpm/-arm64.rpm}"
+            elif [[ "$filename" =~ \.armv7hl\.rpm$ ]]; then
+                new_name="${filename/.armv7hl.rpm/-armhf.rpm}"
+            elif [[ "$filename" =~ -amd64\.rpm$ ]] || [[ "$filename" =~ -arm64\.rpm$ ]] || [[ "$filename" =~ -armhf\.rpm$ ]]; then
+                # Already in correct format
+                continue
+            else
+                # Try to extract and rebuild
+                if [[ "$filename" =~ ${PROJECT_NAME}-${version}-(.*)\.rpm ]]; then
+                    local rest="${BASH_REMATCH[1]}"
+                    local arch="amd64"
+                    if command -v rpm &> /dev/null; then
+                        arch=$(rpm --eval '%{_arch}' 2>/dev/null || echo "amd64")
+                        # Map RPM arch to our format
+                        case "$arch" in
+                            x86_64) arch="amd64" ;;
+                            aarch64) arch="arm64" ;;
+                            armv7hl) arch="armhf" ;;
+                        esac
+                    fi
+                    new_name="${PROJECT_NAME}-${version}-linux-generic-${arch}.rpm"
+                fi
+            fi
+        elif [[ "$filename" =~ \.dmg$ ]]; then
+            # DMG: simple-tftpd-0.2.1-macos-intel.dmg
+            if [[ ! "$filename" =~ -macos-(intel|apple)\.dmg$ ]]; then
+                # Detect architecture
+                local arch="intel"
+                if [[ $(uname -m) == "arm64" ]]; then
+                    arch="apple"
+                fi
+                if [[ "$filename" =~ ${PROJECT_NAME}-${version}-(.*)\.dmg ]]; then
+                    new_name="${PROJECT_NAME}-${version}-macos-${arch}.dmg"
+                fi
+            else
+                continue
+            fi
+        elif [[ "$filename" =~ \.pkg$ ]]; then
+            # PKG: simple-tftpd-0.2.1-macos-intel.pkg
+            if [[ ! "$filename" =~ -macos-(intel|apple)\.pkg$ ]]; then
+                local arch="intel"
+                if [[ $(uname -m) == "arm64" ]]; then
+                    arch="apple"
+                fi
+                if [[ "$filename" =~ ${PROJECT_NAME}-${version}-(.*)\.pkg ]]; then
+                    new_name="${PROJECT_NAME}-${version}-macos-${arch}.pkg"
+                fi
+            else
+                continue
+            fi
+        fi
+        
+        # Rename if we have a new name and it's different
+        if [[ -n "$new_name" ]] && [[ "$filename" != "$new_name" ]]; then
+            local new_path="$dirname/$new_name"
+            if [[ ! -f "$new_path" ]]; then
+                mv "$file" "$new_path"
+                print_package "Renamed: $filename -> $new_name"
+                ((renamed++))
+            else
+                print_info "Skipped rename (target exists): $filename"
+            fi
+        fi
+    done < <(find "$VERSION_DIR" -maxdepth 1 -type f \( -name "*.deb" -o -name "*.rpm" -o -name "*.dmg" -o -name "*.pkg" \) -print0 2>/dev/null)
+    
+    if [[ $renamed -gt 0 ]]; then
+        print_success "Renamed $renamed package(s) to standardized format"
+    else
+        print_info "No packages needed renaming (already in correct format)"
+    fi
+    
+    return 0
+}
+
 list_packages() {
     print_step "Listing packages in centralized directory..."
     
@@ -252,6 +381,8 @@ main() {
     
     # Move packages
     if move_packages; then
+        # Rename packages to standardized format
+        rename_packages
         echo ""
         list_packages
         echo ""

@@ -211,21 +211,73 @@ if(ENABLE_PACKAGING)
         set(CPACK_RPM_PACKAGE_CONFLICTS "ntp")
         set(CPACK_RPM_PACKAGE_PROVIDES "${PROJECT_NAME}")
         
-        # Set package architecture
-        if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-            set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-            set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
-        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
-            set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "arm64")
-            set(CPACK_RPM_PACKAGE_ARCHITECTURE "aarch64")
-        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
-            set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
-            set(CPACK_RPM_PACKAGE_ARCHITECTURE "armv7hl")
+        # Set package architecture and determine architecture string
+            if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+        set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+        set(PACKAGE_ARCH "amd64")
+            elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "arm64")
+        set(CPACK_RPM_PACKAGE_ARCHITECTURE "aarch64")
+        set(PACKAGE_ARCH "arm64")
+            elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
+        set(CPACK_RPM_PACKAGE_ARCHITECTURE "armv7hl")
+        set(PACKAGE_ARCH "armhf")
+            else()
+        set(PACKAGE_ARCH "${CMAKE_SYSTEM_PROCESSOR}")
+            endif()
+
+            # Determine distribution/platform identifier for package naming
+            if(APPLE)
+        # Detect Intel vs Apple Silicon for macOS
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
+            set(PLATFORM_ID "macos-apple")
+        else()
+            set(PLATFORM_ID "macos-intel")
         endif()
-    endif()
-    
-    # Common package settings
-    set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${PLATFORM_NAME}")
+            elseif(UNIX)
+        # Try to detect Linux distribution for proper naming
+        set(PLATFORM_ID "linux-generic")  # Default for RPM-based
+        if(EXISTS "/etc/os-release")
+            file(READ "/etc/os-release" OS_RELEASE)
+            if(OS_RELEASE MATCHES "ID=([^\n]+)")
+                string(REGEX REPLACE ".*ID=([^\n]+).*" "\\1" DISTRO_ID "${OS_RELEASE}")
+                string(STRIP "${DISTRO_ID}" DISTRO_ID)
+                string(TOLOWER "${DISTRO_ID}" DISTRO_ID)
+                string(REPLACE "\"" "" DISTRO_ID "${DISTRO_ID}")
+
+                # Map common distro IDs to package names
+                if(DISTRO_ID MATCHES "debian|ubuntu")
+                    set(PLATFORM_ID "linux-debian")
+                endif()
+            endif()
+        endif()
+            else()
+        set(PLATFORM_ID "${PLATFORM_NAME}")
+            endif()
+        endif()
+
+            # Set package file names with standardized format: {project}-{version}-{platform}-{distro}-{arch}.{ext}
+            # Format matches: simple-tftpd-0.2.1-linux-debian-amd64.deb
+            if(APPLE)
+        # macOS packages: simple-tftpd-0.2.1-macos-intel.dmg / .pkg
+        set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${PLATFORM_ID}")
+            elseif(UNIX)
+        # Linux packages: simple-tftpd-0.2.1-linux-debian-amd64.deb / .rpm
+        # CPack automatically adds architecture for DEB/RPM, so we set the base name
+        set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${PLATFORM_ID}-${PACKAGE_ARCH}")
+
+        # Override DEB and RPM file names to match our format
+        # CPack format: {CPACK_PACKAGE_FILE_NAME}_{CPACK_DEBIAN_PACKAGE_ARCHITECTURE}.deb
+        # We want: {name}-{version}-{platform}-{arch}.deb (architecture already in CPACK_PACKAGE_FILE_NAME)
+        # So we remove architecture from CPACK_DEBIAN_FILE_NAME pattern
+        set(CPACK_DEBIAN_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${PLATFORM_ID}-${PACKAGE_ARCH}")
+        set(CPACK_RPM_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${PLATFORM_ID}-${PACKAGE_ARCH}")
+            else()
+        # Windows and others
+        set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${PLATFORM_NAME}-${PACKAGE_ARCH}")
+            endif()
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
     
     # Component installation
